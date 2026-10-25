@@ -1,0 +1,24 @@
+What the MIT licence in LICENSE covers, and what it doesn't.
+
+The MIT licence covers this project's own work. These parts of the
+repository are someone else's, and keep their own terms:
+
+- Data and rules from the Elden Ring apworld 0.1.3, Copyright (c) 2026
+  Bedrock, under its Modified MIT License in src/data/apworld-licence.txt.
+  That licence forbids relicensing or selling any substantial portion of it
+  without Bedrock's written permission, so these files are not under MIT.
+  Each one opens with a notice saying so: the bosses table, the location
+  groups, the region names and graph, the ported rules, the key-spot names
+  and the All Bosses preset in src/data, and the test fixtures built from the
+  apworld's seeds.
+
+- The game's icons in src/icons, Elden Ring's art, copyright FromSoftware,
+  Inc. and Bandai Namco Entertainment Inc., copied from the Elden Ring wiki
+  (https://eldenring.wiki.gg) and shown under fair use. They are not licensed
+  by this project. Each file's source is in src/icons/credits.txt.
+
+- The fonts in src/fonts, EB Garamond and Fira Code, under the SIL Open Font
+  License 1.1 in src/fonts/licences.
+
+The built site also ships Lit (BSD-3-Clause), zustand (MIT) and immer (MIT).
+Every licence the built site ships with is gathered into its licences.txt.

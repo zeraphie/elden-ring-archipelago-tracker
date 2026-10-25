@@ -65,6 +65,19 @@ bun run places <locations.py>
 bun run key-spots <apworld folder> # also writes a test fixture
 ```
 
+## AI disclosure
+
+Claude Code was used to write the code, alongside my [ai-usage](https://github.com/zeraphie/ai-usage) plugin for Claude. The route I have for working with it is:
+
+- A detailed research step - led from my own experience/intuition as a developer of 13+ years, and a place to compile all that research into the project
+- An ADR is made to list all the questions and decisions made for the project - decisions vary from as wide reaching as what architecture/libraries to use, to the smallest of details like how much border radius should be used for a button
+- A mockup phase is done to test the ui/ux - I decide on a design language to use, in this case I wanted something Elden Ring flavoured, and all of the interactions/layout etc
+- A plan is made for implementation, stopping at each step listing questions, changes, reuse and a QA step handled by myself
+
+Places and key spots were drafted by Claude from [Bedrock's apworld](https://github.com/thefifthmatt/SoulsRandomizers/releases)'s codes, and then cross referenced and checked individually by myself against the [Elden Ring wiki](https://eldenring.wiki.gg/), [FextraLife](https://eldenring.wiki.fextralife.com/Elden_Ring_Wiki), [Mapgenie](https://mapgenie.io/elden-ring/maps/the-lands-between) and my own knowledge of the game. Item names come from the room's data package, and boss names from the apworld's `bosses.py`.
+
+I go through every change made via Claude Code myself, so that I don't have gaps in my own knowledge of the project, and can own the codebase as well as support it.
+
 ## Credits
 
 - This repo uses some [images](./src/icons/credits.txt) from the [Elden Ring Wiki](https://eldenring.wiki.gg/), most of which it tags as copyrighted game content (by FromSoftware and Bandai Namco) used under fair use.
@@ -72,3 +85,5 @@ bun run key-spots <apworld folder> # also writes a test fixture
 - This repo uses data from the [Elden Ring apworld](./src/data/apworld-licence.txt), copyright (c) 2026 Bedrock, under its Modified MIT License.
 - This repo uses fonts under the SIL Open Font License 1.1 in [`src/fonts/licences`](./src/fonts/licences)
 - This repo is built with Lit (BSD-3-Clause), zustand (MIT) and immer (MIT), with archipelago.js (MIT) for the protocol's types.
+
+This repo's code is under the MIT licence in [LICENSE](./LICENSE), [NOTICE](./NOTICE) says what it doesn't cover, and each built copy of the site carries every licence it ships in [licences.txt](https://izelya.me/elden-ring-archipelago-tracker/licences.txt).
