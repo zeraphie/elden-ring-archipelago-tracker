@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Elden Ring Archipelago Tracker</title>
+    <style>
+      /* The ground and the loader, the only things on screen until the page
+         is ready. Their colours are written out rather than taken from the
+         tokens: the stylesheets arrive with the module, and this has to be
+         painted before that, or a loader is just another thing to load. They
+         are the ground, heading-ink and error tokens of src/tokens.css. */
+      html {
+        background: #0e0d0b;
+      }
+      #loading {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        /* The same ground behind the two halves. On an odd number of pixels
+           they meet on half of one, and the hairline that leaves would show
+           the page through it. It goes the moment they part. */
+        background: #0e0d0b;
+      }
+      #loading .marks {
+        position: absolute;
+        width: 0;
+        height: 0;
+      }
+      /* Two halves of one curtain. Each is half the window wide and hides
+         what falls outside it. */
+      #loading .half {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 50%;
+        overflow: hidden;
+        background: #0e0d0b;
+        transition: transform 520ms cubic-bezier(0.65, 0, 0.35, 1);
+      }
+      #loading .left {
+        left: 0;
+      }
+      #loading .right {
+        right: 0;
+      }
+      /* Inside each half, the whole window, so the mark lands in the same
+         place on both sides and the seam falls down the middle of it. */
+      #loading .pane {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 200%;
+      }
+      #loading .left .pane {
+        left: 0;
+      }
+      #loading .right .pane {
+        right: 0;
+      }
+      /* A little above the middle, leaving room under it for the room's
+         card. */
+      #loading .mark {
+        position: absolute;
+        left: 50%;
+        top: 36%;
+        width: min(72vw, 640px);
+        transform: translate(-50%, -50%);
+      }
+      #loading .mark svg {
+        display: block;
+        width: 100%;
+        overflow: visible;
+      }
+      /* pathLength makes each outline one unit long whatever its real
+         length, so every letter draws at one pace, each a beat after the one
+         before. The draw runs once, from the first paint, and holds: a mark
+         cut off half-drawn reads as a fault rather than a wait. It runs on
+         the main thread, so the app's code waits to run until it is done. */
+      #loading use {
+        fill: none;
+        stroke: #e8dcc0;
+        stroke-width: 26;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: draw 700ms ease-in-out forwards;
+        animation-delay: calc(var(--i) * 60ms);
+      }
+      /* Under "Tracker", from the first paint: a bar a third of its width,
+         sweeping from end to end and back for as long as the wait lasts.
+         Placed by the mark's own proportions, and as thick as the letters'
+         stroke. Transform only, which the compositor animates on its own, so
+         code running on the main thread can't stall it. */
+      #loading .wait {
+        position: absolute;
+        left: 60.64%;
+        top: 90.83%;
+        width: 38.97%;
+        height: 1.2%;
+        overflow: hidden;
+      }
+      #loading .sweep {
+        width: calc(100% / 3);
+        height: 100%;
+        background: #e8dcc0;
+        animation: sweep 1200ms ease-in-out infinite alternate;
+      }
+      /* A load that failed: the bar gives way to what to do, where the
+         room's card will sit. */
+      #loading .trouble {
+        display: none;
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        top: calc(36% + min(72vw, 640px) * 0.16359 / 2 + 36px);
+        margin: 0;
+        text-align: center;
+        font:
+          1rem/1.5 "EB Garamond",
+          Georgia,
+          serif;
+        color: #e0a08a;
+      }
+      #loading[data-state="failed"] .wait {
+        display: none;
+      }
+      #loading[data-state="failed"] .trouble {
+        display: block;
+      }
+      /* Waiting on the person at the room's card, with nothing loading: the
+         bar fades until there is. */
+      #loading[data-state="asking"] .wait {
+        opacity: 0;
+        transition: opacity 200ms ease;
+      }
+      #loading .sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+      /* Opened: the halves leave by their own sides, each with its share of
+         the letters. The curtain module takes the node off after the same
+         length. */
+      #loading.done {
+        pointer-events: none;
+        background: transparent;
+      }
+      #loading.done .left {
+        transform: translateX(-100%);
+      }
+      #loading.done .right {
+        transform: translateX(100%);
+      }
+      #loading.done .wait {
+        display: none;
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      /* A third of the track wide, so twice its own width is the far end. */
+      @keyframes sweep {
+        to {
+          transform: translateX(200%);
+        }
+      }
+      /* Asked for stillness: the mark stands drawn, the bar stands whole, and
+         the curtain fades rather than sliding. */
+      @media (prefers-reduced-motion: reduce) {
+        #loading use,
+        #loading .sweep {
+          animation: none;
+        }
+        #loading use {
+          stroke-dashoffset: 0;
+        }
+        #loading .sweep {
+          width: 100%;
+        }
+        #loading .half {
+          transition: opacity 200ms ease;
+        }
+        #loading.done .half {
+          transform: none;
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- The name in Cinzel Decorative 700 as outlines rather than as text, so
+         the loader owes nothing to a face that has yet to load, and no Cinzel
+         file ships. Lifted once with fontkit, set as the face kerns it, line
+         over line; a new face or a new name means lifting them again.
+
+         The mark is drawn once and worn twice: each half of the curtain holds
+         the whole window and clips it to its own side, so the seam falls down
+         the middle of the letters and each side carries its own half away. -->
+    <div id="loading">
+      <svg class="marks" aria-hidden="true">
+        <defs>
+          <g id="mark-0" transform="translate(3192.5 0)">
+            <path
+              pathLength="1"
+              d="M55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -630Q116 -665 86 -682Q71 -690 55 -690L42 -690L42 -700L323 -700Q367 -700 400 -707Q433 -714 443 -718L443 -543L432 -543L432 -555Q433 -600 406.5 -627.5Q380 -655 335 -657L269 -657L269 -366L428 -366Q465 -367 489 -391.5Q513 -416 513 -452L513 -461L522 -461L522 -230L513 -230L513 -238Q513 -275 489 -299Q465 -323 429 -324L269 -324L269 -43L464 -43Q537 -43 586.5 -85Q636 -127 660 -204L670 -204L623 0L42 0L42 -10Z"
+            />
+          </g>
+          <g id="mark-1" transform="translate(3858.5 0)">
+            <path
+              pathLength="1"
+              d="M55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -627Q118 -653 99.5 -671.5Q81 -690 55 -690L42 -690L42 -700L346 -700L345 -690L333 -690Q307 -690 288 -671.5Q269 -653 269 -627L269 -43L400 -43Q473 -43 522.5 -85Q572 -127 596 -204L606 -204L560 0L42 0L42 -10Z"
+            />
+          </g>
+          <g id="mark-2" transform="translate(4468.5 0)">
+            <path
+              pathLength="1"
+              d="M405 -700Q582 -700 685 -606Q788 -512 788 -350Q788 -188 685 -94Q582 0 405 0L42 0L42 -10L55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -633Q116 -657 98 -673.5Q80 -690 55 -690L42 -690L42 -700L405 -700ZM392 -42Q464 -42 516.5 -79.5Q569 -117 597 -186.5Q625 -256 625 -350Q625 -492 562.5 -575Q500 -658 392 -658L269 -658L269 -42Z"
+            />
+          </g>
+          <g id="mark-3" transform="translate(5276.5 0)">
+            <path
+              pathLength="1"
+              d="M55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -630Q116 -665 86 -682Q71 -690 55 -690L42 -690L42 -700L425 -700Q456 -700 493 -706Q530 -712 545 -718L545 -543L535 -543L535 -555Q535 -600 508.5 -627.5Q482 -655 437 -657L269 -657L269 -366L401 -366Q438 -367 462 -391.5Q486 -416 486 -452L486 -461L496 -461L496 -230L486 -230L486 -238Q486 -288 446 -312Q426 -323 402 -324L269 -324L269 -43L400 -43Q473 -43 522.5 -85Q572 -127 596 -204L606 -204L560 0L42 0L42 -10Z"
+            />
+          </g>
+          <g id="mark-4" transform="translate(5907.5 0)">
+            <path
+              pathLength="1"
+              d="M817 -690Q792 -690 774 -672.5Q756 -655 755 -630L755 -114Q755 -47 764 -1L767 14L758 14L253 -467L253 -70Q253 -45 271 -27.5Q289 -10 314 -10L333 -10L333 0L30 0L30 -10L48 -10Q74 -10 92 -27.5Q110 -45 110 -71L110 -590Q110 -656 101 -700L99 -715L108 -715L613 -234L613 -629Q612 -655 594 -672.5Q576 -690 551 -690L533 -690L533 -700L836 -700L836 -690Z"
+            />
+          </g>
+          <g id="mark-5" transform="translate(7022.5 0)">
+            <path
+              pathLength="1"
+              d="M1085 170Q1007 209 919 209Q841 209 777 185Q639 134 542 -14Q517 -50 449 -152Q381 -254 361 -282Q326 -337 305 -342L305 -352Q306 -352 307.5 -352Q309 -352 311 -352Q313 -352 315 -352Q317 -352 320 -352Q323 -352 325 -352Q376 -352 419 -375Q484 -411 484 -508Q484 -579 444 -617.5Q404 -656 348 -656L272 -656L272 -73Q272 -47 291 -28.5Q310 -10 336 -10L349 -10L349 0L45 0L45 -10L58 -10Q83 -10 102 -28Q121 -46 122 -72L122 -627Q121 -653 102.5 -671.5Q84 -690 58 -690L45 -690L45 -700L388 -700Q517 -700 588 -641Q644 -595 644 -511Q644 -427 589.5 -374.5Q535 -322 465 -322Q459 -322 452 -323Q493 -301 520.5 -274Q548 -247 568.5 -223Q589 -199 603.5 -180.5Q618 -162 642 -131.5Q666 -101 692 -68Q718 -35 749.5 -0.5Q781 34 819.5 65Q858 96 898 116Q983 159 1085 160Z"
+            />
+          </g>
+          <g id="mark-6" transform="translate(7753.5 0)">
+            <path
+              pathLength="1"
+              d="M55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -628Q118 -654 99.5 -672Q81 -690 55 -690L42 -690L42 -700L346 -700L345 -690L333 -690Q307 -690 288 -672Q269 -654 269 -628L269 -73Q269 -47 288 -28.5Q307 -10 333 -10L345 -10L346 0L42 0L42 -10Z"
+            />
+          </g>
+          <g id="mark-7" transform="translate(8139.5 0)">
+            <path
+              pathLength="1"
+              d="M817 -690Q792 -690 774 -672.5Q756 -655 755 -630L755 -114Q755 -47 764 -1L767 14L758 14L253 -467L253 -70Q253 -45 271 -27.5Q289 -10 314 -10L333 -10L333 0L30 0L30 -10L48 -10Q74 -10 92 -27.5Q110 -45 110 -71L110 -590Q110 -656 101 -700L99 -715L108 -715L613 -234L613 -629Q612 -655 594 -672.5Q576 -690 551 -690L533 -690L533 -700L836 -700L836 -690Z"
+            />
+          </g>
+          <g id="mark-8" transform="translate(8987.5 0)">
+            <path
+              pathLength="1"
+              d="M819 -325L804 -325Q780 -325 767 -313.5Q754 -302 754 -280L754 -115Q715 -64 625 -25Q535 14 423 14Q252 14 148.5 -84.5Q45 -183 45 -350.5Q45 -518 148.5 -616Q252 -714 429 -714Q509 -714 584 -698.5Q659 -683 705 -660L707 -488L698 -488Q672 -585 609 -628.5Q546 -672 459 -672Q338 -672 273 -585.5Q208 -499 208 -348.5Q208 -198 267.5 -113Q327 -28 436 -28Q515 -28 568 -73Q594 -96 606 -127L606 -280Q606 -302 592.5 -313.5Q579 -325 554 -325L538 -325L538 -335L819 -335Z"
+            />
+          </g>
+          <g id="mark-9" transform="translate(0 1120)">
+            <path
+              pathLength="1"
+              d="M965 183Q856 238 744 201Q625 163 539 39Q493 -27 460 -114L428 -199L192 -199L139 -73Q134 -60 134 -52Q134 -44 137.5 -34.5Q141 -25 152.5 -17.5Q164 -10 178 -10L186 -10L186 0L-28 0L-28 -10L-19 -10Q4 -10 26.5 -23.5Q49 -37 64 -64L287 -573Q248 -661 204 -694Q167 -722 133.5 -722Q100 -722 71 -712L69 -722Q141 -759 207 -759Q289 -759 354 -695Q418 -632 467 -513L612 -155Q694 48 780 124Q815 155 852 167Q889 179 914.5 179Q940 179 964 173ZM209 -242L413 -242L343 -427Q338 -441 329 -465.5Q320 -490 317 -500Z"
+            />
+          </g>
+          <g id="mark-10" transform="translate(705 1120)">
+            <path
+              pathLength="1"
+              d="M318 -656L275 -656Q273 -656 272 -656L272 -73Q273 -36 304 -18Q319 -10 336 -10L349 -10L349 0L45 0L45 -10L58 -10Q94 -10 113 -41Q121 -55 122 -72L122 -627Q121 -653 102.5 -671.5Q84 -690 58 -690L45 -690L45 -700L388 -700Q485 -700 552 -658Q586 -637 606 -599.5Q626 -562 626 -514.5Q626 -467 609.5 -427Q593 -387 554.5 -357Q516 -327 462 -321Q520 -302 564 -233Q672 -60 724 -27Q750 -11 789 -10L789 0L691 0Q606 0 549 -23.5Q492 -47 456 -104Q438 -133 410 -191.5Q382 -250 373 -275Q346 -335 305 -342L305 -352L336 -352Q381 -352 415.5 -379Q450 -406 462 -467Q466 -488 466 -500Q466 -582 433 -618.5Q400 -655 348 -656Q338 -656 318 -656Z"
+            />
+          </g>
+          <g id="mark-11" transform="translate(1421 1120)">
+            <path
+              pathLength="1"
+              d="M458 13.5Q458 13.5 361.5 13.3Q265 13 155 -84Q45 -181 45 -350Q45 -519 154 -616.5Q263 -714 453 -714Q598 -714 702 -660L704 -488L696 -488Q645 -672 463 -672Q345 -672 276.5 -586.5Q208 -501 208 -353Q208 -205 273.5 -118Q339 -31 451 -28Q567 -28 628 -86Q690 -146 714 -292L722 -292L732 -120Q651 14 458 13.5Z"
+            />
+          </g>
+          <g id="mark-12" transform="translate(2198 1120)">
+            <path
+              pathLength="1"
+              d="M529 -10Q555 -10 569 -23Q592 -46 593 -72L593 -327L269 -327L269 -73Q269 -47 288 -28.5Q307 -10 333 -10L345 -10L346 0L42 0L42 -10L55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -628Q118 -654 99.5 -672Q81 -690 55 -690L42 -690L42 -700L346 -700L345 -690L333 -690Q307 -690 288 -672Q269 -654 269 -628L269 -370L593 -370L593 -628Q592 -654 573.5 -672Q555 -690 529 -690L516 -690L516 -700L820 -700L820 -690L807 -690Q781 -690 762 -671.5Q743 -653 743 -627L743 -73Q743 -47 762 -28.5Q781 -10 807 -10L820 -10L820 0L516 0L516 -10Z"
+            />
+          </g>
+          <g id="mark-13" transform="translate(3059 1120)">
+            <path
+              pathLength="1"
+              d="M55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -628Q118 -654 99.5 -672Q81 -690 55 -690L42 -690L42 -700L346 -700L345 -690L333 -690Q307 -690 288 -672Q269 -654 269 -628L269 -73Q269 -47 288 -28.5Q307 -10 333 -10L345 -10L346 0L42 0L42 -10Z"
+            />
+          </g>
+          <g id="mark-14" transform="translate(3445 1120)">
+            <path
+              pathLength="1"
+              d="M609 -413Q575 -335 483 -305Q456 -296 433 -296Q362 -296 306 -333L306 -343Q381 -341 427 -392Q468 -436 468 -507Q468 -616 392 -648Q368 -658 339 -658L272 -658L272 -73Q272 -47 291 -28.5Q310 -10 336 -10L349 -10L349 0L45 0L45 -10L58 -10Q84 -10 102.5 -28.5Q121 -47 122 -73L122 -632Q118 -666 88 -682Q74 -690 58 -690L45 -690L45 -700L379 -700Q560 -700 611 -585Q627 -547 627 -500.5Q627 -454 609 -413Z"
+            />
+          </g>
+          <g id="mark-15" transform="translate(4098 1120)">
+            <path
+              pathLength="1"
+              d="M55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -630Q116 -665 86 -682Q71 -690 55 -690L42 -690L42 -700L425 -700Q456 -700 493 -706Q530 -712 545 -718L545 -543L535 -543L535 -555Q535 -600 508.5 -627.5Q482 -655 437 -657L269 -657L269 -366L401 -366Q438 -367 462 -391.5Q486 -416 486 -452L486 -461L496 -461L496 -230L486 -230L486 -238Q486 -288 446 -312Q426 -323 402 -324L269 -324L269 -43L400 -43Q473 -43 522.5 -85Q572 -127 596 -204L606 -204L560 0L42 0L42 -10Z"
+            />
+          </g>
+          <g id="mark-16" transform="translate(4725 1120)">
+            <path
+              pathLength="1"
+              d="M55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -627Q118 -653 99.5 -671.5Q81 -690 55 -690L42 -690L42 -700L346 -700L345 -690L333 -690Q307 -690 288 -671.5Q269 -653 269 -627L269 -43L400 -43Q473 -43 522.5 -85Q572 -127 596 -204L606 -204L560 0L42 0L42 -10Z"
+            />
+          </g>
+          <g id="mark-17" transform="translate(5341 1120)">
+            <path
+              pathLength="1"
+              d="M737 -10L746 -10L746 0L427 0L427 -10L436 -10Q458 -10 468.5 -23.5Q479 -37 479 -49Q479 -61 474 -73L425 -196L191 -196L139 -73Q134 -60 134 -48.5Q134 -37 144.5 -23.5Q155 -10 178 -10L186 -10L186 0L-28 0L-28 -10L-19 -10Q4 -10 27 -24Q50 -38 65 -66L296 -589Q343 -688 346 -720L355 -720L652 -68Q667 -39 690 -24.5Q713 -10 737 -10ZM208 -238L408 -238L311 -484Z"
+            />
+          </g>
+          <g id="mark-18" transform="translate(6025 1120)">
+            <path
+              pathLength="1"
+              d="M819 -325L804 -325Q780 -325 767 -313.5Q754 -302 754 -280L754 -115Q715 -64 625 -25Q535 14 423 14Q252 14 148.5 -84.5Q45 -183 45 -350.5Q45 -518 148.5 -616Q252 -714 429 -714Q509 -714 584 -698.5Q659 -683 705 -660L707 -488L698 -488Q672 -585 609 -628.5Q546 -672 459 -672Q338 -672 273 -585.5Q208 -499 208 -348.5Q208 -198 267.5 -113Q327 -28 436 -28Q515 -28 568 -73Q594 -96 606 -127L606 -280Q606 -302 592.5 -313.5Q579 -325 554 -325L538 -325L538 -335L819 -335Z"
+            />
+          </g>
+          <g id="mark-19" transform="translate(6861 1120)">
+            <path
+              pathLength="1"
+              d="M440 -714Q625 -714 734 -616Q843 -518 843 -350Q843 -182 734 -84Q625 14 440 14Q255 14 146 -84Q37 -182 37 -350Q37 -461 86.5 -543.5Q136 -626 227 -670Q318 -714 440 -714ZM265.5 -114.5Q265.5 -114.5 297.8 -71.2Q330 -28 440 -28Q550 -28 614.5 -114.5Q679 -201 679 -350Q679 -448 650 -521Q621 -594 567 -633Q513 -672 440 -672Q330 -672 265.5 -585.5Q201 -499 201 -350Q201 -201 265.5 -114.5Z"
+            />
+          </g>
+          <g id="mark-20" transform="translate(7994 1120)">
+            <path
+              pathLength="1"
+              d="M-26 -467Q-75 -514 -75 -568Q-75 -610 -48 -641Q3 -701 95 -701L566 -701Q610 -702 643 -708.5Q676 -715 685 -719L685 -545L675 -545L675 -557Q675 -602 648 -630Q621 -658 575 -659L440 -659L440 -72Q442 -36 473 -18Q487 -10 504 -10L517 -10L517 0L213 0L213 -10L226 -10Q252 -10 270.5 -28Q289 -46 290 -71L290 -659L95 -659Q54 -659 23 -644Q-40 -614 -40 -550Q-40 -512 -16 -472Z"
+            />
+          </g>
+          <g id="mark-21" transform="translate(8692 1120)">
+            <path
+              pathLength="1"
+              d="M318 -656L275 -656Q273 -656 272 -656L272 -73Q273 -36 304 -18Q319 -10 336 -10L349 -10L349 0L45 0L45 -10L58 -10Q94 -10 113 -41Q121 -55 122 -72L122 -627Q121 -653 102.5 -671.5Q84 -690 58 -690L45 -690L45 -700L388 -700Q485 -700 552 -658Q586 -637 606 -599.5Q626 -562 626 -514.5Q626 -467 609.5 -427Q593 -387 554.5 -357Q516 -327 462 -321Q520 -302 564 -233Q672 -60 724 -27Q750 -11 789 -10L789 0L691 0Q606 0 549 -23.5Q492 -47 456 -104Q438 -133 410 -191.5Q382 -250 373 -275Q346 -335 305 -342L305 -352L336 -352Q381 -352 415.5 -379Q450 -406 462 -467Q466 -488 466 -500Q466 -582 433 -618.5Q400 -655 348 -656Q338 -656 318 -656Z"
+            />
+          </g>
+          <g id="mark-22" transform="translate(9426 1120)">
+            <path
+              pathLength="1"
+              d="M737 -10L746 -10L746 0L427 0L427 -10L436 -10Q458 -10 468.5 -23.5Q479 -37 479 -49Q479 -61 474 -73L425 -196L191 -196L139 -73Q134 -60 134 -48.5Q134 -37 144.5 -23.5Q155 -10 178 -10L186 -10L186 0L-28 0L-28 -10L-19 -10Q4 -10 27 -24Q50 -38 65 -66L296 -589Q343 -688 346 -720L355 -720L652 -68Q667 -39 690 -24.5Q713 -10 737 -10ZM208 -238L408 -238L311 -484Z"
+            />
+          </g>
+          <g id="mark-23" transform="translate(10110 1120)">
+            <path
+              pathLength="1"
+              d="M458 13.5Q458 13.5 361.5 13.3Q265 13 155 -84Q45 -181 45 -350Q45 -519 154 -616.5Q263 -714 453 -714Q598 -714 702 -660L704 -488L696 -488Q645 -672 463 -672Q345 -672 276.5 -586.5Q208 -501 208 -353Q208 -205 273.5 -118Q339 -31 451 -28Q567 -28 628 -86Q690 -146 714 -292L722 -292L732 -120Q651 14 458 13.5Z"
+            />
+          </g>
+          <g id="mark-24" transform="translate(10887 1120)">
+            <path
+              pathLength="1"
+              d="M55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -628Q118 -664 86 -682Q72 -690 55 -690L42 -690L42 -700L346 -700L345 -690L333 -690Q297 -690 278 -659Q269 -645 269 -628L269 -73Q269 -47 288 -28.5Q307 -10 333 -10L345 -10L346 0L42 0L42 -10ZM777 0L695 0Q543 0 480 -83Q301 -326 301 -330L538 -644Q546 -654 546 -662Q546 -670 543 -676Q535 -691 515 -691L505 -691L505 -700L734 -700L734 -691L730 -691Q663 -691 621 -643L426 -412L675 -72Q721 -12 777 -10Z"
+            />
+          </g>
+          <g id="mark-25" transform="translate(11643 1120)">
+            <path
+              pathLength="1"
+              d="M55 -10Q81 -10 99.5 -28.5Q118 -47 119 -73L119 -630Q116 -665 86 -682Q71 -690 55 -690L42 -690L42 -700L425 -700Q456 -700 493 -706Q530 -712 545 -718L545 -543L535 -543L535 -555Q535 -600 508.5 -627.5Q482 -655 437 -657L269 -657L269 -366L401 -366Q438 -367 462 -391.5Q486 -416 486 -452L486 -461L496 -461L496 -230L486 -230L486 -238Q486 -288 446 -312Q426 -323 402 -324L269 -324L269 -43L400 -43Q473 -43 522.5 -85Q572 -127 596 -204L606 -204L560 0L42 0L42 -10Z"
+            />
+          </g>
+          <g id="mark-26" transform="translate(12270 1120)">
+            <path
+              pathLength="1"
+              d="M318 -656L275 -656Q273 -656 272 -656L272 -73Q273 -36 304 -18Q319 -10 336 -10L349 -10L349 0L45 0L45 -10L58 -10Q94 -10 113 -41Q121 -55 122 -72L122 -627Q121 -653 102.5 -671.5Q84 -690 58 -690L45 -690L45 -700L388 -700Q485 -700 552 -658Q586 -637 606 -599.5Q626 -562 626 -514.5Q626 -467 609.5 -427Q593 -387 554.5 -357Q516 -327 462 -321Q520 -302 564 -233Q672 -60 724 -27Q750 -11 789 -10L789 0L691 0Q606 0 549 -23.5Q492 -47 456 -104Q438 -133 410 -191.5Q382 -250 373 -275Q346 -335 305 -342L305 -352L336 -352Q381 -352 415.5 -379Q450 -406 462 -467Q466 -488 466 -500Q466 -582 433 -618.5Q400 -655 348 -656Q338 -656 318 -656Z"
+            />
+          </g>
+        </defs>
+      </svg>
+      <div class="half left" aria-hidden="true">
+        <div class="pane">
+          <div class="mark">
+            <svg viewBox="-80 -770 13191 2157.9">
+              <use href="#mark-0" style="--i: 0" />
+              <use href="#mark-1" style="--i: 1" />
+              <use href="#mark-2" style="--i: 2" />
+              <use href="#mark-3" style="--i: 3" />
+              <use href="#mark-4" style="--i: 4" />
+              <use href="#mark-5" style="--i: 5" />
+              <use href="#mark-6" style="--i: 6" />
+              <use href="#mark-7" style="--i: 7" />
+              <use href="#mark-8" style="--i: 8" />
+              <use href="#mark-9" style="--i: 9" />
+              <use href="#mark-10" style="--i: 10" />
+              <use href="#mark-11" style="--i: 11" />
+              <use href="#mark-12" style="--i: 12" />
+              <use href="#mark-13" style="--i: 13" />
+              <use href="#mark-14" style="--i: 14" />
+              <use href="#mark-15" style="--i: 15" />
+              <use href="#mark-16" style="--i: 16" />
+              <use href="#mark-17" style="--i: 17" />
+              <use href="#mark-18" style="--i: 18" />
+              <use href="#mark-19" style="--i: 19" />
+              <use href="#mark-20" style="--i: 20" />
+              <use href="#mark-21" style="--i: 21" />
+              <use href="#mark-22" style="--i: 22" />
+              <use href="#mark-23" style="--i: 23" />
+              <use href="#mark-24" style="--i: 24" />
+              <use href="#mark-25" style="--i: 25" />
+              <use href="#mark-26" style="--i: 26" />
+            </svg>
+            <div class="wait"><div class="sweep"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="half right" aria-hidden="true">
+        <div class="pane">
+          <div class="mark">
+            <svg viewBox="-80 -770 13191 2157.9">
+              <use href="#mark-0" style="--i: 0" />
+              <use href="#mark-1" style="--i: 1" />
+              <use href="#mark-2" style="--i: 2" />
+              <use href="#mark-3" style="--i: 3" />
+              <use href="#mark-4" style="--i: 4" />
+              <use href="#mark-5" style="--i: 5" />
+              <use href="#mark-6" style="--i: 6" />
+              <use href="#mark-7" style="--i: 7" />
+              <use href="#mark-8" style="--i: 8" />
+              <use href="#mark-9" style="--i: 9" />
+              <use href="#mark-10" style="--i: 10" />
+              <use href="#mark-11" style="--i: 11" />
+              <use href="#mark-12" style="--i: 12" />
+              <use href="#mark-13" style="--i: 13" />
+              <use href="#mark-14" style="--i: 14" />
+              <use href="#mark-15" style="--i: 15" />
+              <use href="#mark-16" style="--i: 16" />
+              <use href="#mark-17" style="--i: 17" />
+              <use href="#mark-18" style="--i: 18" />
+              <use href="#mark-19" style="--i: 19" />
+              <use href="#mark-20" style="--i: 20" />
+              <use href="#mark-21" style="--i: 21" />
+              <use href="#mark-22" style="--i: 22" />
+              <use href="#mark-23" style="--i: 23" />
+              <use href="#mark-24" style="--i: 24" />
+              <use href="#mark-25" style="--i: 25" />
+              <use href="#mark-26" style="--i: 26" />
+            </svg>
+            <div class="wait"><div class="sweep"></div></div>
+          </div>
+        </div>
+      </div>
+      <div role="status">
+        <p class="sr">Loading the Elden Ring Archipelago Tracker</p>
+        <p class="trouble">
+          The tracker's code didn't load. Check the connection, then reload the page to try again.
+        </p>
+      </div>
+    </div>
+    <er-app></er-app>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

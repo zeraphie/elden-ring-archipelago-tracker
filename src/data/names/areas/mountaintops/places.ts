@@ -1,0 +1,100 @@
+import { regionName, shortRegionName } from "../../regions.js";
+
+/** The Mountaintops' places by key, with the Forbidden Lands', Flame Peak's, the Snowfield's, the Haligtree's, Farum Azula's and Mohgwyn's. */
+export const MOUNTAINTOPS_PLACES: ReadonlyMap<string, string> = new Map<string, string>([
+  // The Forbidden Lands.
+  ["FL/FL", regionName("FL")],
+  ["FL/GLR", "Grand Lift of Rold"],
+
+  // The Mountaintops of the Giants, where FR is Freezing Lake and (CS) Castle Sol.
+  ["MotG/ASVR", "Ancient Snow Valley Ruins"],
+  ["MotG/CSMG", "Castle Sol Main Gate"],
+  ["MotG/FCM", "First Church of Marika"],
+  ["MotG/FR", "Freezing Lake"],
+  ["MotG/GG", "Guardian's Garrison"],
+  ["MotG/GLR", "Grand Lift of Rold"],
+  ["MotG/GMC", "Giants' Mountaintop Catacombs"],
+  ["MotG/HR", "Heretical Rise"],
+  ["MotG/LCE", "Lord Contender's Evergaol"],
+  ["MotG/ME", `${shortRegionName("MotG")} Minor Erdtree`],
+  ["MotG/MotG", regionName("MotG")],
+  ["MotG/SL", "Shack of the Lofty"],
+  ["MotG/SR", "Stargazer's Ruins"],
+  ["MotG/SVRO", "Snow Valley Ruins Overlook"],
+  ["MotG/WR", "Whiteridge Road"],
+  ["MotG/ZR", "Zamor Ruins"],
+  ["MotG/(CS)", "Castle Sol"],
+  ["MotG/(FCM)", "First Church of Marika"],
+  ["MotG/(GG)", "Guardian's Garrison"],
+  ["MotG/(GLR)", "Grand Lift of Rold"],
+  ["MotG/(GMC)", "Giants' Mountaintop Catacombs"],
+  ["MotG/(HR)", "Heretical Rise"],
+  ["MotG/(LCE)", "Lord Contender's Evergaol"],
+  ["MotG/(ME)", `${shortRegionName("MotG")} Minor Erdtree`],
+  ["MotG/(SC)", "Spiritcaller's Cave"],
+  ["MotG/(SL)", "Shack of the Lofty"],
+  ["MotG/(SR)", "Stargazer's Ruins"],
+  ["MotG/(ZR)", "Zamor Ruins"],
+
+  // Flame Peak.
+  ["FP/CR", "Church of Repose"],
+  ["FP/FF", "Foot of the Forge"],
+  ["FP/GCHG", "Giant-Conquering Hero's Grave"],
+  ["FP/GG", "Giant's Gravepost"],
+  ["FP/MotG", regionName("MotG")],
+  ["FP/(CR)", "Church of Repose"],
+  ["FP/(GCHG)", "Giant-Conquering Hero's Grave"],
+
+  // The Consecrated Snowfield.
+  ["CS/AD", "Apostate Derelict"],
+  ["CS/AR", "Albinauric Rise"],
+  ["CS/CF", "Cave of the Forlorn"],
+  ["CS/CS", regionName("CS")],
+  ["CS/CSC", "Consecrated Snowfield Catacombs"],
+  ["CS/HPH", "Hidden Path to the Haligtree"],
+  ["CS/ICS", "Inner Consecrated Snowfield"],
+  ["CS/ME", `${shortRegionName("CS")} Minor Erdtree`],
+  ["CS/OLT", "Ordina, Liturgical Town"],
+  ["CS/YAR", "Yelough Anix Ruins"],
+  ["CS/YAT", "Yelough Anix Tunnel"],
+  ["CS/(AD)", "Apostate Derelict"],
+  ["CS/(AR)", "Albinauric Rise"],
+  ["CS/(CF)", "Cave of the Forlorn"],
+  ["CS/(CSC)", "Consecrated Snowfield Catacombs"],
+  ["CS/(HPH)", "Hidden Path to the Haligtree"],
+  ["CS/(ME)", `${shortRegionName("CS")} Minor Erdtree`],
+  ["CS/(OLT)", "Ordina, Liturgical Town"],
+  ["CS/(YAR)", "Yelough Anix Ruins"],
+  ["CS/(YAT)", "Yelough Anix Tunnel"],
+
+  // Miquella's Haligtree, and Elphael, its brace.
+  ["MH/HC", "Haligtree Canopy"],
+  ["MH/HT", "Haligtree Town"],
+  ["MH/HTP", "Haligtree Town Plaza"],
+  ["EBH/DC", "Drainage Channel"],
+  ["EBH/EIW", "Elphael Inner Wall"],
+  ["EBH/HP", "Haligtree Promenade"],
+  ["EBH/HR", "Haligtree Roots"],
+  ["EBH/PR", "Prayer Room"],
+
+  // Crumbling Farum Azula.
+  ["FA/BGB", "Beside the Great Bridge"],
+  ["FA/CBG", "Crumbling Beast Grave"],
+  ["FA/CBGD", "Crumbling Beast Grave Depths"],
+  ["FA/DT", "Dragon Temple"],
+  ["FA/DTA", "Dragon Temple Altar"],
+  ["FA/DTL", "Dragon Temple Lift"],
+  ["FA/DTR", "Dragon Temple Rooftop"],
+  ["FA/DTT", "Dragon Temple Transept"],
+  ["FA/FA", regionName("FA")],
+  ["FA/MotG", `${shortRegionName("FA")} from ${shortRegionName("MotG")}`],
+  ["FA/TFB", "Tempest-Facing Balcony"],
+
+  // Mohgwyn Palace.
+  ["MP/DMM", "Dynasty Mausoleum Midpoint"],
+  ["MP/MDE", "Dynasty-Mausoleum Entrance"],
+  ["MP/PALR", "Palace Approach Ledge-Road"],
+  // One seed, from either of two trees: taking one and reloading takes the other away.
+  ["MP/PALR|(MDM)", "Palace Approach Ledge-Road or Mohgwyn Dynasty Mausoleum"],
+  ["MP/(MDM)", "Mohgwyn Dynasty Mausoleum"],
+]);

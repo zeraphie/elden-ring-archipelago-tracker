@@ -1,0 +1,496 @@
+{
+  "about": "What a tracker heard from a local Archipelago 0.6.8 server on a test seed: logging in, chatting, a free !hint, !help, the slot's game client checking a location and reaching its goal (which collected), then leaving. The slot's name is replaced. Of the collect's ItemSends only the first two are kept, and its ReceivedItems and RoomUpdates keep three entries of each list.",
+  "messages": [
+    {
+      "during": "tracker logs in",
+      "message": [
+        {
+          "cmd": "ReceivedItems",
+          "index": 0,
+          "items": [
+            {
+              "item": 70353,
+              "location": -2,
+              "player": 0,
+              "flags": 0,
+              "class": "NetworkItem"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "during": "tracker logs in",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Tarnished (Team #1) tracking EldenRing has joined. Client(0.6.8), ['Tracker']."
+            }
+          ],
+          "type": "Join",
+          "team": 0,
+          "slot": 1,
+          "tags": ["Tracker"]
+        }
+      ]
+    },
+    {
+      "during": "tracker logs in",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Now that you are connected, you can use !help to list commands to run via the server. If your client supports it, you may have additional local commands you can list with /help."
+            }
+          ],
+          "type": "Tutorial"
+        }
+      ]
+    },
+    {
+      "during": "tracker chats",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Tarnished: hello from the tracker"
+            }
+          ],
+          "type": "Chat",
+          "team": 0,
+          "slot": 1,
+          "message": "hello from the tracker"
+        }
+      ]
+    },
+    {
+      "during": "tracker asks !hint Rusty Key",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Tarnished: !hint Rusty Key"
+            }
+          ],
+          "type": "Chat",
+          "team": 0,
+          "slot": 1,
+          "message": "!hint Rusty Key"
+        }
+      ]
+    },
+    {
+      "during": "tracker asks !hint Rusty Key",
+      "message": [
+        {
+          "cmd": "RoomUpdate",
+          "hint_points": 0
+        }
+      ]
+    },
+    {
+      "during": "tracker asks !hint Rusty Key",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "[Hint]: "
+            },
+            {
+              "text": "1",
+              "type": "player_id"
+            },
+            {
+              "text": "'s "
+            },
+            {
+              "text": "70630",
+              "player": 1,
+              "flags": 1,
+              "type": "item_id"
+            },
+            {
+              "text": " is at "
+            },
+            {
+              "text": "7003661",
+              "player": 1,
+              "type": "location_id"
+            },
+            {
+              "text": " in "
+            },
+            {
+              "text": "1",
+              "type": "player_id"
+            },
+            {
+              "text": "'s World"
+            },
+            {
+              "text": ". "
+            },
+            {
+              "text": "(priority)",
+              "hint_status": 30,
+              "type": "hint_status"
+            }
+          ],
+          "type": "Hint",
+          "receiving": 1,
+          "item": {
+            "item": 70630,
+            "location": 7003661,
+            "player": 1,
+            "flags": 1,
+            "class": "NetworkItem"
+          },
+          "found": false
+        }
+      ]
+    },
+    {
+      "during": "tracker asks !help",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Tarnished: !help"
+            }
+          ],
+          "type": "Chat",
+          "team": 0,
+          "slot": 1,
+          "message": "!help"
+        }
+      ]
+    },
+    {
+      "during": "tracker asks !help",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "!help \n    Returns the help listing\n!license \n    Returns th …"
+            }
+          ],
+          "type": "CommandResult"
+        }
+      ]
+    },
+    {
+      "during": "game client logs in",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Tarnished (Team #1) playing EldenRing has joined. Client(0.6.8), []."
+            }
+          ],
+          "type": "Join",
+          "team": 0,
+          "slot": 1,
+          "tags": []
+        }
+      ]
+    },
+    {
+      "during": "game client checks location 7000000",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "1",
+              "type": "player_id"
+            },
+            {
+              "text": " found their "
+            },
+            {
+              "text": "70961",
+              "player": 1,
+              "flags": 0,
+              "type": "item_id"
+            },
+            {
+              "text": " ("
+            },
+            {
+              "text": "7000000",
+              "player": 1,
+              "type": "location_id"
+            },
+            {
+              "text": ")"
+            }
+          ],
+          "type": "ItemSend",
+          "receiving": 1,
+          "item": {
+            "item": 70961,
+            "location": 7000000,
+            "player": 1,
+            "flags": 0,
+            "class": "NetworkItem"
+          }
+        }
+      ]
+    },
+    {
+      "during": "game client checks location 7000000",
+      "message": [
+        {
+          "cmd": "ReceivedItems",
+          "index": 1,
+          "items": [
+            {
+              "item": 70961,
+              "location": 7000000,
+              "player": 1,
+              "flags": 0,
+              "class": "NetworkItem"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "during": "game client checks location 7000000",
+      "message": [
+        {
+          "cmd": "RoomUpdate",
+          "hint_points": 1,
+          "checked_locations": [7000000]
+        }
+      ]
+    },
+    {
+      "during": "game client reaches its goal",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Tarnished (Team #1) has completed their goal."
+            }
+          ],
+          "type": "Goal",
+          "team": 0,
+          "slot": 1
+        }
+      ]
+    },
+    {
+      "during": "game client reaches its goal",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Tarnished (Team #1) has collected their items from other worlds."
+            }
+          ],
+          "type": "Collect",
+          "team": 0,
+          "slot": 1
+        }
+      ]
+    },
+    {
+      "during": "game client reaches its goal",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "1",
+              "type": "player_id"
+            },
+            {
+              "text": " found their "
+            },
+            {
+              "text": "69000",
+              "player": 1,
+              "flags": 0,
+              "type": "item_id"
+            },
+            {
+              "text": " ("
+            },
+            {
+              "text": "7000817",
+              "player": 1,
+              "type": "location_id"
+            },
+            {
+              "text": ")"
+            }
+          ],
+          "type": "ItemSend",
+          "receiving": 1,
+          "item": {
+            "item": 69000,
+            "location": 7000817,
+            "player": 1,
+            "flags": 0,
+            "class": "NetworkItem"
+          }
+        },
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "1",
+              "type": "player_id"
+            },
+            {
+              "text": " found their "
+            },
+            {
+              "text": "69001",
+              "player": 1,
+              "flags": 0,
+              "type": "item_id"
+            },
+            {
+              "text": " ("
+            },
+            {
+              "text": "7001067",
+              "player": 1,
+              "type": "location_id"
+            },
+            {
+              "text": ")"
+            }
+          ],
+          "type": "ItemSend",
+          "receiving": 1,
+          "item": {
+            "item": 69001,
+            "location": 7001067,
+            "player": 1,
+            "flags": 0,
+            "class": "NetworkItem"
+          }
+        }
+      ]
+    },
+    {
+      "during": "game client reaches its goal",
+      "message": [
+        {
+          "cmd": "ReceivedItems",
+          "index": 2,
+          "items": [
+            {
+              "item": 69000,
+              "location": 7000817,
+              "player": 1,
+              "flags": 0,
+              "class": "NetworkItem"
+            },
+            {
+              "item": 69001,
+              "location": 7001067,
+              "player": 1,
+              "flags": 0,
+              "class": "NetworkItem"
+            },
+            {
+              "item": 69003,
+              "location": 7002297,
+              "player": 1,
+              "flags": 0,
+              "class": "NetworkItem"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "during": "game client reaches its goal",
+      "message": [
+        {
+          "cmd": "RoomUpdate",
+          "hint_points": 3767,
+          "checked_locations": [7004160, 7004184, 7004204]
+        }
+      ]
+    },
+    {
+      "during": "game client reaches its goal",
+      "message": [
+        {
+          "cmd": "RoomUpdate",
+          "checked_locations": [7000000, 7000001, 7000003]
+        }
+      ]
+    },
+    {
+      "during": "game client reaches its goal",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Tarnished (Team #1) has released all remaining items from their world."
+            }
+          ],
+          "type": "Release",
+          "team": 0,
+          "slot": 1
+        }
+      ]
+    },
+    {
+      "during": "game client reaches its goal",
+      "message": [
+        {
+          "cmd": "RoomUpdate",
+          "checked_locations": [7000000, 7000001, 7000003]
+        }
+      ]
+    },
+    {
+      "during": "game client reaches its goal",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Team #1 has completed all of their games! Congratulations!"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "during": "game client leaves",
+      "message": [
+        {
+          "cmd": "PrintJSON",
+          "data": [
+            {
+              "text": "Tarnished (Team #1) has left the game. Client(0.6.8), []."
+            }
+          ],
+          "type": "Part",
+          "team": 0,
+          "slot": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+/* The design tokens: every colour, face and effect the page uses, set once
+   here and read by every element through these custom properties. The look
+   is the game's own menus: warm ink on near-black, gold for what matters,
+   square corners, an inner glow on a hovered or active control, and an olive
+   band across a hovered or active row. */
+
+:root {
+  color-scheme: dark;
+
+  /* Ground and surfaces, darkest first. */
+  --er-ground: #0e0d0b;
+  --er-surface: #100f0c;
+  /* What floats over the page, such as a popover, with its shadow. */
+  --er-overlay: #16140f;
+  --er-overlay-shadow: 0 12px 30px rgb(0 0 0 / 0.6);
+  --er-raised: #2a241a;
+  --er-scrim: rgb(10 9 8 / 0.94);
+
+  /* Ink, brightest first. */
+  --er-ink-bright: #f1e9d4;
+  --er-ink: #ece3cc;
+  --er-ink-heading: #e8dcc0;
+  --er-ink-soft: #c9bfa6;
+  --er-ink-muted: #a79d86;
+  /* Only for what can't be used, such as another game's slot: under 4.5:1 on purpose. */
+  --er-ink-faint: #6f6756;
+
+  /* Gold, for what matters and for focus. */
+  --er-gold: #d8b46a;
+  --er-gold-bright: #ecd08f;
+  --er-gold-edge: #8c7445;
+
+  /* Lines, strongest first. */
+  --er-edge: #6b5a36;
+  --er-line: #3a3224;
+  --er-divider: #2e281d;
+
+  /* States. */
+  --er-error: #e0a08a;
+  --er-live: #7fbf8a;
+  --er-live-ink: #9fd0a6;
+
+  /* Faces. */
+  --er-font-text: "EB Garamond", Georgia, serif;
+  --er-font-figure: "Fira Code", ui-monospace, monospace;
+  --er-text-size: 103.125%; /* 16.5 px at the browser's default 16 */
+  --er-line-height: 1.35;
+  --er-name-size: 1.5rem;
+
+  /* The game's square corners, everywhere. */
+  --er-radius: 0;
+
+  /* A hovered or active control: a warm olive fill, brighter along every
+     edge, with a faint light outline, as on a selected inventory slot. */
+  --er-glow-fill: rgb(170 160 120 / 0.22);
+  --er-glow: inset 0 0 12px 1px rgb(200 190 140 / 0.32), inset 0 0 0 1px rgb(215 205 165 / 0.28);
+
+  /* A hovered or active row: an even olive band with hairlines, as in a
+     merchant's menu. */
+  --er-band: linear-gradient(
+    90deg,
+    rgb(170 160 120 / 0.12) 0%,
+    rgb(170 160 120 / 0.2) 40%,
+    rgb(170 160 120 / 0.14) 100%
+  );
+  --er-band-lines: inset 0 1px 0 rgb(205 195 155 / 0.16), inset 0 -1px 0 rgb(205 195 155 / 0.16);
+
+  /* A section heading's band, fading out to the right, as on "Purchase Item". */
+  --er-heading-band: linear-gradient(
+    90deg,
+    rgb(225 212 175 / 0.17) 0%,
+    rgb(225 212 175 / 0.07) 55%,
+    rgb(225 212 175 / 0) 100%
+  );
+
+  /* The shade behind the left-hand menu, wide and fading out over the map. */
+  --er-menu-shade: linear-gradient(
+    90deg,
+    rgb(8 7 6 / 0.95) 0%,
+    rgb(8 7 6 / 0.85) 35%,
+    rgb(8 7 6 / 0.45) 70%,
+    rgb(8 7 6 / 0) 100%
+  );
+
+  /* The band a gotten goal sits on, as the game's highlight, fading out to the right. */
+  --er-gotten-band: linear-gradient(
+    90deg,
+    rgb(170 160 120 / 0.3) 0%,
+    rgb(170 160 120 / 0.2) 55%,
+    rgb(170 160 120 / 0) 100%
+  );
+
+  /* An icon's frame: its ground, and the fine line inside its edge. */
+  --er-frame: #15120e;
+  --er-frame-inner: #4a3f2a;
+
+  /* The map: its ground, each region's fill by how it stands, lifted a shade when
+     hovered, the borders between regions, and the coast. */
+  --er-map: #0a0908;
+  --er-region-locked: #22262b;
+  --er-region-locked-hover: #2e333a;
+  --er-region-open: #3a3224;
+  --er-region-open-hover: #4b402b;
+  --er-region-done: #6a5930;
+  --er-region-done-hover: #7e6a39;
+  --er-region-edge: #8a7d62;
+  --er-coast: #b39459;
+  /* Each fill's own edge, as the legend's swatches show it. */
+  --er-region-locked-edge: #3c4249;
+  --er-region-open-edge: #5a4d33;
+  --er-region-done-edge: var(--er-gold-edge);
+
+  /* The sack a key-check pin shows, made grey while a check is left, gold once
+     every check is collected, and dark while its region is locked. */
+  --er-pin-todo: grayscale(1) brightness(1.2);
+  --er-pin-collected: sepia(1) saturate(2.4) hue-rotate(-10deg) brightness(1.25);
+  --er-pin-locked: grayscale(1) brightness(0.6);
+  --er-pin-locked-opacity: 0.55;
+  /* Text over the bare map, lifted off it. */
+  --er-map-text-shadow: 0 1px 2px #000;
+
+  /* The right-hand panel: its ground, and the lines between its parts. */
+  --er-panel: #12110e;
+  --er-panel-divider: #241f17;
+  /* A heading's gold rule, fading out at both ends. */
+  --er-gold-rule: linear-gradient(90deg, transparent, var(--er-gold-edge), transparent);
+  /* How a region stands, on its badge: grey while locked, olive while open, gold once done. */
+  --er-badge-locked: #2b2f35;
+  --er-badge-open: var(--er-region-open);
+  --er-badge-done: var(--er-gold);
+  --er-ink-on-gold: #14120e;
+  /* A player's name over their chat line. */
+  --er-chat-name: #c9b27a;
+  /* The panel's rail of tabs under the map: the tab chosen stands out from the edge with a shadow
+     and a faint gold glow inside, and the others peek in, see-through. */
+  --er-rail-shadow: -6px 4px 14px rgb(0 0 0 / 0.55), inset 0 0 12px 1px rgb(216 180 106 / 0.18);
+  --er-rail-peek: rgb(22 20 15 / 0.72);
+
+  /* An item toast: a goal item's glows gold, inside and out. */
+  --er-toast-shadow: 0 8px 20px rgb(0 0 0 / 0.5);
+  --er-toast-goal-shadow:
+    inset 0 0 26px 3px rgb(236 208 143 / 0.4), 0 0 24px rgb(216 180 106 / 0.28),
+    0 12px 30px rgb(0 0 0 / 0.65);
+
+  /* The goal achieved: the page dimmed under it, the sigil's glow, the light that sweeps in to draw it, and the band it leaves in the goal menu. */
+  --er-goal-scrim: rgb(10 9 8 / 0.86);
+  --er-sigil-glow: rgb(236 208 143 / 0.55);
+  --er-sigil-glow-bright: rgb(236 208 143 / 0.85);
+  --er-comet: #f6e6b8;
+  --er-goal-band: linear-gradient(
+    90deg,
+    rgb(216 180 106 / 0.18) 0%,
+    rgb(216 180 106 / 0.07) 60%,
+    rgb(216 180 106 / 0) 100%
+  );
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    "eqeqeq": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "object-shorthand": "error",
+    "curly": "error",
+    "no-else-return": "error",
+    "no-lonely-if": "error",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-console": "error"
+  },
+  "overrides": [
+    {
+      "files": ["tools/**"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}

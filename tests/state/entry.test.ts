@@ -1,0 +1,217 @@
+import { describe, expect, test } from "bun:test";
+import type { Fetcher } from "../../src/archipelago/web-api.js";
+import { createEntryStore } from "../../src/state/entry.js";
+import { lastVisit, rememberVisit, type Visit } from "../../src/state/last-visit.js";
+import { testRoom, TRACKER_VERSION } from "../fixtures/sockets.js";
+import { memory } from "../fixtures/stores.js";
+import { until } from "../fixtures/waits.js";
+import webApi from "../fixtures/web-api.json";
+import { recordedWeb } from "../fixtures/web.js";
+
+const ROOM = "q3Xh8sJm2PzK0tLw9RbVcA";
+const ROOM_URL = `https://archipelago.gg/room/${ROOM}`;
+const TRACKER_URL = `https://archipelago.gg/tracker/${ROOM}`;
+// 21 minutes after the recorded room was last active, inside its two-hour timeout.
+const AWAKE = Date.parse("Thu, 22 Oct 2026 21:00:00 GMT");
+const ASLEEP = Date.parse("Fri, 23 Oct 2026 12:00:00 GMT");
+const VISIT: Visit = {
+  link: { kind: "room", room: ROOM },
+  team: 0,
+  player: 1,
+  name: "Tarnished",
+  needsPassword: false,
+};
+
+// A way in on the recorded web API and a test room with this password, with its waits open to run.
+function entering(options: { fetcher?: Fetcher; password?: string; now?: () => number } = {}) {
+  const room = testRoom(options.password);
+  const storage = memory();
+  const waits: (() => void)[] = [];
+  const store = createEntryStore({
+    version: TRACKER_VERSION,
+    fetcher: options.fetcher ?? recordedWeb().fetcher,
+    opener: room.opener,
+    timer: (run) => waits.push(run),
+    now: options.now ?? (() => AWAKE),
+    storage,
+  });
+  const phase = () => store.getState().phase;
+  return { store, room, storage, waits, phase };
+}
+
+describe("the way in", () => {
+  test("with no visit kept, it starts at the link", async () => {
+    const run = entering();
+    expect(run.phase()).toEqual({ phase: "starting" });
+    await run.store.getState().start();
+    expect(run.phase()).toEqual({ phase: "entry" });
+  });
+
+  test("a visit kept is offered again", async () => {
+    const run = entering();
+    await rememberVisit(VISIT, run.storage);
+    await run.store.getState().start();
+    expect(run.phase()).toEqual({ phase: "returning", visit: VISIT, needsPassword: false });
+  });
+
+  test("a link the tracker can't follow says why, and asks archipelago.gg nothing", () => {
+    const web = recordedWeb();
+    const run = entering({ fetcher: web.fetcher });
+    run.store.getState().lookUp("https://example.com/room/abc");
+    expect(run.phase()).toEqual({
+      phase: "entry",
+      problem: { kind: "link", problem: "another site", host: "example.com" },
+    });
+    expect(web.asked).toEqual([]);
+  });
+
+  test("a room's slots are offered, its one Elden Ring slot chosen, and another game's can't be", async () => {
+    const two = {
+      ...webApi.room_status,
+      players: [
+        ["Tarnished", "EldenRing"],
+        ["Sam", "Ocarina of Time"],
+      ],
+    };
+    const run = entering({ fetcher: recordedWeb({ room_status: { body: two } }).fetcher });
+    run.store.getState().lookUp(ROOM_URL);
+    expect(run.phase().phase).toBe("looking");
+    await until(() => run.phase().phase === "slots");
+    run.store.getState().choose(0, 2);
+    expect(run.phase()).toMatchObject({
+      phase: "slots",
+      isTracker: false,
+      chosen: { team: 0, player: 1 },
+      needsPassword: false,
+    });
+  });
+
+  test("connecting sets up part by part, then it's ready and keeps the visit, never the password", async () => {
+    const run = entering({ password: "secret" });
+    run.store.getState().lookUp(ROOM_URL);
+    await until(() => run.phase().phase === "slots");
+    expect(run.phase()).toMatchObject({ needsPassword: true });
+    run.store.getState().connect("secret");
+    expect(run.phase().phase).toBe("loading");
+    expect(run.store.getState().parts.map(({ part }) => part)).toEqual([
+      "status",
+      "data package",
+      "slot data",
+      "elden ring data",
+      "history",
+      "connected",
+      "saved",
+    ]);
+    await until(() => run.phase().phase === "ready");
+    expect(run.store.getState().parts.every(({ state }) => state === "in")).toBe(true);
+    await until(() => run.storage.items.has("last visit"));
+    expect(await lastVisit(run.storage)).toEqual({ ...VISIT, needsPassword: true });
+    expect([...run.storage.items.values()].join()).not.toContain("secret");
+    run.store.getState().anotherRoom();
+  });
+
+  test("a sleeping room waits with its page, checked again each minute and on asking", async () => {
+    let now = ASLEEP;
+    const web = recordedWeb();
+    const run = entering({ fetcher: web.fetcher, now: () => now });
+    run.store.getState().lookUp(ROOM_URL);
+    await until(() => run.phase().phase === "asleep");
+    expect(run.phase()).toMatchObject({ page: ROOM_URL });
+    expect(run.room.sockets).toEqual([]);
+    run.store.getState().checkAgain();
+    await until(() => run.waits.length === 2);
+    expect(run.phase().phase).toBe("asleep");
+    now = AWAKE;
+    run.waits.at(-1)?.();
+    await until(() => run.phase().phase === "slots");
+    expect(web.asked.filter((url) => url.includes("/room_status/")).length).toBe(3);
+  });
+
+  test("a room that's gone goes back to the link, and what was kept for it is cleared", async () => {
+    const run = entering({ fetcher: recordedWeb({ room_status: { status: 404 } }).fetcher });
+    run.storage.items.set(`room:${ROOM}`, "{}");
+    run.store.getState().lookUp(ROOM_URL);
+    await until(() => run.phase().phase === "entry");
+    expect(run.phase()).toEqual({ phase: "entry", problem: { kind: "gone" } });
+    await until(() => !run.storage.items.has(`room:${ROOM}`));
+  });
+
+  test("a wrong password fails at the live connection, and trying again asks for it on a fresh socket", async () => {
+    const run = entering({ password: "secret" });
+    run.store.getState().lookUp(ROOM_URL);
+    await until(() => run.phase().phase === "slots");
+    run.store.getState().connect("wrong");
+    await until(() => run.phase().phase === "failed");
+    expect(run.phase()).toEqual({
+      phase: "failed",
+      failure: { part: "connected", problem: "invalid password" },
+    });
+    run.store.getState().tryAgain();
+    await until(() => run.phase().phase === "slots");
+    expect(run.phase()).toMatchObject({ needsPassword: true, chosen: { team: 0, player: 1 } });
+    expect(run.room.sockets.map(({ socket }) => socket.isClosed)).toEqual([true, false]);
+  });
+
+  test("a data package that didn't arrive can be tried again", async () => {
+    let isDown = true;
+    const { fetcher } = recordedWeb();
+    const failing: Fetcher = (url) =>
+      isDown && url.includes("/datapackage/")
+        ? Promise.resolve(new Response("", { status: 503 }))
+        : fetcher(url);
+    const run = entering({ fetcher: failing });
+    run.store.getState().lookUp(ROOM_URL);
+    await until(() => run.phase().phase === "slots");
+    run.store.getState().connect();
+    await until(() => run.phase().phase === "failed");
+    expect(run.phase()).toMatchObject({
+      failure: { part: "data package", problem: "unreachable" },
+    });
+    isDown = false;
+    run.store.getState().tryAgain();
+    await until(() => run.phase().phase === "ready");
+    run.store.getState().anotherRoom();
+  });
+
+  test("a returning visit connects on its room and slot", async () => {
+    const run = entering();
+    await rememberVisit(VISIT, run.storage);
+    await run.store.getState().start();
+    run.store.getState().connectLast();
+    expect(run.store.getState().parts.map(({ state }) => state)).toEqual(Array(7).fill("loading"));
+    await until(() => run.phase().phase === "ready");
+    run.store.getState().anotherRoom();
+  });
+
+  test("a returning visit to a room that now asks for a password goes back to ask for it", async () => {
+    const run = entering({ password: "secret" });
+    await rememberVisit(VISIT, run.storage);
+    await run.store.getState().start();
+    run.store.getState().connectLast();
+    await until(() => run.phase().phase === "returning");
+    expect(run.phase()).toEqual({ phase: "returning", visit: VISIT, needsPassword: true });
+    expect(run.room.sockets[0]?.socket.isClosed).toBe(true);
+  });
+
+  test("a tracker link says it's the reduced tracker, and connects on the web API alone", async () => {
+    const run = entering();
+    run.store.getState().lookUp(TRACKER_URL);
+    await until(() => run.phase().phase === "slots");
+    expect(run.phase()).toMatchObject({ isTracker: true, chosen: { team: 0, player: 1 } });
+    run.store.getState().connect();
+    await until(() => run.phase().phase === "ready");
+    const ready = run.phase();
+    expect(ready.phase === "ready" && ready.store.getState().connection.phase).toBe("web only");
+    expect(run.room.sockets).toEqual([]);
+    run.store.getState().anotherRoom();
+  });
+
+  test("another room stops what was under way and closes its socket", async () => {
+    const run = entering();
+    run.store.getState().lookUp(ROOM_URL);
+    await until(() => run.phase().phase === "slots");
+    run.store.getState().anotherRoom();
+    expect(run.phase()).toEqual({ phase: "entry" });
+    expect(run.room.sockets[0]?.socket.isClosed).toBe(true);
+  });
+});

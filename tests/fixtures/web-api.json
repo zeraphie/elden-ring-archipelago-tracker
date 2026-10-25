@@ -1,0 +1,150 @@
+{
+  "about": "The live room's web API answers, from Archipelago 0.6.8 on archipelago.gg, with its tracker id, slot name and seed replaced and long lists cut short.",
+  "room_status": {
+    "downloads": [],
+    "last_activity": "Thu, 22 Oct 2026 20:39:03 GMT",
+    "last_port": 61475,
+    "players": [["Tarnished", "EldenRing"]],
+    "timeout": 7200,
+    "tracker": "q3Xh8sJm2PzK0tLw9RbVcA"
+  },
+  "static_tracker": {
+    "datapackage": {
+      "Archipelago": {
+        "checksum": "ac9141e9ad0318df2fa27da5f20c50a842afeecb",
+        "version": 0
+      },
+      "EldenRing": {
+        "checksum": "c3ab8b33b4e26448022dd43b79b231082699e63b",
+        "version": 0
+      }
+    },
+    "groups": [],
+    "player_game": [
+      {
+        "game": "EldenRing",
+        "player": 1,
+        "team": 0
+      }
+    ],
+    "player_locations_total": [
+      {
+        "player": 1,
+        "team": 0,
+        "total_locations": 3765
+      }
+    ]
+  },
+  "datapackage": {
+    "checksum": "c3ab8b33b4e26448022dd43b79b231082699e63b",
+    "item_name_groups": {
+      "Great Runes": [
+        "Godrick's Great Rune",
+        "Great Rune of the Unborn",
+        "Malenia's Great Rune",
+        "Mohg's Great Rune",
+        "Morgott's Great Rune",
+        "Radahn's Great Rune",
+        "Rykard's Great Rune"
+      ]
+    },
+    "item_name_to_id": {
+      "\"Champion's Song\" Painting": 70691,
+      "\"Domain of Dragons\" Painting": 71844,
+      "\"Flightless Bird\" Painting": 70694
+    },
+    "location_name_to_id": {
+      "(VM)/RLA: Smoldering Butterfly x5 - to E after warp": 7002571,
+      "(VM)/SIC: Inquisitor's Girandole - boss drop, from RLA warp": 7002570,
+      "(VM)/SIC: Inquisitor's Girandole - boss drop, from RLA warp, extra item 1": 8007590
+    },
+    "location_name_groups": {}
+  },
+  "slot_data_tracker": [
+    {
+      "player": 1,
+      "slot_data": {
+        "goal": [11000850, 11000800],
+        "versions": ">=0.1 <0.2",
+        "slot": "Tarnished",
+        "seed": "00000000000000000000",
+        "options": {
+          "world_logic": 0,
+          "enable_dlc": 1
+        },
+        "locationIdsToName": {
+          "7000000": "SV/GG: Ancient Dragon Smithing Stone - Gostoc shop after finishing Nepheli and Kenneth Haight's quests",
+          "7000001": "SV/GG: Ancient Dragon Smithing Stone - talk to Nepheli in SV after her and Kenneth's questlines",
+          "7000003": "SV/LL: Shabriri Grape - from LL/LFC to E, inside by ghost"
+        },
+        "duplicatedLocations": {
+          "CL/(CR): Visage Shield - in chest after boss, extra item 1": "CL/(CR): Visage Shield - in chest after boss"
+        }
+      }
+    }
+  ],
+  "tracker": {
+    "aliases": [
+      {
+        "alias": null,
+        "player": 1,
+        "team": 0
+      }
+    ],
+    "player_items_received": [
+      {
+        "team": 0,
+        "player": 1,
+        "items": [
+          [72080, -1, 0, 0],
+          [71400, -1, 0, 0],
+          [69042, -1, 0, 0]
+        ]
+      }
+    ],
+    "player_checks_done": [
+      {
+        "team": 0,
+        "player": 1,
+        "locations": [7000003, 7000007, 7000009, 7000010, 7000011]
+      }
+    ],
+    "total_checks_done": [
+      {
+        "checks_done": 185,
+        "team": 0
+      }
+    ],
+    "hints": [
+      {
+        "team": 0,
+        "player": 1,
+        "hints": [
+          [1, 1, 7000117, 69706, false, "", 0, 0],
+          [1, 1, 7000118, 70358, false, "", 0, 0]
+        ]
+      }
+    ],
+    "activity_timers": [
+      {
+        "player": 1,
+        "team": 0,
+        "time": "Thu, 22 Oct 2026 14:48:07 GMT"
+      }
+    ],
+    "connection_timers": [
+      {
+        "player": 1,
+        "team": 0,
+        "time": "Thu, 22 Oct 2026 15:32:01 GMT"
+      }
+    ],
+    "player_status": [
+      {
+        "player": 1,
+        "status": 0,
+        "team": 0
+      }
+    ]
+  }
+}

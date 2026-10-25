@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "es5",
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    ".vite",
+    ".plan",
+    ".claude",
+    "tools/files.ts",
+    "tools/reuse.ts",
+    "tools/imports.ts",
+    "tools/catalogue.ts",
+    "tools/copies.ts",
+    "tools/check-reuse.ts",
+    "tools/build-catalogue.ts",
+    ".ai/CATALOGUE.md"
+  ]
+}

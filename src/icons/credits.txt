@@ -1,0 +1,100 @@
+Where each icon here comes from.
+
+These are Elden Ring's own icons, art copyright FromSoftware, Inc. and
+Bandai Namco Entertainment Inc., copied from the Elden Ring wiki at
+https://eldenring.wiki.gg. The wiki tags most of the files as copyrighted
+game content used under fair use, and leaves a few with no tag; none is
+licensed for reuse. They are shown here as fan sites and tools show them, so
+players recognise them at a glance.
+
+sack.png
+  From File:ER Main Menu Icon Inventory.png (145 x 150): the sack cut out,
+  its background taken away, and scaled to 128 x 128.
+
+
+remembrances/
+
+Each from the wiki's file of the same remembrance, File:ER Icon Tool <the
+remembrance's name>.png (1024 x 1024), scaled to 128 x 128. Those marked "no
+tag" have none on their file page.
+
+  elden-remembrance.png
+  remembrance-of-a-god-and-a-lord.png           no tag
+  remembrance-of-hoarah-loux.png
+  remembrance-of-putrescence.png                no tag
+  remembrance-of-the-black-blade.png
+  remembrance-of-the-blasphemous.png
+  remembrance-of-the-blood-lord.png
+  remembrance-of-the-dancing-lion.png           no tag
+  remembrance-of-the-dragonlord.png
+  remembrance-of-the-fire-giant.png
+  remembrance-of-the-full-moon-queen.png
+  remembrance-of-the-grafted.png
+  remembrance-of-the-impaler.png                no tag
+  remembrance-of-the-lord-of-frenzied-flame.png no tag
+  remembrance-of-the-mother-of-fingers.png      no tag
+  remembrance-of-the-naturalborn.png
+  remembrance-of-the-omen-king.png
+  remembrance-of-the-regal-ancestor.png
+  remembrance-of-the-rot-goddess.png
+  remembrance-of-the-saint-of-the-bud.png       no tag
+  remembrance-of-the-shadow-sunflower.png       no tag
+  remembrance-of-the-starscourge.png
+  remembrance-of-the-twin-moon-knight.png       no tag
+  remembrance-of-the-wild-boar-rider.png        no tag
+
+
+items/
+
+items/godricks-great-rune.png
+  From File:ER Icon Key Item Godrick's Great Rune.png (1024 x 1024), scaled
+  to 128 x 128, with its opacity doubled: the rune is a faint glow, and on the
+  page's dark ground it read half as bright as the other icons.
+
+items/dectus-medallion-left.png
+  From File:ER Icon Key Item Dectus Medallion (Left).png (1024 x 1024),
+  scaled to 128 x 128.
+
+items/dectus-medallion-right.png
+  From File:ER Icon Key Item Dectus Medallion (Right).png (1024 x 1024),
+  scaled to 128 x 128.
+
+items/rold-medallion.png
+  From File:ER Icon Key Item Rold Medallion.png (1024 x 1024), scaled to
+  128 x 128.
+
+items/messmers-kindling.png
+  From File:ER Icon Key Item Messmer's Kindling.png (1024 x 1024), scaled to
+  128 x 128. Its file page has no tag.
+
+items/heart-of-bayle.png
+  From File:ER Icon Key Item Heart of Bayle.png (1024 x 1024), scaled to
+  128 x 128. Its file page has no tag.
+
+
+drops/
+
+drops/dragon-greatclaw.png
+  From File:ER Icon weapon Dragon Greatclaw.png (1024 x 1024), scaled to
+  128 x 128.
+
+drops/black-flame-tornado.png
+  From File:ER Icon ash of war Black Flame Tornado.png (1024 x 1024), scaled
+  to 128 x 128.
+
+drops/scepter-of-the-all-knowing.png
+  From File:ER Icon weapon Scepter of the All-Knowing.png (1024 x 1024),
+  scaled to 128 x 128.
+
+
+emblems/
+
+emblems/godfrey.png
+  From File:ER Custom Icon Godfrey.png, made for the wiki by its editor
+  Torbi (2024-11-24) in the style of the game's main-menu icons, and tagged
+  by the wiki the same way as the game's own.
+
+emblems/rune-of-death.png
+  From File:ER Custom Icon Rune of Death.png (145 x 150), one of the wiki's
+  own emblems in the style of the game's main-menu icons, uploaded by its
+  editor Torbi (2024-06-12), scaled to 124 x 128. Its file page has no tag.

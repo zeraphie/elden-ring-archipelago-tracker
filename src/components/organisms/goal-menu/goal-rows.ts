@@ -1,0 +1,119 @@
+/**
+ * ─ Goal rows ─
+ *
+ * Where each goal row stands, by its key: still to do, leaving, or obtained.
+ * A row achieved while the menu watches doesn't go at once. Its frame glows
+ * and holds, then the row slides off the menu's left edge, still lit, as a
+ * toast leaves, and only then does it join the end of Obtained. So the rows
+ * around it close up at once rather than slide, and nothing already obtained
+ * moves. The rows the menu opens on take their places straight away.
+ */
+
+import type { GoalBoss } from "../../../data/bosses/goal.js";
+import type { GoalMenu } from "../../../data/bosses/goal-menu.js";
+import type { Need } from "../../../data/rules/rules.js";
+
+/** How long a leaving row's frame takes to light up. */
+export const GLOW_IN_MS = 500;
+/** How long it holds the glow, long enough to be seen in passing. */
+export const HOLD_MS = 2500;
+/** How long the row takes to slide off the menu's edge, as long as a toast takes to leave. */
+export const SLIDE_MS = 220;
+/** How long a row takes to leave, all told. */
+export const LEAVE_MS = GLOW_IN_MS + HOLD_MS + SLIDE_MS;
+/** How far apart rows achieved together start leaving, so each is seen. */
+export const STAGGER_MS = 900;
+
+/** Where the goal rows stand, by key, each list in the order shown. */
+export interface GoalRows {
+  /** The rows in the list, those leaving included, in their places. */
+  readonly toDo: readonly string[];
+  readonly leaving: readonly string[];
+  /** The rows obtained, the latest last. */
+  readonly obtained: readonly string[];
+}
+
+/**
+ * Where the rows stand once the menu has the rows to do and done: a row done
+ * that was to do starts leaving, and stays in its place until it's left.
+ * `started` is the rows that have just started leaving, in the order shown.
+ */
+export function placeRows(
+  before: GoalRows | undefined,
+  toDo: readonly string[],
+  done: readonly string[]
+): { readonly rows: GoalRows; readonly started: readonly string[] } {
+  if (before === undefined) {
+    return { rows: { toDo: [...toDo], leaving: [], obtained: [...done] }, started: [] };
+  }
+  const isDone = new Set(done);
+  const isToDo = new Set(toDo);
+  const started = before.toDo.filter((key) => isDone.has(key) && !before.leaving.includes(key));
+  // A row undone while leaving goes back to being to do.
+  const leaving = [...before.leaving.filter((key) => isDone.has(key)), ...started];
+  const shown = [
+    ...before.toDo.filter((key) => isToDo.has(key) || leaving.includes(key)),
+    ...toDo.filter((key) => !before.toDo.includes(key)),
+  ];
+  const obtained = [
+    ...before.obtained.filter((key) => isDone.has(key)),
+    ...done.filter((key) => !before.obtained.includes(key) && !before.toDo.includes(key)),
+  ];
+  return { rows: { toDo: shown, leaving, obtained }, started };
+}
+
+/** The rows once `key` has left: gone from the list, and last in Obtained; as they were when it isn't leaving. */
+export function rowLeft(rows: GoalRows, key: string): GoalRows {
+  if (!rows.leaving.includes(key)) {
+    return rows;
+  }
+  return {
+    toDo: rows.toDo.filter((each) => each !== key),
+    leaving: rows.leaving.filter((each) => each !== key),
+    obtained: [...rows.obtained.filter((each) => each !== key), key],
+  };
+}
+
+/** A goal row as the menu shows it: a need or a boss, by its key, and whether it's gotten. */
+export type RowView = { readonly key: string; readonly isGotten: boolean } & (
+  | { readonly kind: "need"; readonly need: Need }
+  | { readonly kind: "boss"; readonly boss: GoalBoss }
+);
+
+/**
+ * The menu's rows to do and done, needs before bosses. With `isAllDone`, as
+ * once the goal's achieved, every need counts as met, a count made up in
+ * full, and every boss as defeated.
+ */
+export function rowViewsOf(
+  menu: GoalMenu,
+  needKey: (need: Need) => string,
+  isAllDone: boolean
+): { readonly toDo: readonly RowView[]; readonly done: readonly RowView[] } {
+  const need = (each: Need, isGotten: boolean): RowView => ({
+    key: needKey(each),
+    isGotten,
+    kind: "need",
+    need: isGotten && each.kind === "count" ? { ...each, have: each.needs } : each,
+  });
+  const boss = (each: GoalBoss, isGotten: boolean): RowView => ({
+    key: `boss:${each.flag}`,
+    isGotten,
+    kind: "boss",
+    boss: isGotten ? { ...each, state: "defeated" } : each,
+  });
+  const isDefeated = (each: GoalBoss) => isAllDone || each.state === "defeated";
+  return {
+    toDo: isAllDone
+      ? []
+      : [
+          ...menu.needed.map((each) => need(each, false)),
+          ...menu.bosses.filter((each) => !isDefeated(each)).map((each) => boss(each, false)),
+        ],
+    done: [
+      ...menu.met.map((each) => need(each, true)),
+      ...(isAllDone ? menu.needed.map((each) => need(each, true)) : []),
+      ...menu.bosses.filter(isDefeated).map((each) => boss(each, true)),
+    ],
+  };
+}

@@ -1,0 +1,248 @@
+/**
+ * ─ Header ─
+ *
+ * The bar over the page. The tracker's name shortens as the bar narrows: the
+ * full name, then "ER Archipelago Tracker", then "ERA Tracker", and a screen
+ * reader always hears the full name. Once a room is open, beside it are the
+ * slot's name, how the tracker is keeping up with the room, the slot's key
+ * checks and all its checks done, and the room's players.
+ */
+
+import { LitElement, css, html, nothing } from "lit";
+import { shallow } from "zustand/vanilla/shallow";
+import type { ConnectionPhase } from "../../../state/slices/connection.js";
+import type { RosterEntry } from "../../../state/slices/roster.js";
+import type { TrackerState, TrackerStore } from "../../../state/store.js";
+import { progressOf, type Progress } from "../../../state/utils/progress.js";
+import { focusRing } from "../../atoms/focus.js";
+import { narrow, phone } from "../../atoms/layout.js";
+import { visuallyHidden } from "../../atoms/visually-hidden.js";
+import "./er-players.js";
+import "./er-progress.js";
+import { liveState } from "./header-words.js";
+import { StoreController } from "../../utils/store-controller.js";
+
+// The slot's name and the room's players, as the header reads them from the store.
+interface Room {
+  readonly name: string | undefined;
+  readonly roster: readonly RosterEntry[];
+  readonly team: number | undefined;
+  readonly slot: number | undefined;
+}
+
+/**
+ * The bar over the page: the tracker's name, and the room it's open on.
+ */
+export class ErHeader extends LitElement {
+  static override properties = { store: { attribute: false } };
+
+  static override styles = [
+    focusRing,
+    visuallyHidden,
+    css`
+      :host {
+        display: block;
+      }
+      .bar {
+        /* The bar's room, for the name to shorten in. */
+        container: bar / inline-size;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 22px;
+        padding: 10px 20px;
+        background: var(--er-surface);
+        border-bottom: 1px solid var(--er-divider);
+      }
+      .title {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+      h1 {
+        margin: 0;
+        font-size: var(--er-name-size);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+        color: var(--er-ink);
+        white-space: nowrap;
+      }
+      .mid,
+      .short {
+        display: none;
+      }
+      /* Where the name and everything beside it stop fitting on one line, as the design found
+         them: windows of 1380 and 1180 px, at the page's 16.5 px text. The query measures the
+         bar inside its padding, so 40 px less. */
+      @container bar (max-width: 81.25em) {
+        .full {
+          display: none;
+        }
+        .mid {
+          display: inline;
+        }
+      }
+      @container bar (max-width: 69.1em) {
+        .mid {
+          display: none;
+        }
+        .short {
+          display: inline;
+        }
+      }
+      .small {
+        font-size: 0.9em;
+      }
+      .muted {
+        color: var(--er-ink-muted);
+      }
+      .live {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--er-ink-soft);
+      }
+      .light {
+        width: 8px;
+        height: 8px;
+        box-sizing: border-box;
+        border: 1px solid var(--er-ink-muted);
+        border-radius: 50%;
+      }
+      .live[data-kind="live"] {
+        color: var(--er-live-ink);
+      }
+      .live[data-kind="live"] .light {
+        background: var(--er-live);
+        border-color: var(--er-live);
+      }
+      .live[data-kind="trouble"] {
+        color: var(--er-error);
+      }
+      .live[data-kind="trouble"] .light {
+        background: var(--er-error);
+        border-color: var(--er-error);
+      }
+      a {
+        color: var(--er-gold);
+      }
+      a:hover {
+        color: var(--er-gold-bright);
+      }
+      .grow {
+        flex-grow: 1;
+      }
+      /* At a tablet's width and below the header keeps to one line, closer set; on a phone, the
+         short name, the live light, and the key checks' count. */
+      @media ${narrow} {
+        .bar {
+          flex-wrap: nowrap;
+          gap: 16px;
+          padding: 8px 16px;
+        }
+        .title {
+          flex-wrap: nowrap;
+        }
+      }
+      @media ${phone} {
+        .bar {
+          flex-wrap: nowrap;
+          gap: 12px;
+          padding: 8px 12px;
+        }
+        .title {
+          flex-wrap: nowrap;
+          gap: 10px;
+        }
+        .slot {
+          display: none;
+        }
+      }
+    `,
+  ];
+
+  /** The room's store, once it's open; the name stands alone until then. */
+  store: TrackerStore | undefined;
+  private connection: StoreController<TrackerState, ConnectionPhase> | undefined;
+  private progress: StoreController<TrackerState, Progress> | undefined;
+  private room: StoreController<TrackerState, Room> | undefined;
+
+  protected override willUpdate(): void {
+    if (this.store !== undefined && this.connection === undefined) {
+      this.connection = new StoreController(this, this.store, (state) => state.connection);
+      this.progress = new StoreController<TrackerState, Progress>(
+        this,
+        this.store,
+        progressOf,
+        shallow
+      );
+      this.room = new StoreController(this, this.store, roomOf, shallow);
+    }
+  }
+
+  override render() {
+    return html`<header class="bar">
+      <div class="title">
+        <h1>
+          <span class="sr">Elden Ring Archipelago Tracker</span>
+          <span class="full" aria-hidden="true">Elden Ring Archipelago Tracker</span>
+          <span class="mid" aria-hidden="true">ER Archipelago Tracker</span>
+          <span class="short" aria-hidden="true">ERA Tracker</span>
+        </h1>
+        ${
+          this.room?.value.name === undefined
+            ? nothing
+            : html`<span class="small muted slot">${this.room.value.name}</span>`
+        }
+        ${this.connection === undefined ? nothing : this.live(this.connection.value)}
+      </div>
+      <er-progress .progress=${this.progress?.value}></er-progress>
+      <div class="grow"></div>
+      ${
+        this.room === undefined || this.progress === undefined
+          ? nothing
+          : html`<er-players
+              .roster=${withMine(this.room.value, this.progress.value.allDone)}
+            ></er-players>`
+      }
+    </header>`;
+  }
+
+  private live(phase: ConnectionPhase) {
+    const { kind, text, detail, page } = liveState(phase);
+    return html`<span class="small live" data-kind=${kind} title=${detail ?? nothing}>
+      <span class="light" aria-hidden="true"></span>
+      <span class="sr-phone">${text}</span>${
+        page === undefined
+          ? nothing
+          : html`, <a href=${page} target="_blank" rel="noopener noreferrer">open its page</a>`
+      }
+      ${detail === undefined ? nothing : html`<span class="sr">${detail}</span>`}
+    </span>`;
+  }
+}
+
+// The slot's name, from the web API's roster, else from the login's players.
+function roomOf(state: TrackerState): Room {
+  const { roster, players, team, slot } = state;
+  const mine = roster.find((entry) => entry.team === team && entry.slot === slot);
+  const player = players.find((each) => each.team === team && each.slot === slot);
+  return { name: mine?.name ?? player?.alias, roster, team, slot };
+}
+
+// The roster with this slot's own checks as the login keeps them, fresher than the web API's.
+function withMine({ roster, team, slot }: Room, checksDone: number): readonly RosterEntry[] {
+  return roster.map((entry) =>
+    entry.team === team && entry.slot === slot ? { ...entry, checksDone } : entry
+  );
+}
+
+customElements.define("er-header", ErHeader);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "er-header": ErHeader;
+  }
+}

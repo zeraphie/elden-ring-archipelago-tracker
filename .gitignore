@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.vite/
+.plan/
+.claude/rules/ai-usage/
+*.local
