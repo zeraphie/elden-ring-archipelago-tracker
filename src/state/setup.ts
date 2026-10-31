@@ -10,14 +10,13 @@
  */
 
 import type { StateStorage } from "zustand/middleware";
-import { ELDEN_RING, type Found, type FoundRoom } from "../archipelago/look-up.js";
+import { checksumsOf, ELDEN_RING, type Found, type FoundRoom } from "../archipelago/look-up.js";
 import type { RoomLink } from "../archipelago/room-link.js";
 import type { RoomWatch } from "../archipelago/room-watch.js";
 import type { LoginProblem, SocketOpener } from "../archipelago/room-socket.js";
 import type { TrackerPoll } from "../archipelago/tracker-poll.js";
 import { getDataPackage, getSlotData, type Fetcher } from "../archipelago/web-api.js";
 import {
-  isRecord,
   WebApiError,
   type DataPackage,
   type SlotData,
@@ -350,33 +349,16 @@ export class Setup {
   }
 }
 
-// Every game's data package in the room, by game: their checksums are in RoomInfo, or the static tracker.
+// Every game's data package in the room, by game.
 async function dataPackages(
   found: Found,
   fetcher: Fetcher | undefined
 ): Promise<ReadonlyMap<string, DataPackage>> {
-  const checksums =
-    found.kind === "room" ? roomChecksums(found.socket.info) : [...found.statics.checksums];
   return new Map(
     await Promise.all(
-      checksums.map(
+      checksumsOf(found).map(
         async ([game, checksum]) => [game, await getDataPackage(checksum, fetcher)] as const
       )
     )
   );
-}
-
-// RoomInfo's checksums, by game, read with care: it comes straight from the server, unchecked.
-function roomChecksums(info: { readonly datapackage_checksums?: unknown }): [string, string][] {
-  const field = "RoomInfo.datapackage_checksums";
-  const { datapackage_checksums: checksums } = info;
-  if (!isRecord(checksums)) {
-    throw new WebApiError("unexpected", field);
-  }
-  return Object.entries(checksums).map(([game, checksum]) => {
-    if (typeof checksum !== "string") {
-      throw new WebApiError("unexpected", `${field}.${game}`);
-    }
-    return [game, checksum];
-  });
 }

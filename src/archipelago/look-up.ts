@@ -14,6 +14,7 @@ import { slotNames } from "./tracker-poll.js";
 import { getRoomStatus, getSlotData, getStaticTracker, type Fetcher } from "./web-api.js";
 import {
   isAsleep,
+  isRecord,
   WebApiError,
   type RoomStatus,
   type SlotData,
@@ -55,6 +56,26 @@ export interface FoundTracker {
 
 /** A link that leads somewhere the tracker can follow. */
 export type Found = FoundRoom | FoundTracker;
+
+/** Every game's data package checksum in a room, by game, from its RoomInfo or its static tracker. */
+export function checksumsOf(found: Found): [string, string][] {
+  return found.kind === "room" ? roomChecksums(found.socket.info) : [...found.statics.checksums];
+}
+
+// RoomInfo's checksums, by game, read with care: it comes straight from the server, unchecked.
+function roomChecksums(info: { readonly datapackage_checksums?: unknown }): [string, string][] {
+  const field = "RoomInfo.datapackage_checksums";
+  const { datapackage_checksums: checksums } = info;
+  if (!isRecord(checksums)) {
+    throw new WebApiError("unexpected", field);
+  }
+  return Object.entries(checksums).map(([game, checksum]) => {
+    if (typeof checksum !== "string") {
+      throw new WebApiError("unexpected", `${field}.${game}`);
+    }
+    return [game, checksum];
+  });
+}
 
 /** What looking a link up came to. */
 export type LookUp =

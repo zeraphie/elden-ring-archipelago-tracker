@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { RULES_APWORLD } from "../../../src/data/rules/apworld.js";
 import { versionNoticesOf } from "../../../src/state/utils/version-notice.js";
 
 const SLOT = { versions: ">=0.1 <0.2" };
@@ -25,7 +26,7 @@ describe("versionNoticesOf", () => {
   test("another apworld, with its range and the release the rules came from", () => {
     expect(
       versionNoticesOf({ serverVersion: undefined, slotData: { versions: ">=0.2 <0.3" } }, "0.6.8")
-    ).toEqual([{ kind: "apworld", room: ">=0.2 <0.3", rules: "0.1.3" }]);
+    ).toEqual([{ kind: "apworld", room: ">=0.2 <0.3", rules: RULES_APWORLD.release }]);
   });
 
   test("nothing it can't tell: no login, as on a tracker link, or slot_data without versions", () => {

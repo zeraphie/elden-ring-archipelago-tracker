@@ -604,7 +604,7 @@ here first, then search the source, then write.
 - `ALL_BOSSES_OPTIONS`: The All Bosses preset's options, as its seed's slot_data gave them.
 
 **src/data/rules/apworld.ts** (src/state)
-- `RULES_APWORLD`: The Elden Ring apworld the rules are ported from: its release, and the range of versions its slot_data says made a room, so a room made by another says another.
+- `RULES_APWORLD`: The Elden Ring apworld the rules are ported from: its release, the Elden Ring data package checksum its rooms carry, and the range of versions its slot_data says made a room.
 
 **src/data/rules/area-status.ts** (src/components/organisms, src/components/utils)
 - `AreaState`: How a region stands: locked, open, or done once every key check in it is checked.
