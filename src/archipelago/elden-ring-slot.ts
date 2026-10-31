@@ -42,6 +42,7 @@ const OPTION_KINDS = {
   smithing_bell_bearing_option: "number",
   early_legacy_dungeons: "flag",
   spiritspring_stones: "flag",
+  seperate_imbued_key: "flag",
   enemy_rando: "flag",
   rykard_encounter: "flag",
 } as const satisfies Record<keyof WorldRuleOptions, "number" | "flag" | "names" | "shards">;

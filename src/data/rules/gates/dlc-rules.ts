@@ -5,8 +5,9 @@
  *
  * The rules set_rules puts on the Realm of Shadow's ways in: the Imbued Sword
  * Keys on Rauh's ruins and the Four Belfries, Messmer's Kindling on Enir-Ilim,
- * the spiritspring stones, the DLC's own keys and its soft-logic gate. With the
- * DLC off, the Four Belfries take one key fewer. A rule on a region the room
+ * the spiritspring stones, the DLC's own keys and its soft-logic gate. Each
+ * statue takes a key of its own when the room splits them, or else a count of
+ * Imbued Sword Keys, one fewer with the DLC off. A rule on a region the room
  * doesn't have never applies.
  */
 
@@ -20,26 +21,33 @@ export interface DlcRuleOptions extends KeyRuleOptions {
   readonly dlc_start: number;
   readonly spiritspring_stones: number | boolean;
   readonly soft_logic: number | boolean;
+  /** On when each imp statue takes an imbued key of its own, as the apworld spells it. */
+  readonly seperate_imbued_key: number | boolean;
 }
 
+// Each belfry, with the key of its own when the room splits them.
 const BELFRIES = [
-  "The Four Belfries (Chapel of Anticipation)",
-  "The Four Belfries (Nokron)",
-  "The Four Belfries (Farum Azula)",
-];
+  ["The Four Belfries (Chapel of Anticipation)", "Chapel Sword Key"],
+  ["The Four Belfries (Nokron)", "Eternal Sword Key"],
+  ["The Four Belfries (Farum Azula)", "Crumbling Sword Key"],
+] as const;
+const RAUH_KEY = "Ancient Sword Key";
 
 /** The DLC's rules on a region's way in, for a room's options, by the region each leads to. */
 export function dlcEntrances(options: DlcRuleOptions): (readonly [string, Rule])[] {
+  // The apworld's _choose_imbued_key_rules.
+  const imbuedKey = (needs: number, key: string): Rule =>
+    options.seperate_imbued_key ? item(key) : imbuedSwordKeys(needs);
   if (!options.enable_dlc) {
-    return BELFRIES.map((belfry) => [belfry, imbuedSwordKeys(3)]);
+    return BELFRIES.map(([belfry, key]) => [belfry, imbuedKey(3, key)]);
   }
   const rauh = area("Ancient Ruins of Rauh");
   const entrances: (readonly [string, Rule])[] =
     options.dlc_start === 1
-      ? [["Rauh Ruins Limited", { kind: "any", rules: [imbuedSwordKeys(1), rauh] }]]
+      ? [["Rauh Ruins Limited", { kind: "any", rules: [imbuedKey(1, RAUH_KEY), rauh] }]]
       : [
-          ...BELFRIES.map((belfry): readonly [string, Rule] => [belfry, imbuedSwordKeys(4)]),
-          ["Rauh Ruins Limited", { kind: "any", rules: [imbuedSwordKeys(4), rauh] }],
+          ...BELFRIES.map(([belfry, key]): readonly [string, Rule] => [belfry, imbuedKey(4, key)]),
+          ["Rauh Ruins Limited", { kind: "any", rules: [imbuedKey(4, RAUH_KEY), rauh] }],
         ];
   entrances.push(["Enir-Ilim", keyOrShards("Messmer's Kindling", options)]);
   if (options.spiritspring_stones) {

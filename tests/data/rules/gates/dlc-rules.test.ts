@@ -19,20 +19,43 @@ const DEFAULT: Options = PRESETS.Default;
 const LONG: Options = PRESETS["[Long]"];
 const DLC_ONLY: Options = PRESETS["[Short] DLC Only"];
 const MEDIUM: Options = PRESETS["[Medium]"];
+const TOGETHER: Options = { ...IZZY, seperate_imbued_key: 0 };
 const CHAPEL = "The Four Belfries (Chapel of Anticipation)";
 // Izzy's way into Liurnia: region lock, with early legacy dungeons on.
 const TO_LIURNIA = ["Liurnia Lock", "Rusty Key"];
 
 describe("the DLC's rules", () => {
-  test("with the DLC on, the Four Belfries take four Imbued Sword Keys, as the unlock table says", () => {
-    expect(opens(CHAPEL, IZZY, ...TO_LIURNIA, ["Imbued Sword Key", 4])).toBe(true);
-    expect(needsFor(CHAPEL, IZZY, ...TO_LIURNIA, ["Imbued Sword Key", 3])).toEqual(
+  test("with the keys split, each belfry and Rauh's limited ruins take a key of their own", () => {
+    const needed = (region: string): unknown =>
+      dlcEntrances(IZZY).find(([name]) => name === region)?.[1];
+    expect(needed(CHAPEL)).toEqual({ kind: "item", item: "Chapel Sword Key" });
+    expect(needed("The Four Belfries (Nokron)")).toEqual({
+      kind: "item",
+      item: "Eternal Sword Key",
+    });
+    expect(needed("The Four Belfries (Farum Azula)")).toEqual({
+      kind: "item",
+      item: "Crumbling Sword Key",
+    });
+    expect(opens(CHAPEL, IZZY, ...TO_LIURNIA, "Chapel Sword Key")).toBe(true);
+    expect(needsFor("Rauh Ruins Limited", DLC_ONLY)).toEqual(
+      any(item("Ancient Sword Key"), area("Ancient Ruins of Rauh"))
+    );
+    expect(needsFor("Rauh Ruins Limited", IZZY)).toEqual(
+      any(item("Ancient Sword Key"), area("Ancient Ruins of Rauh"))
+    );
+  });
+
+  test("with the keys together and the DLC on, the Four Belfries take four Imbued Sword Keys", () => {
+    expect(opens(CHAPEL, TOGETHER, ...TO_LIURNIA, ["Imbued Sword Key", 4])).toBe(true);
+    expect(needsFor(CHAPEL, TOGETHER, ...TO_LIURNIA, ["Imbued Sword Key", 3])).toEqual(
       count("Imbued Sword Keys", 3, 4)
     );
   });
 
   test("with the DLC off, the Four Belfries take three, and none of the DLC's other rules apply", () => {
-    expect(opens(CHAPEL, MEDIUM, ...TO_LIURNIA, ["Imbued Sword Key", 3])).toBe(true);
+    const medium: Options = { ...MEDIUM, seperate_imbued_key: 0 };
+    expect(opens(CHAPEL, medium, ...TO_LIURNIA, ["Imbued Sword Key", 3])).toBe(true);
     expect(dlcEntrances(MEDIUM).map(([region]) => region)).toEqual([
       CHAPEL,
       "The Four Belfries (Nokron)",
@@ -41,12 +64,12 @@ describe("the DLC's rules", () => {
     expect(regionGraph(MEDIUM).regions.has("Enir-Ilim")).toBe(false);
   });
 
-  test("Rauh's limited ruins take four Imbued Sword Keys, or one with the DLC alone, or the way round", () => {
+  test("with the keys together, Rauh's limited ruins take four, or one with the DLC alone, or the way round", () => {
     const aroundRauh = area("Ancient Ruins of Rauh");
-    expect(needsFor("Rauh Ruins Limited", IZZY)).toEqual(
+    expect(needsFor("Rauh Ruins Limited", TOGETHER)).toEqual(
       any(count("Imbued Sword Keys", 0, 4), aroundRauh)
     );
-    expect(needsFor("Rauh Ruins Limited", DLC_ONLY)).toEqual(
+    expect(needsFor("Rauh Ruins Limited", { ...DLC_ONLY, seperate_imbued_key: 0 })).toEqual(
       any(count("Imbued Sword Keys", 0, 1), aroundRauh)
     );
   });

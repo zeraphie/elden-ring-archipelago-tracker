@@ -28,6 +28,7 @@ export const ALL_BOSSES_OPTIONS: Readonly<Record<string, unknown>> = {
   enemy_rando: 1,
   rykard_encounter: 1,
   spiritspring_stones: 1,
+  seperate_imbued_key: 1,
   enable_dlc: 1,
   dlc_start: 0,
   dlc_timing: 2,
