@@ -1,11 +1,10 @@
 /**
  * ─ Version notice ─
  *
- * A band across the top of the map when the room runs on, or was made by,
- * something the tracker isn't sure of: an Archipelago newer than the release
- * it's tested against, or an Elden Ring apworld other than the one its rules
- * come from. It says what differs and what it might mean, and once closed it
- * stays closed for that room until the page next opens.
+ * A band across the top of the map when the room runs on an Archipelago newer
+ * than the release the tracker is tested against. It says what differs and
+ * what it might mean, and once closed it stays closed for that room until the
+ * page next opens.
  */
 
 import { LitElement, css, html, nothing } from "lit";

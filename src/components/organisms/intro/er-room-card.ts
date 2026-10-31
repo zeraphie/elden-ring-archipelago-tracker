@@ -11,6 +11,7 @@
 
 import { LitElement, css, html, nothing, type PropertyValues } from "lit";
 import type { RoomLink } from "../../../archipelago/room-link.js";
+import { apworldReleasePage, RULES_APWORLD } from "../../../data/rules/apworld.js";
 import type { EntryPhase, EntryState, EntryStore } from "../../../state/entry.js";
 import { buttonStyles } from "../../atoms/button.js";
 import { dotStyles } from "../../atoms/dot.js";
@@ -245,6 +246,8 @@ export class ErRoomCard extends LitElement {
         </div>`;
       case "asleep":
         return this.asleep(phase);
+      case "unsupported":
+        return this.unsupported(phase);
       case "slots":
         return this.slots(phase);
       case "loading":
@@ -322,6 +325,40 @@ export class ErRoomCard extends LitElement {
         ${this.anotherRoomButton()}
       </div>
     </form>`;
+  }
+
+  private unsupported({ release, page }: Extract<EntryPhase, { phase: "unsupported" }>) {
+    const supported = externalLink(
+      apworldReleasePage(RULES_APWORLD.release),
+      RULES_APWORLD.release
+    );
+    return html`<div class="tight" role="alert">
+        <span class="title">This room's version isn't supported</span>
+        ${
+          release === undefined
+            ? html`<span class="soft"
+                >This ${externalLink(page, "room")} was made with an unsupported version of Elden
+                Ring Archipelago. Use ${supported} and remake the room to use this tracker.</span
+              >`
+            : html`<span class="soft"
+                >This ${externalLink(page, "room")} was made with
+                ${externalLink(apworldReleasePage(release), `Elden Ring Archipelago ${release}`)},
+                which is unsupported. Update Elden Ring Archipelago to ${supported} and remake the
+                room to use this tracker.</span
+              >`
+        }
+      </div>
+      <div class="buttons">
+        <button
+          type="button"
+          class="button"
+          data-tone="primary"
+          data-first
+          @click=${() => this.entry?.getState().anotherRoom()}
+        >
+          Another room
+        </button>
+      </div>`;
   }
 
   private asleep({ since, page }: Extract<EntryPhase, { phase: "asleep" }>) {
@@ -458,4 +495,9 @@ declare global {
   interface HTMLElementTagNameMap {
     "er-room-card": ErRoomCard;
   }
+}
+
+// A link out of the tracker, in the card's own link style.
+function externalLink(href: string, text: string) {
+  return html`<a class="link" href=${href} target="_blank" rel="noopener noreferrer">${text}</a>`;
 }

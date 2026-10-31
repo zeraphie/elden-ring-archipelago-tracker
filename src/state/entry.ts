@@ -48,6 +48,14 @@ export type EntryPhase =
       /** The room's page, where the player wakes it. */
       readonly page: string;
     }
+  /** Made with an Elden Ring world the tracker can't read: this is as far as it goes. */
+  | {
+      readonly phase: "unsupported";
+      /** Which release it was, when the tracker knows it. */
+      readonly release: string | undefined;
+      /** The room's or tracker's own page. */
+      readonly page: string;
+    }
   | {
       readonly phase: "slots";
       readonly slots: readonly RoomSlot[];
@@ -255,6 +263,12 @@ export function createEntryStore(options: EntryOptions): EntryStore {
             } else {
               connectTo(result.found);
             }
+            return;
+          case "unsupported":
+            set({
+              phase: { phase: "unsupported", release: result.release, page: result.page },
+              parts: [],
+            });
             return;
           case "asleep":
             sleep(result, then);

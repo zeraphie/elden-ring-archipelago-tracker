@@ -105,7 +105,6 @@ here first, then search the source, then write.
 - `readKeyCheckSlotData()`: The part of an Elden Ring slot's slot_data that its key checks are rebuilt from, with its checks' names; undefined in any other shape.
 - `readRulesSlotData()`: The part of an Elden Ring slot's slot_data its rules and goal are read from; undefined in any other shape.
 - `readMapSlotData()`: The part of an Elden Ring slot's slot_data that places its checks on the map: each check's key and name, by id; undefined in any other shape.
-- `readSlotVersions()`: The apworld versions an Elden Ring slot's slot_data says made it, such as ">=0.1 <0.2"; undefined when it says none.
 
 **src/archipelago/live-events.ts** (src/components/organisms, src/state)
 - `MessagePart`: One part of a message's text: plain, or an id to name, with what's known of it.
@@ -603,8 +602,10 @@ here first, then search the source, then write.
 **src/data/presets/all-bosses.ts** (src/state)
 - `ALL_BOSSES_OPTIONS`: The All Bosses preset's options, as its seed's slot_data gave them.
 
-**src/data/rules/apworld.ts** (src/state)
-- `RULES_APWORLD`: The Elden Ring apworld the rules are ported from: its release, the Elden Ring data package checksum its rooms carry, and the range of versions its slot_data says made a room.
+**src/data/rules/apworld.ts** (src/archipelago, src/components/organisms)
+- `RULES_APWORLD`: The Elden Ring apworld the rules are ported from: its release, and the Elden Ring data package checksum its rooms carry.
+- `apworldReleasePage()`: A release's page, with its notes and downloads.
+- `apworldSupportOf()`: Whether the tracker can read a room, by its Elden Ring data package checksum; a room with none has no Elden Ring slot to read wrongly.
 
 **src/data/rules/area-status.ts** (src/components/organisms, src/components/utils)
 - `AreaState`: How a region stands: locked, open, or done once every key check in it is checked.
@@ -699,7 +700,7 @@ here first, then search the source, then write.
 - `Stamped`: Something with the time the tracker saw it, in milliseconds since 1970.
 
 **src/state/utils/version-notice.ts** (src/components/organisms)
-- `VersionNotice`: What the room has that the tracker isn't sure of: a newer Archipelago, or another apworld, each with both versions.
+- `VersionNotice`: What the room has that the tracker isn't sure of: a newer Archipelago, with both versions.
 - `versionNoticesOf()`: What the room has that the tracker isn't sure of, by the tracker's own version; none when all is as tested.
 
 ## src/storage

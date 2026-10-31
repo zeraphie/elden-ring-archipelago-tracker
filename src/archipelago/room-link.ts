@@ -65,6 +65,13 @@ export function roomPage(room: string): string {
   return `https://archipelago.gg/room/${room}`;
 }
 
+/** A link's own page on archipelago.gg: the room's, or the tracker's. */
+export function linkPage(link: RoomLink): string {
+  return link.kind === "room"
+    ? roomPage(link.room)
+    : `https://archipelago.gg/tracker/${link.tracker}`;
+}
+
 /** What to tell the person who pasted a link the tracker can't follow. */
 export function linkProblemMessage(reading: {
   readonly problem: LinkProblem;

@@ -39,6 +39,44 @@ function entering(options: { fetcher?: Fetcher; password?: string; now?: () => n
   return { store, room, storage, waits, phase };
 }
 
+const OLD_RELEASE = "c3ab8b33b4e26448022dd43b79b231082699e63b";
+
+describe("an unsupported room", () => {
+  const oldRoom = () => {
+    const room = testRoom(undefined, OLD_RELEASE);
+    const storage = memory();
+    const store = createEntryStore({
+      version: TRACKER_VERSION,
+      fetcher: recordedWeb().fetcher,
+      opener: room.opener,
+      timer: () => undefined,
+      now: () => AWAKE,
+      storage,
+    });
+    return { store, storage, phase: () => store.getState().phase };
+  };
+  const BLOCKED = { phase: "unsupported", release: "0.1.3", page: ROOM_URL } as const;
+
+  test("stops at its notice from a link, and another room is the way on", async () => {
+    const run = oldRoom();
+    run.store.getState().lookUp(ROOM_URL);
+    await until(() => run.phase().phase === "unsupported");
+    expect(run.phase()).toEqual(BLOCKED);
+    run.store.getState().anotherRoom();
+    expect(run.phase()).toEqual({ phase: "entry" });
+  });
+
+  test("stops at its notice from a kept visit too, connecting to nothing", async () => {
+    const run = oldRoom();
+    await rememberVisit(VISIT, run.storage);
+    await run.store.getState().start();
+    run.store.getState().connectLast();
+    await until(() => run.phase().phase === "unsupported");
+    expect(run.phase()).toEqual(BLOCKED);
+    expect(run.store.getState().parts).toEqual([]);
+  });
+});
+
 describe("the way in", () => {
   test("with no visit kept, it starts at the link", async () => {
     const run = entering();

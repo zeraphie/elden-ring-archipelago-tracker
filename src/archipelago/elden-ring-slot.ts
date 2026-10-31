@@ -188,9 +188,3 @@ function strings(value: unknown): readonly string[] | undefined {
 function number(value: unknown): number | undefined {
   return typeof value === "number" ? value : undefined;
 }
-
-/** The apworld versions an Elden Ring slot's slot_data says made it, such as ">=0.1 <0.2"; undefined when it says none. */
-export function readSlotVersions(slotData: Readonly<Record<string, unknown>>): string | undefined {
-  const { versions } = slotData;
-  return typeof versions === "string" ? versions : undefined;
-}

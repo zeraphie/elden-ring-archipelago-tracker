@@ -18,7 +18,40 @@ const THREE = {
   ],
 };
 
+// A release the tracker has moved on from, and a tracker page whose room was made with it.
+const OLD_RELEASE = "c3ab8b33b4e26448022dd43b79b231082699e63b";
+const oldTracker = (checksum: string) => ({
+  ...webApi.static_tracker,
+  datapackage: { ...webApi.static_tracker.datapackage, EldenRing: { checksum, version: 7 } },
+});
+
 describe("lookUp", () => {
+  test("a room on a past release goes no further, its socket let go, naming the release", async () => {
+    const room = testRoom(undefined, OLD_RELEASE);
+    const result = await lookUp(ROOM, {
+      fetcher: recordedWeb().fetcher,
+      opener: room.opener,
+      now: NOW,
+    });
+    expect(result).toEqual({
+      kind: "unsupported",
+      release: "0.1.3",
+      page: `https://archipelago.gg/room/${ROOM.room}`,
+    });
+    expect(room.sockets[0]?.socket.isClosed).toBe(true);
+  });
+
+  test("a tracker link on a release it doesn't know goes no further, with no release to name", async () => {
+    const result = await lookUp(TRACKER, {
+      fetcher: recordedWeb({ static_tracker: { body: oldTracker("a release to come") } }).fetcher,
+    });
+    expect(result).toEqual({
+      kind: "unsupported",
+      release: undefined,
+      page: `https://archipelago.gg/tracker/${TRACKER.tracker}`,
+    });
+  });
+
   test("an awake room offers its slots in order, Elden Ring's marked, on a socket left open", async () => {
     const room = testRoom();
     const result = await lookUp(ROOM, {

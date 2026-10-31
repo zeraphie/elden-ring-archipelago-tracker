@@ -48,7 +48,7 @@ describe("readRoomStatus", () => {
 describe("readStaticTracker", () => {
   test("reads each game's checksum, and each slot's game and location count", () => {
     const tracker = readStaticTracker(fixture.static_tracker);
-    expect(tracker.checksums.get("EldenRing")).toBe("c3ab8b33b4e26448022dd43b79b231082699e63b");
+    expect(tracker.checksums.get("EldenRing")).toBe("aa7fdd7568d86f91512f039e1b5e2a7228a61f7a");
     expect(tracker.games).toEqual([{ team: 0, player: 1, game: "EldenRing" }]);
     expect(tracker.totals).toEqual([{ team: 0, player: 1, total: 3765 }]);
     expect(tracker.groups).toEqual([]);

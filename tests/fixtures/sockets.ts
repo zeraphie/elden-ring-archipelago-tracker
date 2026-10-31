@@ -68,9 +68,25 @@ export const CONNECTED = {
 
 // A socket that sends RoomInfo as it opens, and answers a Connect as the room would.
 class RoomSideSocket extends TestSocket {
-  constructor(private readonly password: string | undefined) {
+  constructor(
+    private readonly password: string | undefined,
+    eldenRingChecksum: string | undefined
+  ) {
     super();
-    queueMicrotask(() => this.serve(roomInfo(password !== undefined)));
+    queueMicrotask(() => {
+      const info = roomInfo(password !== undefined);
+      this.serve(
+        eldenRingChecksum === undefined
+          ? info
+          : {
+              ...info,
+              datapackage_checksums: {
+                ...info.datapackage_checksums,
+                EldenRing: eldenRingChecksum,
+              },
+            }
+      );
+    });
   }
 
   override send(data: string): void {
@@ -91,13 +107,16 @@ class RoomSideSocket extends TestSocket {
 }
 
 /** A room in a test, with this password or none: every socket opened to it, and the opener. */
-export function testRoom(password?: string): {
+export function testRoom(
+  password?: string,
+  eldenRingChecksum?: string
+): {
   readonly sockets: { readonly url: string; readonly socket: TestSocket }[];
   readonly opener: SocketOpener;
 } {
   const sockets: { url: string; socket: TestSocket }[] = [];
   const opener: SocketOpener = (url) => {
-    const socket = new RoomSideSocket(password);
+    const socket = new RoomSideSocket(password, eldenRingChecksum);
     sockets.push({ url, socket });
     return socket;
   };

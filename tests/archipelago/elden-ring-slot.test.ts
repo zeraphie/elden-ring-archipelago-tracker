@@ -4,7 +4,6 @@ import {
   readKeyCheckSlotData,
   readMapSlotData,
   readRulesSlotData,
-  readSlotVersions,
 } from "../../src/archipelago/elden-ring-slot.js";
 import { PRESETS } from "../fixtures/presets.js";
 import { arrivingSlot, LOCATION_NAMES, SEEDS, seed, slotOf } from "../fixtures/seeds.js";
@@ -124,13 +123,5 @@ describe("readMapSlotData", () => {
   test("without its keys, or with a key that isn't text, is nothing", () => {
     expect(readMapSlotData({}, names)).toBeUndefined();
     expect(readMapSlotData({ locationIdsToKeys: { 7000000: 1 } }, names)).toBeUndefined();
-  });
-});
-
-describe("readSlotVersions", () => {
-  test("is the apworld range a slot_data says made it, and nothing for slot_data without one", () => {
-    expect(readSlotVersions({ versions: ">=0.1 <0.2" })).toBe(">=0.1 <0.2");
-    expect(readSlotVersions({ versions: 1 })).toBeUndefined();
-    expect(readSlotVersions({})).toBeUndefined();
   });
 });

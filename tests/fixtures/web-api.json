@@ -15,7 +15,7 @@
         "version": 0
       },
       "EldenRing": {
-        "checksum": "c3ab8b33b4e26448022dd43b79b231082699e63b",
+        "checksum": "aa7fdd7568d86f91512f039e1b5e2a7228a61f7a",
         "version": 0
       }
     },
@@ -36,7 +36,7 @@
     ]
   },
   "datapackage": {
-    "checksum": "c3ab8b33b4e26448022dd43b79b231082699e63b",
+    "checksum": "aa7fdd7568d86f91512f039e1b5e2a7228a61f7a",
     "item_name_groups": {
       "Great Runes": [
         "Godrick's Great Rune",

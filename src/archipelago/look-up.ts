@@ -5,10 +5,12 @@
  * it's asleep, and an awake room's websocket is opened, so its RoomInfo can
  * say whether a password is needed; the socket stays open for the login. A
  * tracker link reaches only the web API, so its static tracker and slot_data
- * name the slots instead. Either way, it never wakes a room.
+ * name the slots instead. Either way, it never wakes a room, and a room made
+ * with an Elden Ring world the tracker can't read goes no further.
  */
 
-import { roomPage, type RoomLink } from "./room-link.js";
+import { apworldSupportOf } from "../data/rules/apworld.js";
+import { linkPage, roomPage, type RoomLink } from "./room-link.js";
 import { LoginError, roomAddress, RoomSocket, type SocketOpener } from "./room-socket.js";
 import { slotNames } from "./tracker-poll.js";
 import { getRoomStatus, getSlotData, getStaticTracker, type Fetcher } from "./web-api.js";
@@ -80,6 +82,14 @@ function roomChecksums(info: { readonly datapackage_checksums?: unknown }): [str
 /** What looking a link up came to. */
 export type LookUp =
   | { readonly kind: "found"; readonly found: Found }
+  /** Made with an Elden Ring world the tracker can't read. */
+  | {
+      readonly kind: "unsupported";
+      /** Which release it was, when it's one the tracker knows. */
+      readonly release: string | undefined;
+      /** The room's or tracker's own page. */
+      readonly page: string;
+    }
   | {
       readonly kind: "asleep";
       /** When it was last active, in milliseconds since 1970. */
@@ -106,7 +116,7 @@ export async function lookUp(link: RoomLink, options: LookUpOptions = {}): Promi
   try {
     return link.kind === "room"
       ? await lookUpRoom(link, options)
-      : { kind: "found", found: await lookUpTracker(link, options.fetcher) };
+      : judged(await lookUpTracker(link, options.fetcher));
   } catch (error) {
     if (error instanceof WebApiError) {
       return webFailure(error);
@@ -135,10 +145,26 @@ async function lookUpRoom(
     game,
     isEldenRing: game === ELDEN_RING,
   }));
-  return {
-    kind: "found",
-    found: { kind: "room", link, status, socket, slots, needsPassword: socket.info.password },
-  };
+  return judged({
+    kind: "room",
+    link,
+    status,
+    socket,
+    slots,
+    needsPassword: socket.info.password,
+  });
+}
+
+// What a room found comes to once its Elden Ring world is judged; one that can't be read lets its socket go.
+function judged(found: Found): LookUp {
+  const support = apworldSupportOf(new Map(checksumsOf(found)).get(ELDEN_RING));
+  if (support.isSupported) {
+    return { kind: "found", found };
+  }
+  if (found.kind === "room") {
+    found.socket.close();
+  }
+  return { kind: "unsupported", release: support.release, page: linkPage(found.link) };
 }
 
 async function lookUpTracker(

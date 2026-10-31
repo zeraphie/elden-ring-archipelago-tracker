@@ -1,20 +1,23 @@
 /**
- * The Elden Ring apworld the rules are ported from: its release, the Elden Ring
- * data package checksum its rooms carry, and the range of versions its slot_data
- * says made a room.
+ * The Elden Ring apworld the rules are ported from: its release, and the Elden
+ * Ring data package checksum its rooms carry.
  */
 export const RULES_APWORLD = {
   release: "0.1.4",
   // Nothing tells a client a world's version, so a release is known by this: taken from a seed
   // generated on it, and the same in every room on it, whatever its options.
   checksum: "aa7fdd7568d86f91512f039e1b5e2a7228a61f7a",
-  versions: ">=0.1 <0.2",
 } as const;
 
 // Releases the tracker has moved on from, by checksum, so a notice can name them.
 const PAST_RELEASES: ReadonlyMap<string, string> = new Map([
   ["c3ab8b33b4e26448022dd43b79b231082699e63b", "0.1.3"],
 ]);
+
+/** A release's page, with its notes and downloads. */
+export function apworldReleasePage(release: string): string {
+  return `https://github.com/thefifthmatt/SoulsRandomizers/releases/tag/eldenring-ap-${release}`;
+}
 
 /** Whether the tracker can read a room's Elden Ring world, with the release when it's one it knows. */
 export type ApworldSupport =
