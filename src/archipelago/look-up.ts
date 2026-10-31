@@ -9,7 +9,7 @@
  * with an Elden Ring world the tracker can't read goes no further.
  */
 
-import { apworldSupportOf } from "../data/rules/apworld.js";
+import { isApworldSupported } from "../data/rules/apworld.js";
 import { linkPage, roomPage, type RoomLink } from "./room-link.js";
 import { LoginError, roomAddress, RoomSocket, type SocketOpener } from "./room-socket.js";
 import { slotNames } from "./tracker-poll.js";
@@ -85,8 +85,6 @@ export type LookUp =
   /** Made with an Elden Ring world the tracker can't read. */
   | {
       readonly kind: "unsupported";
-      /** Which release it was, when it's one the tracker knows. */
-      readonly release: string | undefined;
       /** The room's or tracker's own page. */
       readonly page: string;
     }
@@ -157,14 +155,13 @@ async function lookUpRoom(
 
 // What a room found comes to once its Elden Ring world is judged; one that can't be read lets its socket go.
 function judged(found: Found): LookUp {
-  const support = apworldSupportOf(new Map(checksumsOf(found)).get(ELDEN_RING));
-  if (support.isSupported) {
+  if (isApworldSupported(new Map(checksumsOf(found)).get(ELDEN_RING))) {
     return { kind: "found", found };
   }
   if (found.kind === "room") {
     found.socket.close();
   }
-  return { kind: "unsupported", release: support.release, page: linkPage(found.link) };
+  return { kind: "unsupported", page: linkPage(found.link) };
 }
 
 async function lookUpTracker(

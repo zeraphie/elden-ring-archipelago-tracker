@@ -51,8 +51,6 @@ export type EntryPhase =
   /** Made with an Elden Ring world the tracker can't read: this is as far as it goes. */
   | {
       readonly phase: "unsupported";
-      /** Which release it was, when the tracker knows it. */
-      readonly release: string | undefined;
       /** The room's or tracker's own page. */
       readonly page: string;
     }
@@ -265,10 +263,7 @@ export function createEntryStore(options: EntryOptions): EntryStore {
             }
             return;
           case "unsupported":
-            set({
-              phase: { phase: "unsupported", release: result.release, page: result.page },
-              parts: [],
-            });
+            set({ phase: { phase: "unsupported", page: result.page }, parts: [] });
             return;
           case "asleep":
             sleep(result, then);

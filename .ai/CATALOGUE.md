@@ -604,8 +604,8 @@ here first, then search the source, then write.
 
 **src/data/rules/apworld.ts** (src/archipelago, src/components/organisms)
 - `RULES_APWORLD`: The Elden Ring apworld the rules are ported from: its release, and the Elden Ring data package checksum its rooms carry.
-- `apworldReleasePage()`: A release's page, with its notes and downloads.
-- `apworldSupportOf()`: Whether the tracker can read a room, by its Elden Ring data package checksum; a room with none has no Elden Ring slot to read wrongly.
+- `APWORLD_RELEASE_PAGE`: The supported release's page, with its notes and downloads.
+- `isApworldSupported()`: Whether the tracker can read a room, by its Elden Ring data package checksum; a room with none has no Elden Ring slot to read wrongly.
 
 **src/data/rules/area-status.ts** (src/components/organisms, src/components/utils)
 - `AreaState`: How a region stands: locked, open, or done once every key check in it is checked.

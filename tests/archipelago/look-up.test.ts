@@ -26,7 +26,7 @@ const oldTracker = (checksum: string) => ({
 });
 
 describe("lookUp", () => {
-  test("a room on a past release goes no further, its socket let go, naming the release", async () => {
+  test("a room on a past release goes no further, its socket let go", async () => {
     const room = testRoom(undefined, OLD_RELEASE);
     const result = await lookUp(ROOM, {
       fetcher: recordedWeb().fetcher,
@@ -35,19 +35,17 @@ describe("lookUp", () => {
     });
     expect(result).toEqual({
       kind: "unsupported",
-      release: "0.1.3",
       page: `https://archipelago.gg/room/${ROOM.room}`,
     });
     expect(room.sockets[0]?.socket.isClosed).toBe(true);
   });
 
-  test("a tracker link on a release it doesn't know goes no further, with no release to name", async () => {
+  test("a tracker link on a release it doesn't know goes no further", async () => {
     const result = await lookUp(TRACKER, {
       fetcher: recordedWeb({ static_tracker: { body: oldTracker("a release to come") } }).fetcher,
     });
     expect(result).toEqual({
       kind: "unsupported",
-      release: undefined,
       page: `https://archipelago.gg/tracker/${TRACKER.tracker}`,
     });
   });

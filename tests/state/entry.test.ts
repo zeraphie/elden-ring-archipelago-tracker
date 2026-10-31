@@ -55,7 +55,7 @@ describe("an unsupported room", () => {
     });
     return { store, storage, phase: () => store.getState().phase };
   };
-  const BLOCKED = { phase: "unsupported", release: "0.1.3", page: ROOM_URL } as const;
+  const BLOCKED = { phase: "unsupported", page: ROOM_URL } as const;
 
   test("stops at its notice from a link, and another room is the way on", async () => {
     const run = oldRoom();

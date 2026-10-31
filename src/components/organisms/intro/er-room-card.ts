@@ -11,7 +11,7 @@
 
 import { LitElement, css, html, nothing, type PropertyValues } from "lit";
 import type { RoomLink } from "../../../archipelago/room-link.js";
-import { apworldReleasePage, RULES_APWORLD } from "../../../data/rules/apworld.js";
+import { APWORLD_RELEASE_PAGE, RULES_APWORLD } from "../../../data/rules/apworld.js";
 import type { EntryPhase, EntryState, EntryStore } from "../../../state/entry.js";
 import { buttonStyles } from "../../atoms/button.js";
 import { dotStyles } from "../../atoms/dot.js";
@@ -327,26 +327,14 @@ export class ErRoomCard extends LitElement {
     </form>`;
   }
 
-  private unsupported({ release, page }: Extract<EntryPhase, { phase: "unsupported" }>) {
-    const supported = externalLink(
-      apworldReleasePage(RULES_APWORLD.release),
-      RULES_APWORLD.release
-    );
+  private unsupported({ page }: Extract<EntryPhase, { phase: "unsupported" }>) {
     return html`<div class="tight" role="alert">
         <span class="title">This room's version isn't supported</span>
-        ${
-          release === undefined
-            ? html`<span class="soft"
-                >This ${externalLink(page, "room")} was made with an unsupported version of Elden
-                Ring Archipelago. Use ${supported} and remake the room to use this tracker.</span
-              >`
-            : html`<span class="soft"
-                >This ${externalLink(page, "room")} was made with
-                ${externalLink(apworldReleasePage(release), `Elden Ring Archipelago ${release}`)},
-                which is unsupported. Update Elden Ring Archipelago to ${supported} and remake the
-                room to use this tracker.</span
-              >`
-        }
+        <span class="soft"
+          >This ${externalLink(page, "room")} was made with an unsupported version of Elden Ring
+          Archipelago. Use ${externalLink(APWORLD_RELEASE_PAGE, RULES_APWORLD.release)} and remake
+          the room to use this tracker.</span
+        >
       </div>
       <div class="buttons">
         <button
