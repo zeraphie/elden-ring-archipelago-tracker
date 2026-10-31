@@ -142,7 +142,7 @@ describe("goalMenu", () => {
 describe("bossDropping", () => {
   test("names the boss whose defeat drops a location, and none for any other", () => {
     expect(bossDropping(MORGOTTS_DROP)).toEqual({ flag: MORGOTT, name: "Morgott, the Omen King" });
-    expect(bossDropping("LG/(SG): Finger Severer - beside grace")).toBeUndefined();
+    expect(bossDropping("LG/(SGr): Finger Severer - beside grace")).toBeUndefined();
   });
 
   test("names the Draconic Tree Sentinel, which no goal can name, by its drops", () => {

@@ -248,7 +248,7 @@ export const LIURNIA_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Under the bridge north of Fallen Ruins of the Lake", encounter: "Scarab" },
   ],
   [
-    "LL/AGT: Map: Liurnia, North - near grace",
+    "LL/AGT: Map: Liurnia, North - map pillar near grace",
     { place: "Academy Gate Town", encounter: "Map fragment" },
   ],
   [
@@ -284,7 +284,7 @@ export const LIURNIA_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Liurnia Lake Shore", encounter: "Nomadic Merchant" },
   ],
   [
-    "LL/LLS: Map: Liurnia, East - to N",
+    "LL/LLS: Map: Liurnia, East - map pillar to N",
     { place: "North of Liurnia Lake Shore", encounter: "Map fragment" },
   ],
   [

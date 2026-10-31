@@ -42,7 +42,7 @@ export interface KeyCheckSlotData {
 // the rooms measured, where groups nobody chose list 15 to 26%.
 const EXCLUDED_SHARE = 0.5;
 // The priority spots generation adds when a region the run starts in has none.
-const LIMGRAVE_TOP_UP = "LG/(SG): Finger Severer - beside grace";
+const LIMGRAVE_TOP_UP = "LG/(SGr): Finger Severer - beside grace";
 const GRAVESITE_TOP_UP = "GP/TPC: Scadutree Fragment - by cross";
 // The spots "do not randomize" leaves the Crafting Kit and the Physick Flask on,
 // in the base game and among the DLC's Twin Maiden Husks.

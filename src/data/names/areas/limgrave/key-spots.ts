@@ -175,11 +175,11 @@ export const LIMGRAVE_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "North west of Stormhill Shack", encounter: "Scarab" },
   ],
   [
-    "LG/(SG): Arrow's Reach Talisman - chest above gate",
+    "LG/(SGa): Arrow's Reach Talisman - chest above gate",
     { place: "Above the Stormgate", encounter: "Chest" },
   ],
   [
-    "LG/WS: Strength-knot Crystal Tear - on cliff NW of WS",
+    "LG/WS: Strength-knot Crystal Tear - in basin on cliff NW of WS",
     { place: "Cliff north west of Warmaster's Shack", encounter: "Basin" },
   ],
   [
@@ -442,7 +442,7 @@ export const LIMGRAVE_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: `East of ${placeName("WP/ME")}`, encounter: "Scarab" },
   ],
   [
-    "WP/DHFR: Faith-knot Crystal Tear - N of DHFR",
+    "WP/DHFR: Faith-knot Crystal Tear - N of DHFR in basin",
     { place: "North of Demi-Human Forest Ruins", encounter: "Basin" },
   ],
   [
@@ -450,7 +450,7 @@ export const LIMGRAVE_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Below Demi-Human Forest Ruins", encounter: "Chest" },
   ],
   [
-    "WP/CMR: Map: Weeping Peninsula - to SW",
+    "WP/CMR: Map: Weeping Peninsula - map pillar to SW",
     { place: "South west of Castle Morne Rampart", encounter: "Map fragment" },
   ],
   [

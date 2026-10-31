@@ -233,7 +233,7 @@ export const ALTUS_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Below Wyndham Ruins, behind the imp statue", encounter: "Chest" },
   ],
   [
-    "AP/AHJ: Ash of War: Earthshaker - scarab to SE on road",
+    "AP/AHJ: Ash of War: Earthshaker - scarab to SW on road",
     { place: "Road south east of Altus Highway Junction", encounter: "Scarab" },
   ],
   [
@@ -338,7 +338,7 @@ export const ALTUS_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Elden Throne, by the Queen's Bedchamber", encounter: "Hoarah Loux" },
   ],
   [
-    "MtG/RI: Map: Mt. Gelmir - to W by map pillar",
+    "MtG/RI: Map: Mt. Gelmir - map pillar to W",
     { place: "West of Road of Iniquity", encounter: "Map fragment" },
   ],
   [
@@ -367,7 +367,7 @@ export const ALTUS_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Inside the Erdtree", encounter: "Elden Beast" },
   ],
   [
-    "MtG/(WC): Glovewort Picker's Bell Bearing [1] - boss drop",
+    "AP/(WC): Glovewort Picker's Bell Bearing [1] - boss drop",
     { place: "Wyndham Catacombs", encounter: "Erdtree Burial Watchdog" },
   ],
   [
@@ -540,7 +540,7 @@ export const ALTUS_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Camp south of Outer Wall Phantom Tree", encounter: "Caravan chest" },
   ],
   [
-    "CO/OWPT: Map: Leyndell, Royal Capital - by map pillar",
+    "CO/OWPT: Map: Leyndell, Royal Capital - map pillar",
     { place: "Outer Wall Phantom Tree", encounter: "Map fragment" },
   ],
   [

@@ -1,6 +1,6 @@
 /*! Regions and connections from the Elden Ring apworld 0.1.3's create_regions and region orders, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
-// Written by tools/write-region-graph.ts from the apworld's __init__.py and locations.py: run `bun run region-graph` again rather than editing it.
+// Written by tools/write-region-graph.ts from the apworld's __init__.py and region_names.py: run `bun run region-graph` again rather than editing it.
 
 /** The base game's regions, in the apworld's order. */
 export const BASE_REGIONS: readonly string[] = [
@@ -55,7 +55,7 @@ export const BASE_REGIONS: readonly string[] = [
   "Sellia Crystal Tunnel",
   "Abandoned Cave",
   "Minor Erdtree Catacombs",
-  "Gale Tunnel",
+  "Gael Tunnel",
   "Great-Jar",
   "Redmane Castle Post Radahn",
   "Wailing Dunes",
@@ -79,8 +79,8 @@ export const BASE_REGIONS: readonly string[] = [
   "Sage's Cave",
   "Old Altus Tunnel",
   "Altus Tunnel",
-  "Mt. Gelmir",
   "Wyndham Catacombs",
+  "Mt. Gelmir",
   "Gelmir Hero's Grave",
   "Seethewater Cave",
   "Volcano Cave",
@@ -224,7 +224,7 @@ export const BASE_CONNECTIONS: readonly (readonly [string, string])[] = [
   ["Caelid", "Abandoned Cave"],
   ["Caelid", "Great-Jar"],
   ["Caelid", "Minor Erdtree Catacombs"],
-  ["Caelid", "Gale Tunnel"],
+  ["Caelid", "Gael Tunnel"],
   ["Caelid", "Redmane Castle Post Radahn"],
   ["Caelid", "Dragonbarrow"],
   ["Dragonbarrow", "Dragonbarrow Cave"],
@@ -246,8 +246,8 @@ export const BASE_CONNECTIONS: readonly (readonly [string, string])[] = [
   ["Altus Plateau", "Sage's Cave"],
   ["Altus Plateau", "Old Altus Tunnel"],
   ["Altus Plateau", "Altus Tunnel"],
+  ["Altus Plateau", "Wyndham Catacombs"],
   ["Altus Plateau", "Mt. Gelmir"],
-  ["Mt. Gelmir", "Wyndham Catacombs"],
   ["Mt. Gelmir", "Gelmir Hero's Grave"],
   ["Mt. Gelmir", "Seethewater Cave"],
   ["Mt. Gelmir", "Volcano Cave"],

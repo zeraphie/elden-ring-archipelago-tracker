@@ -97,14 +97,16 @@ describe("readLocationName", () => {
     expect(name?.extra).toBe(2);
   });
 
-  test("a Spiritspring Stone with no dash is read by its item", () => {
-    expect(readLocationName("GP/(EH): Fort of Reprimand Spiritspring Stone to NW")).toMatchObject({
+  test("a Spiritspring Stone is read like any other spot", () => {
+    expect(
+      readLocationName("GP/(EH): Fort of Reprimand Spiritspring Stone - stone to NW")
+    ).toMatchObject({
       vanilla: "Fort of Reprimand Spiritspring Stone",
-      description: "To north west",
+      description: "Stone to north west",
     });
     expect(
       readLocationName(
-        "ARR/CBME: Rauh Ruins Spiritspring Stone, drop to E till cliff then up ledge to N"
+        "ARR/CBME: Rauh Ruins Spiritspring Stone - drop to E till cliff then up ledge to N"
       )
     ).toMatchObject({
       vanilla: "Rauh Ruins Spiritspring Stone",

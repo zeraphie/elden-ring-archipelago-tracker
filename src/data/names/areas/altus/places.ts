@@ -39,6 +39,7 @@ export const ALTUS_PLACES: ReadonlyMap<string, string> = new Map<string, string>
   ["AP/(HLT)", `${shortRegionName("AP")} Highway Lookout Tower`],
   ["AP/(MR)", "Mirage Rise"],
   ["AP/(OAT)", "Old Altus Tunnel"],
+  ["AP/(WC)", "Wyndham Catacombs"],
   ["AP/(PG)", "Perfumer's Grotto"],
   ["AP/(ScC)", "Stormcaller Church"],
   ["AP/(SCM)", "Second Church of Marika"],
@@ -72,7 +73,6 @@ export const ALTUS_PLACES: ReadonlyMap<string, string> = new Map<string, string>
   ["MtG/(HV)", "Hermit Village"],
   ["MtG/(SC)", "Seethewater Cave"],
   ["MtG/(VC)", "Volcano Cave"],
-  ["MtG/(WC)", "Wyndham Catacombs"],
 
   // Volcano Manor, where AP is the Audience Pathway; and its Inquisition Chamber, below.
   ["VM/AP", "Audience Pathway"],

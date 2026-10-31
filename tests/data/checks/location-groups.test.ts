@@ -32,7 +32,7 @@ describe("LOCATION_GROUPS", () => {
   });
 
   test("the two spots generation tops up with know their region", () => {
-    expect(LOCATION_GROUPS.get("LG/(SG): Finger Severer - beside grace")?.region).toBe("Limgrave");
+    expect(LOCATION_GROUPS.get("LG/(SGr): Finger Severer - beside grace")?.region).toBe("Limgrave");
     expect(LOCATION_GROUPS.get("GP/TPC: Scadutree Fragment - by cross")?.region).toBe(
       "Gravesite Plain"
     );

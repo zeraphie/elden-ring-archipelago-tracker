@@ -7,7 +7,6 @@
  * A name can sit under two regions (`LRC|LAC`), put its region in brackets
  * (`(VM)/SIC`), or have no place code at all (`RH: …`). The apworld's items
  * never hold " - " or end in a bare number, which is what makes the split safe.
- * Its five Spiritspring Stones leave the dash out, and are read by their item.
  */
 
 /** An Elden Ring location's name, read into the parts a check is shown with. */
@@ -35,8 +34,6 @@ const EXTRA = /^(.+), extra item (\d+)$/;
 // The item, any copy number, and where. The item is read lazily, so it ends
 // at the first " - " and leaves the copy number out.
 const ITEM = /^(.+?)(?: (\d+))? - (.+)$/;
-// "Fort of Reprimand Spiritspring Stone to NW", with no dash.
-const SPIRITSPRING = /^(.+? Spiritspring Stone),? (.+)$/;
 
 // The only compass points the apworld's descriptions use.
 const COMPASS: ReadonlyMap<string, string> = new Map([
@@ -58,10 +55,7 @@ export function readLocationName(name: string): LocationName | undefined {
     return undefined;
   }
   const [, written = "", regions = "", place, rest = ""] = prefix;
-  const item = ITEM.exec(rest);
-  const stone = item === null ? SPIRITSPRING.exec(rest) : null;
-  const [vanilla, copy, description] =
-    item !== null ? [item[1], item[2], item[3]] : [stone?.[1], undefined, stone?.[2]];
+  const [, vanilla, copy, description] = ITEM.exec(rest) ?? [];
   if (vanilla === undefined || description === undefined) {
     return undefined;
   }

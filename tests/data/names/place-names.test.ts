@@ -6,7 +6,6 @@ import {
   DESCRIPTION_NAMES,
   descriptionNames,
   expandPlaces,
-  PLACE_EXCEPTIONS,
   PLACE_NAMES,
   placeName,
   unnamedCodesIn,
@@ -133,14 +132,5 @@ describe("PLACE_NAMES", () => {
       }
     }
     expect([...PLACE_NAMES.keys()].filter((key) => !used.has(key))).toEqual([]);
-  });
-});
-
-describe("PLACE_EXCEPTIONS", () => {
-  test("each is one of the apworld's locations, placed under a named place", () => {
-    const wrong = [...PLACE_EXCEPTIONS].filter(
-      ([location, key]) => !LOCATION_GROUPS.has(location) || !PLACE_NAMES.has(key)
-    );
-    expect(wrong).toEqual([]);
   });
 });

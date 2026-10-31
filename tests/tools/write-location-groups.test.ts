@@ -19,7 +19,7 @@ region_order_dlc = [
 const SOURCE = `
 location_tables: Dict[str, List[ERLocationData]] = {
     "Limgrave": [
-        ERLocationData("LG/(SG): Finger Severer - beside grace", "Finger Severer"),
+        ERLocationData("LG/(SGr): Finger Severer - beside grace", "Finger Severer"),
         ERLocationData("LG/A: Pot Item - in a hanging pot", "Pot Item", hangingpot=True),
         ERLocationData("LG/A: Rise Item - top of rise", "Rise Item", rise=True),
         ERLocationData("LG/A: Scarab Item - scarab", "Scarab Item", scarab=True, exclusive=True),
@@ -82,7 +82,7 @@ describe("locationFactsFrom", () => {
   });
 
   test("Post Leyndell runs over the last 21 base tables and the first DLC one", () => {
-    expect(facts.get("LG/(SG): Finger Severer - beside grace")?.groups).toEqual([]);
+    expect(facts.get("LG/(SGr): Finger Severer - beside grace")?.groups).toEqual([]);
     expect(facts.get("CS/A: Snow Item - in blizzard")?.groups).toEqual([
       "Blizzard",
       "Post Leyndell",
@@ -126,7 +126,7 @@ describe("locationGroupsModule", () => {
 
   test("lists every location with the table it's in as its region", () => {
     expect(module).toContain(
-      '["LG/(SG): Finger Severer - beside grace", { groups: [], region: "Limgrave" }]'
+      '["LG/(SGr): Finger Severer - beside grace", { groups: [], region: "Limgrave" }]'
     );
     expect(module).toContain(
       '["LG/CC: Path Boss - critical path", { groups: [], region: "Coastal Cave" }]'

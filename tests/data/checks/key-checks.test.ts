@@ -130,7 +130,7 @@ describe("prioritySpots", () => {
 
   test("tops up Limgrave with the Finger Severer when it has no spot, under region lock", () => {
     const slot = { options: OPTIONS, locationIdsToName: roomOf() };
-    expect(prioritySpots(slot, GROUPS).has("LG/(SG): Finger Severer - beside grace")).toBe(true);
+    expect(prioritySpots(slot, GROUPS).has("LG/(SGr): Finger Severer - beside grace")).toBe(true);
     const open = { ...slot, options: { ...OPTIONS, world_logic: 1 } };
     expect(prioritySpots(open, GROUPS).size).toBe(0);
   });

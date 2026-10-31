@@ -71,7 +71,7 @@ export const CAELID_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: placeName("DB/(IMS)"), encounter: "Bell Bearing Hunter" },
   ],
   [
-    "DB/(SE): Battlemage Hugues - Sellia Evergaol",
+    "DB/(SE): Battlemage Hugues - boss drop Evergaol",
     { place: "Sellia Evergaol", encounter: "Battlemage Hugues" },
   ],
   [
@@ -179,11 +179,11 @@ export const CAELID_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "South west of Southern Aeonia Swamp Bank", encounter: "Nomadic Merchant" },
   ],
   [
-    "CL/SASB: Map: Caelid - to SW",
+    "CL/SASB: Map: Caelid - map pillar to SW",
     { place: "South west of Southern Aeonia Swamp Bank", encounter: "Map fragment" },
   ],
   [
-    "CL/SASB: Windy Crystal Tear - to S",
+    "CL/SASB: Windy Crystal Tear - to S in basin",
     { place: "South of Southern Aeonia Swamp Bank", encounter: "Basin" },
   ],
   [
@@ -282,7 +282,7 @@ export const CAELID_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Sellia Crystal Tunnel", encounter: "Fallingstar Beast" },
   ],
   [
-    "CL/DW: Map: Dragonbarrow - to E",
+    "CL/DW: Map: Dragonbarrow - map pillar to E",
     { place: "East of Dragonbarrow West", encounter: "Map fragment" },
   ],
   [

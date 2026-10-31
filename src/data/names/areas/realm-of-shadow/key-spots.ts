@@ -97,7 +97,7 @@ export const REALM_OF_SHADOW_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Church by Church District Entrance", encounter: "Statue" },
   ],
   [
-    "GP/(EH): Fort of Reprimand Spiritspring Stone to NW",
+    "GP/(EH): Fort of Reprimand Spiritspring Stone - stone to NW",
     { place: "North west of Elder's Hovel", encounter: "Spiritspring" },
   ],
   [
@@ -161,7 +161,7 @@ export const REALM_OF_SHADOW_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "North east of Abandoned Ailing Village", encounter: "Statue" },
   ],
   [
-    "GP/SR: Map: Gravesite Plain - S of SR",
+    "GP/SR: Map: Gravesite Plain - map pillar S of SR",
     { place: "South of Scorched Ruins", encounter: "Map fragment" },
   ],
   [
@@ -317,7 +317,7 @@ export const REALM_OF_SHADOW_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Dragon's Pit", encounter: "Ancient Dragon-Man" },
   ],
   [
-    "ARR/CBME: Rauh Ruins Spiritspring Stone, drop to E till cliff then up ledge to N",
+    "ARR/CBME: Rauh Ruins Spiritspring Stone - drop to E till cliff then up ledge to N",
     { place: "Ledge north east of Church of the Bud, Main Entrance", encounter: "Spiritspring" },
   ],
   [
@@ -364,7 +364,7 @@ export const REALM_OF_SHADOW_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Up the sealed spiritspring by Church of the Bud, Main Entrance", encounter: "Chest" },
   ],
   [
-    "RB/(TTR): Rauh Base Spiritspring Stone to E",
+    "RB/(TTR): Rauh Base Spiritspring Stone - stone to E",
     { place: "East of Temple Town Ruins", encounter: "Spiritspring" },
   ],
   [
@@ -444,7 +444,7 @@ export const REALM_OF_SHADOW_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Cave north of Cerulean Coast West", encounter: "Scadutree Fragment" },
   ],
   [
-    "CC/CCC: Map: Southern Shore - to N on path",
+    "CC/CCC: Map: Southern Shore - map pillar to N on path",
     { place: "North of Cerulean Coast Cross", encounter: "Map fragment" },
   ],
   [
@@ -469,11 +469,11 @@ export const REALM_OF_SHADOW_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "North east of Ellac River Cave", encounter: "Statue" },
   ],
   [
-    "SA/(MR): Scaduview Cross Spiritspring Stone to SE",
+    "SA/(MR): Scaduview Cross Spiritspring Stone - stone to SE",
     { place: "South east of Moorth Ruins", encounter: "Spiritspring" },
   ],
   [
-    "SA/(RR): Rabbath's Rise Spiritspring Stone to S",
+    "SA/(RR): Rabbath's Rise Spiritspring Stone - stone to S",
     { place: "South of Rabbath's Rise", encounter: "Spiritspring" },
   ],
   [

@@ -60,13 +60,6 @@ export function descriptionNames(locationName: string): ReadonlyMap<string, stri
   return fixes === undefined ? DESCRIBED : new Map([...DESCRIBED, ...fixes]);
 }
 
-/** The few spots whose code names a place near them rather than theirs, by location name, each with the key of the place it's in. */
-export const PLACE_EXCEPTIONS: ReadonlyMap<string, string> = new Map<string, string>([
-  // Under the Stormgate's code, but beside the Stranded Graveyard's grace.
-  ["LG/(SG): Tarnished's Furled Finger - beside grace", "LG/SG"],
-  ["LG/(SG): Finger Severer - beside grace", "LG/SG"],
-]);
-
 /** A place's full name by its key, or its code as written while it has no name yet. */
 export function placeName(key: string, names: ReadonlyMap<string, string> = PLACE_NAMES): string {
   return names.get(key) ?? key.slice(key.indexOf("/") + 1);

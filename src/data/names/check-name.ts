@@ -10,7 +10,7 @@
 
 import { keySpot, type KeySpot } from "./key-spots.js";
 import { readLocationName, withoutExtra } from "./location-name.js";
-import { descriptionNames, expandPlaces, PLACE_EXCEPTIONS, placeName } from "./place-names.js";
+import { descriptionNames, expandPlaces, placeName } from "./place-names.js";
 import { regionName } from "./regions.js";
 
 /** A check's full name, by its Archipelago location name; a name in no form the tracker reads is its own place. */
@@ -24,8 +24,8 @@ export function checkName(locationName: string): KeySpot {
     return { place: locationName, encounter: "" };
   }
   const { base } = withoutExtra(locationName);
-  const key = PLACE_EXCEPTIONS.get(base) ?? read.placeKey;
-  const place = key === undefined ? regionName(read.regions[0] ?? "") : placeName(key);
+  const { placeKey } = read;
+  const place = placeKey === undefined ? regionName(read.regions[0] ?? "") : placeName(placeKey);
   return {
     place,
     encounter: expandPlaces(read.description, read.regions, descriptionNames(base)),

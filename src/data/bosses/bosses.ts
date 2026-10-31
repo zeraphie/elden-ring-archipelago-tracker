@@ -690,7 +690,7 @@ export const BOSSES: ReadonlyMap<number, Boss> = new Map([
     {
       name: "Battlemage Hugues",
       where: "DB",
-      drops: ["DB/(SE): Battlemage Hugues - Sellia Evergaol"],
+      drops: ["DB/(SE): Battlemage Hugues - boss drop Evergaol"],
     },
   ],
   [
@@ -911,6 +911,14 @@ export const BOSSES: ReadonlyMap<number, Boss> = new Map([
     },
   ],
   [
+    30070800,
+    {
+      name: "Erdtree Burial Watchdog",
+      where: "AP/WC",
+      drops: ["AP/(WC): Glovewort Picker's Bell Bearing [1] - boss drop"],
+    },
+  ],
+  [
     1044530800,
     {
       name: "Deathbird",
@@ -989,14 +997,6 @@ export const BOSSES: ReadonlyMap<number, Boss> = new Map([
         "MtG/ME: Leaden Hardtear - boss drop, Minor Erdtree",
         "MtG/ME: Cerulean Hidden Tear - boss drop, Minor Erdtree",
       ],
-    },
-  ],
-  [
-    30070800,
-    {
-      name: "Erdtree Burial Watchdog",
-      where: "MtG/WC",
-      drops: ["MtG/(WC): Glovewort Picker's Bell Bearing [1] - boss drop"],
     },
   ],
   [
@@ -1121,10 +1121,7 @@ export const BOSSES: ReadonlyMap<number, Boss> = new Map([
     {
       name: "Commander Niall",
       where: "MotG/CS",
-      drops: [
-        "MotG/(CS): Veteran's Prosthesis - mainboss drop",
-        "MotG/(CS): Haligtree Secret Medallion (Left) - after boss",
-      ],
+      drops: ["MotG/(CS): Veteran's Prosthesis - mainboss drop"],
     },
   ],
   [
@@ -1416,8 +1413,6 @@ export const BOSSES: ReadonlyMap<number, Boss> = new Map([
       drops: [
         "BTS/SF: Remembrance of the Dancing Lion - mainboss drop",
         "BTS/BTS: Divine Beast Head - boss drop",
-        "BTS/TDB: Revered Spirit Ash - on statue after boss",
-        "BTS/TDB: Tower of Shadow Message - at the top of the stairs after boss",
       ],
     },
   ],
@@ -1483,12 +1478,7 @@ export const BOSSES: ReadonlyMap<number, Boss> = new Map([
     {
       name: "Putrescent Knight",
       where: "SCF",
-      drops: [
-        "SCF/FD: Remembrance of Putrescence - mainboss drop",
-        "SCF/GDP: St. Trina Disciple's Cookbook [3] - right of St. Trina",
-        "SCF/GDP: St. Trina's Smile - Thiollier invader drop, after you die to St. Trina four times and tell him your findings",
-        "SCF/GDP: St. Trina's Blossom - on St. Trina's body after EI mainboss",
-      ],
+      drops: ["SCF/FD: Remembrance of Putrescence - mainboss drop"],
     },
   ],
   [
@@ -1678,14 +1668,7 @@ export const BOSSES: ReadonlyMap<number, Boss> = new Map([
     {
       name: "Metyr, Mother of Fingers",
       where: "FRM",
-      drops: [
-        "FRM: Remembrance of the Mother of Fingers - mainboss drop",
-        "SA/(CMM): Maternal Staff - kill invader Ymir",
-        "SA/(CMM): High Priest Hat - kill invader Ymir",
-        "SA/(CMM): High Priest Robe - kill invader Ymir",
-        "SA/(CMM): High Priest Gloves - kill invader Ymir",
-        "SA/(CMM): High Priest Undergarments - kill invader Ymir",
-      ],
+      drops: ["FRM: Remembrance of the Mother of Fingers - mainboss drop"],
     },
   ],
   [
@@ -1951,7 +1934,7 @@ export const ARENA_DROPS: ReadonlyMap<number, readonly string[]> = new Map<
     ],
   ],
   [1048410800, ["DB/(IMS): Gravity Stone Peddler's Bell Bearing - night boss drop"]],
-  [1049390850, ["DB/(SE): Battlemage Hugues - Sellia Evergaol"]],
+  [1049390850, ["DB/(SE): Battlemage Hugues - boss drop Evergaol"]],
   [
     1051400800,
     ["DB/MEE: Opaline Hardtear - boss drop", "DB/MEE: Stonebarb Cracked Tear - boss drop"],
@@ -2020,6 +2003,7 @@ export const ARENA_DROPS: ReadonlyMap<number, readonly string[]> = new Map<
   [31190850, ["AP/(SCV): Family Heads - hidden boss drop"]],
   [32040800, ["AP/(OAT): Great Club - boss drop"]],
   [32050800, ["AP/(AT): Somberstone Miner's Bell Bearing [2] - boss drop"]],
+  [30070800, ["AP/(WC): Glovewort Picker's Bell Bearing [1] - boss drop"]],
   [1044530800, ["CO/HMS: Twinbird Kite Shield - night boss drop to NE in block flower field"]],
   [1043530800, ["CO/(HMS): Medicine Peddler's Bell Bearing - night boss drop"]],
   [1045520800, []],
@@ -2052,7 +2036,6 @@ export const ARENA_DROPS: ReadonlyMap<number, readonly string[]> = new Map<
       "MtG/ME: Cerulean Hidden Tear - boss drop, Minor Erdtree",
     ],
   ],
-  [30070800, ["MtG/(WC): Glovewort Picker's Bell Bearing [1] - boss drop"]],
   [30090800, ["MtG/(GHG): Bloodhound Knight Floh - boss drop"]],
   [31070800, ["MtG/(SC): Kindred of Rot's Exultation - boss drop"]],
   [31090800, ["MtG/(VC): Jar Cannon - boss drop"]],
@@ -2086,13 +2069,7 @@ export const ARENA_DROPS: ReadonlyMap<number, readonly string[]> = new Map<
     ],
   ],
   [1050570800, ["MotG/CSMG: Death Ritual Spear - boss drop to W by statue"]],
-  [
-    1051570800,
-    [
-      "MotG/(CS): Veteran's Prosthesis - mainboss drop",
-      "MotG/(CS): Haligtree Secret Medallion (Left) - after boss",
-    ],
-  ],
+  [1051570800, ["MotG/(CS): Veteran's Prosthesis - mainboss drop"]],
   [
     1052560800,
     ["MotG/(ME): Cerulean Crystal Tear - boss drop", "MotG/(ME): Crimson Bubbletear - boss drop"],
@@ -2224,8 +2201,6 @@ export const ARENA_DROPS: ReadonlyMap<number, readonly string[]> = new Map<
     [
       "BTS/SF: Remembrance of the Dancing Lion - mainboss drop",
       "BTS/BTS: Divine Beast Head - boss drop",
-      "BTS/TDB: Revered Spirit Ash - on statue after boss",
-      "BTS/TDB: Tower of Shadow Message - at the top of the stairs after boss",
     ],
   ],
   [2048440800, ["CE/CLC: Remembrance of the Twin Moon Knight - mainboss drop"]],
@@ -2246,15 +2221,7 @@ export const ARENA_DROPS: ReadonlyMap<number, readonly string[]> = new Map<
     2048380850,
     ["CC/CC: Dragon Heart - boss drop", "CC/CC: Somber Ancient Dragon Smithing Stone - boss drop"],
   ],
-  [
-    22000800,
-    [
-      "SCF/FD: Remembrance of Putrescence - mainboss drop",
-      "SCF/GDP: St. Trina Disciple's Cookbook [3] - right of St. Trina",
-      "SCF/GDP: St. Trina's Smile - Thiollier invader drop, after you die to St. Trina four times and tell him your findings",
-      "SCF/GDP: St. Trina's Blossom - on St. Trina's body after EI mainboss",
-    ],
-  ],
+  [22000800, ["SCF/FD: Remembrance of Putrescence - mainboss drop"]],
   [
     2049410800,
     ["JP/DPT: Dragon Heart - boss drop to E", "JP/DPT: Dragonscale Flesh - boss drop to E"],
@@ -2328,17 +2295,7 @@ export const ARENA_DROPS: ReadonlyMap<number, readonly string[]> = new Map<
   [2050470800, ["HL/HL: Blessing of Marika - boss drop on hill"]],
   [2050480860, ["HL/HL: Blessing of Marika - boss drop by bridge"]],
   [2052480800, ["HL/FH: Gravitational Missile - boss drop to NE"]],
-  [
-    25000800,
-    [
-      "FRM: Remembrance of the Mother of Fingers - mainboss drop",
-      "SA/(CMM): Maternal Staff - kill invader Ymir",
-      "SA/(CMM): High Priest Hat - kill invader Ymir",
-      "SA/(CMM): High Priest Robe - kill invader Ymir",
-      "SA/(CMM): High Priest Gloves - kill invader Ymir",
-      "SA/(CMM): High Priest Undergarments - kill invader Ymir",
-    ],
-  ],
+  [25000800, ["FRM: Remembrance of the Mother of Fingers - mainboss drop"]],
   [
     2051450720,
     [

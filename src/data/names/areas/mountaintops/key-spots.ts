@@ -261,7 +261,7 @@ export const MOUNTAINTOPS_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "North east of Consecrated Snowfield", encounter: "Scarab" },
   ],
   [
-    "CS/CS: St. Trina's Torch - in caraven chest to NE",
+    "CS/CS: St. Trina's Torch - in caravan chest to NE",
     { place: "North east of Consecrated Snowfield", encounter: "Caravan chest" },
   ],
   [

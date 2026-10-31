@@ -83,7 +83,7 @@ describe("readRulesSlotData", () => {
 });
 
 describe("readMapSlotData", () => {
-  const names = { 7000000: "LG/(SG): Finger Severer - beside grace" };
+  const names = { 7000000: "LG/(SGr): Finger Severer - beside grace" };
   const keys = { 7000000: "604038,0:0000000000::" };
 
   test("each check's key and name, by id", () => {

@@ -510,13 +510,16 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "LG/(SE): Aspects of the Crucible: Tail - boss drop Evergaol",
       { groups: [], region: "Stormhill" },
     ],
-    ["LG/(SG): Arrow's Reach Talisman - chest above gate", { groups: [], region: "Stormhill" }],
+    ["LG/(SGa): Arrow's Reach Talisman - chest above gate", { groups: [], region: "Stormhill" }],
     [
       "LG/WS: Blue-Feathered Branchsword - night boss drop SE of WS",
       { groups: [], region: "Stormhill" },
     ],
     ["LG/(WS): Bone Peddler's Bell Bearing - night boss drop", { groups: [], region: "Stormhill" }],
-    ["LG/WS: Strength-knot Crystal Tear - on cliff NW of WS", { groups: [], region: "Stormhill" }],
+    [
+      "LG/WS: Strength-knot Crystal Tear - in basin on cliff NW of WS",
+      { groups: [], region: "Stormhill" },
+    ],
     [
       "LG/WS: Somber Smithing Stone [1] - scarab on ruin NE of WS",
       { groups: ["Scarab"], region: "Stormhill" },
@@ -650,8 +653,8 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "SV/StC: Golden Rune [2] - on dropdown platform middle of big long room",
       { groups: [], region: "Stormveil Start" },
     ],
-    ["LG/(SG): Tarnished's Furled Finger - beside grace", { groups: [], region: "Limgrave" }],
-    ["LG/(SG): Finger Severer - beside grace", { groups: [], region: "Limgrave" }],
+    ["LG/(SGr): Tarnished's Furled Finger - beside grace", { groups: [], region: "Limgrave" }],
+    ["LG/(SGr): Finger Severer - beside grace", { groups: [], region: "Limgrave" }],
     [
       "LG/MO: Golden Seed - kill Kenneth Haight",
       { groups: [], isMissable: true, region: "Limgrave" },
@@ -757,7 +760,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ["LG/(CE): Lone Wolf Ashes - talk to Ranni", { groups: [], region: "Limgrave" }],
     ["LG/TFS: Golden Halberd - first field boss", { groups: [], region: "Limgrave" }],
     [
-      "LG/SG: Silver-Pickled Fowl Foot x2 - hidden drop down behind SG entrance",
+      "LG/SGr: Silver-Pickled Fowl Foot x2 - hidden drop down behind SGr entrance",
       { groups: [], region: "Limgrave" },
     ],
     ["LG/(CE): Golden Rune [2] - out front", { groups: [], region: "Limgrave" }],
@@ -772,7 +775,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ["LG/(GR): Lordsworn's Greatsword - in NW caravan chest", { groups: [], region: "Limgrave" }],
     ["LG/(GR): Ash of War: Storm Stomp - underground chest", { groups: [], region: "Limgrave" }],
     ["LG/WS: Beast Liver - SE of WS", { groups: [], region: "Limgrave" }],
-    ["LG/(SG): Golden Rune [1] - lower area", { groups: [], region: "Limgrave" }],
+    ["LG/(SGa): Golden Rune [1] - lower area", { groups: [], region: "Limgrave" }],
     ["LG/WS: Fire Arrow x5 - W of WS", { groups: [], region: "Limgrave" }],
     ["LG/WS: Golden Rune [5] - graveyard SW of WS", { groups: [], region: "Limgrave" }],
     ["LG/WS: Golden Rune [1] 1 - graveyard SW of WS", { groups: [], region: "Limgrave" }],
@@ -782,9 +785,9 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ["LG/WS: Golden Rune [2] 2 - graveyard SW of WS", { groups: [], region: "Limgrave" }],
     ["LG/WS: Golden Rune [1] 3 - graveyard SW of WS", { groups: [], region: "Limgrave" }],
     ["LG/WS: Golden Rune [1] 4 - graveyard SW of WS", { groups: [], region: "Limgrave" }],
-    ["LG/(SG): Golden Rune [2] - off side of ruin above", { groups: [], region: "Limgrave" }],
-    ["LG/(SG): Lump of Flesh - lower area", { groups: [], region: "Limgrave" }],
-    ["LG/(SG): Smoldering Butterfly x5 - on cliff above", { groups: [], region: "Limgrave" }],
+    ["LG/(SGa): Golden Rune [2] - off side of ruin above", { groups: [], region: "Limgrave" }],
+    ["LG/(SGa): Lump of Flesh - lower area", { groups: [], region: "Limgrave" }],
+    ["LG/(SGa): Smoldering Butterfly x5 - on cliff above", { groups: [], region: "Limgrave" }],
     [
       "LG/WS: Smithing Stone [1] x5 - breakable statue SE of WS",
       { groups: [], region: "Limgrave" },
@@ -822,9 +825,9 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "LG/ALN: Ash of War: Repeating Thrust - night boss drop to SE",
       { groups: [], region: "Limgrave" },
     ],
-    ["LG/MCO: Armorer's Cookbook [1] - SW of MCO", { groups: [], region: "Limgrave" }],
+    ["LG/MCO: Armorer's Cookbook [1] - to SW", { groups: [], region: "Limgrave" }],
     ["LG/SB: Smithing Stone [1] - to S", { groups: [], region: "Limgrave" }],
-    ["LG/MCO: Golden Rune [2] - W of MCO", { groups: [], region: "Limgrave" }],
+    ["LG/MCO: Golden Rune [2] - to W", { groups: [], region: "Limgrave" }],
     ["LG/WS: Exalted Flesh - enemy camp NE of WS", { groups: [], region: "Limgrave" }],
     ["LG/SB: Smithing Stone [1] x2 - on bridge to E", { groups: [], region: "Limgrave" }],
     ["LG/HC: Turtle Neck Meat - N above HC", { groups: [], region: "Limgrave" }],
@@ -1996,7 +1999,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ["LL/VA: Larval Tear - to NE", { groups: [], region: "Liurnia of The Lakes" }],
     [
       "LL/(CT): Memory Stone - top of tower, requires Erudition gesture",
-      { groups: [], region: "Liurnia of The Lakes" },
+      { groups: ["Rise"], region: "Liurnia of The Lakes" },
     ],
     [
       "LL/VA: Somber Smithing Stone [2] - scarab to N, cross bridge, drop from island and head N",
@@ -2207,7 +2210,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ],
     [
       "LL/SoI: Memory Stone - in chest top of tower, solve puzzle",
-      { groups: [], region: "Liurnia of The Lakes" },
+      { groups: ["Rise"], region: "Liurnia of The Lakes" },
     ],
     [
       "LL/EGBT: Ash of War: Shield Bash - scarab to NE",
@@ -2603,7 +2606,10 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "LL/AGT: Smithing Stone [3] x3 - to SE in gazebo",
       { groups: [], region: "Liurnia of The Lakes" },
     ],
-    ["LL/AGT: Map: Liurnia, North - near grace", { groups: [], region: "Liurnia of The Lakes" }],
+    [
+      "LL/AGT: Map: Liurnia, North - map pillar near grace",
+      { groups: [], region: "Liurnia of The Lakes" },
+    ],
     [
       "LL/AGT: Somber Smithing Stone [2] - scarab to NW, N of L-shaped building with chest",
       { groups: ["Scarab"], region: "Liurnia of The Lakes" },
@@ -2752,7 +2758,10 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "LL/LLS: Smithing Stone [2] x3 - Nomadic Merchant shop",
       { groups: [], region: "Liurnia of The Lakes" },
     ],
-    ["LL/LLS: Map: Liurnia, East - to N", { groups: [], region: "Liurnia of The Lakes" }],
+    [
+      "LL/LLS: Map: Liurnia, East - map pillar to N",
+      { groups: [], region: "Liurnia of The Lakes" },
+    ],
     ["LL/LLS: Idus Sword - to N, W of map pillar", { groups: [], region: "Liurnia of The Lakes" }],
     [
       "LL/LR: Glintstone Craftsman's Cookbook [2] - to N",
@@ -3002,11 +3011,11 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ["LL/CFT: Crystal Dart x3 - SW under CFT", { groups: [], region: "Liurnia of The Lakes" }],
     [
       "LL/(CFT): Cannon of Haima - in chest atop tower, requires using Erudition gesture while wearing any Glintstone Crown",
-      { groups: [], isMissable: true, region: "Liurnia of The Lakes" },
+      { groups: ["Rise"], isMissable: true, region: "Liurnia of The Lakes" },
     ],
     [
       "LL/(CFT): Gavel of Haima - in chest atop tower, requires using Erudition gesture while wearing any Glintstone Crown",
-      { groups: [], isMissable: true, region: "Liurnia of The Lakes" },
+      { groups: ["Rise"], isMissable: true, region: "Liurnia of The Lakes" },
     ],
     ["LL/LHS: Treespear - to SE in caravan chest", { groups: [], region: "Liurnia of The Lakes" }],
     [
@@ -3287,7 +3296,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ["AP/GLE: Godfrey Icon - boss drop Evergaol", { groups: [], region: "Altus Plateau" }],
     ["AP/AHJ: Perfume Bottle - to N in camp", { groups: [], region: "Altus Plateau" }],
     [
-      "AP/AHJ: Ash of War: Earthshaker - scarab to SE on road",
+      "AP/AHJ: Ash of War: Earthshaker - scarab to SW on road",
       { groups: ["Scarab"], region: "Altus Plateau" },
     ],
     [
@@ -3336,9 +3345,18 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "AP/OAT: Nascent Butterfly - N of OAT on upper path of ravine by bridge",
       { groups: [], region: "Altus Plateau" },
     ],
-    ["AP/(MR): Unseen Blade - in chest top of tower", { groups: [], region: "Altus Plateau" }],
-    ["AP/(MR): Unseen Form -  in chest top of tower", { groups: [], region: "Altus Plateau" }],
-    ["AP/(MR): Slumbering Egg x5 - top of tower on body", { groups: [], region: "Altus Plateau" }],
+    [
+      "AP/(MR): Unseen Blade - in chest top of tower",
+      { groups: ["Rise"], region: "Altus Plateau" },
+    ],
+    [
+      "AP/(MR): Unseen Form -  in chest top of tower",
+      { groups: ["Rise"], region: "Altus Plateau" },
+    ],
+    [
+      "AP/(MR): Slumbering Egg x5 - top of tower on body",
+      { groups: ["Rise"], region: "Altus Plateau" },
+    ],
     ["AP/MR: Golden Rune [3] - SE of MR", { groups: [], region: "Altus Plateau" }],
     ["AP/(MR): Mirage Riddle - imp statue holding book", { groups: [], region: "Altus Plateau" }],
     ["AP/OAT: Black-Key Bolt x20 - invade Rileigh", { groups: [], region: "Altus Plateau" }],
@@ -6200,7 +6218,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: [], region: "Mt. Gelmir" },
     ],
     ["MtG/ST: Golden Rune [6] - to NW", { groups: [], region: "Mt. Gelmir" }],
-    ["MtG/RI: Map: Mt. Gelmir - to W by map pillar", { groups: [], region: "Mt. Gelmir" }],
+    ["MtG/RI: Map: Mt. Gelmir - map pillar to W", { groups: [], region: "Mt. Gelmir" }],
     ["MtG/NMGC: Fallingstar Beast Jaw - boss drop", { groups: [], region: "Mt. Gelmir" }],
     ["MtG/NMGC: Smithing Stone [6] x5 - boss drop", { groups: [], region: "Mt. Gelmir" }],
     ["MtG/NMGC: Somber Smithing Stone [6] - boss drop", { groups: [], region: "Mt. Gelmir" }],
@@ -7537,8 +7555,8 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: [], region: "Caelid" },
     ],
     ["CL/SASB: Cracked Pot - Nomadic Merchant to SW", { groups: [], region: "Caelid" }],
-    ["CL/SASB: Map: Caelid - to SW", { groups: [], region: "Caelid" }],
-    ["CL/SASB: Windy Crystal Tear - to S", { groups: [], region: "Caelid" }],
+    ["CL/SASB: Map: Caelid - map pillar to SW", { groups: [], region: "Caelid" }],
+    ["CL/SASB: Windy Crystal Tear - to S in basin", { groups: [], region: "Caelid" }],
     ["CL/SASB: Beast Blood x2 - to SE", { groups: [], region: "Caelid" }],
     ["CL/SASB: Golden Seed - seedtree to S", { groups: [], region: "Caelid" }],
     ["CL/SASB: Beast Blood x3 - to SE", { groups: [], region: "Caelid" }],
@@ -9155,7 +9173,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: ["DLC"], region: "Shadow Keep, Church District" },
     ],
     [
-      "GP/(EH): Fort of Reprimand Spiritspring Stone to NW",
+      "GP/(EH): Fort of Reprimand Spiritspring Stone - stone to NW",
       { groups: ["DLC", "Post Leyndell"], region: "Gravesite Plain" },
     ],
     [
@@ -9551,7 +9569,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: ["DLC", "Post Leyndell"], region: "Gravesite Plain" },
     ],
     [
-      "GP/SR: Map: Gravesite Plain - S of SR",
+      "GP/SR: Map: Gravesite Plain - map pillar S of SR",
       { groups: ["DLC", "Post Leyndell"], region: "Gravesite Plain" },
     ],
     [
@@ -10154,23 +10172,23 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: ["Dungeon"], region: "Cliffbottom Catacombs" },
     ],
     [
-      "MtG/(WC): Ancient Dragon Apostle's Cookbook [1] - path under huge crusher",
+      "AP/(WC): Ancient Dragon Apostle's Cookbook [1] - path under huge crusher",
       { groups: ["Dungeon"], region: "Wyndham Catacombs" },
     ],
     [
-      "MtG/(WC): Glovewort Picker's Bell Bearing [1] - boss drop",
+      "AP/(WC): Glovewort Picker's Bell Bearing [1] - boss drop",
       { groups: ["Dungeon"], region: "Wyndham Catacombs" },
     ],
     [
-      "MtG/(WC): Golden Rune [5] - path under huge crusher",
+      "AP/(WC): Golden Rune [5] - path under huge crusher",
       { groups: ["Dungeon"], region: "Wyndham Catacombs" },
     ],
     [
-      "MtG/(WC): Magic Grease x2 - path under huge crusher",
+      "AP/(WC): Magic Grease x2 - path under huge crusher",
       { groups: ["Dungeon"], region: "Wyndham Catacombs" },
     ],
     [
-      "MtG/(WC): Lightning Scorpion Charm - behind imp statue",
+      "AP/(WC): Lightning Scorpion Charm - behind imp statue",
       { groups: ["Dungeon"], region: "Wyndham Catacombs" },
     ],
     [
@@ -11430,29 +11448,29 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "AP/(AT): Rune Arc - in big chest side room 1 from grace",
       { groups: ["Dungeon"], region: "Altus Tunnel" },
     ],
-    ["CL/(GT): Moonveil - boss drop", { groups: ["Dungeon"], region: "Gale Tunnel" }],
-    ["CL/(GT): Dragon Heart - boss drop", { groups: ["Dungeon"], region: "Gale Tunnel" }],
+    ["CL/(GT): Moonveil - boss drop", { groups: ["Dungeon"], region: "Gael Tunnel" }],
+    ["CL/(GT): Dragon Heart - boss drop", { groups: ["Dungeon"], region: "Gael Tunnel" }],
     [
       "CL/(GT): Somber Smithing Stone [2] - in entrance shaft",
-      { groups: ["Dungeon"], region: "Gale Tunnel" },
+      { groups: ["Dungeon"], region: "Gael Tunnel" },
     ],
     [
       "CL/(GT): Golden Rune [5] - first wood platform",
-      { groups: ["Dungeon"], region: "Gale Tunnel" },
+      { groups: ["Dungeon"], region: "Gael Tunnel" },
     ],
     [
       "CL/(GT): Cross-Naginata - dead-end to right from first room",
-      { groups: ["Dungeon"], region: "Gale Tunnel" },
+      { groups: ["Dungeon"], region: "Gael Tunnel" },
     ],
     [
       "CL/(GT): Gold-Pickled Fowl Foot - under first platform behind boxes",
-      { groups: ["Dungeon"], region: "Gale Tunnel" },
+      { groups: ["Dungeon"], region: "Gael Tunnel" },
     ],
     [
       "CL/(GT): Large Glintstone Scrap x5 - bottom of ladder",
-      { groups: ["Dungeon"], region: "Gale Tunnel" },
+      { groups: ["Dungeon"], region: "Gael Tunnel" },
     ],
-    ["CL/(GT): Grace Mimic x5 - bottom of ladder", { groups: ["Dungeon"], region: "Gale Tunnel" }],
+    ["CL/(GT): Grace Mimic x5 - bottom of ladder", { groups: ["Dungeon"], region: "Gael Tunnel" }],
     [
       "CL/(SCT): Gravity Stone Chunk x10 - boss drop",
       { groups: ["Dungeon"], region: "Sellia Crystal Tunnel" },
@@ -12240,7 +12258,10 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: [], region: "Weeping Peninsula" },
     ],
     ["WP/MT: Golden Rune [2] - N of MT under bridge", { groups: [], region: "Weeping Peninsula" }],
-    ["WP/DHFR: Faith-knot Crystal Tear - N of DHFR", { groups: [], region: "Weeping Peninsula" }],
+    [
+      "WP/DHFR: Faith-knot Crystal Tear - N of DHFR in basin",
+      { groups: [], region: "Weeping Peninsula" },
+    ],
     [
       "WP/(DHFR): Shield of the Guilty - underground within S ruins",
       { groups: [], region: "Weeping Peninsula" },
@@ -12257,7 +12278,10 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ["WP/CM: Golden Rune [4] -  NE of CM in swamp", { groups: [], region: "Weeping Peninsula" }],
     ["WP/CM: Arteria Leaf - E of CM", { groups: [], region: "Weeping Peninsula" }],
     ["WP/CM: Somber Smithing Stone [2] - E of CM", { groups: [], region: "Weeping Peninsula" }],
-    ["WP/CMR: Map: Weeping Peninsula - to SW", { groups: [], region: "Weeping Peninsula" }],
+    [
+      "WP/CMR: Map: Weeping Peninsula - map pillar to SW",
+      { groups: [], region: "Weeping Peninsula" },
+    ],
     [
       "WP/CM: Poison Mist - scarab NE of CM, N of swamp",
       { groups: ["Scarab"], region: "Weeping Peninsula" },
@@ -12353,7 +12377,10 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "WP/(FLT): Ballista Bolt x5 - atop tower in chest",
       { groups: [], region: "Weeping Peninsula" },
     ],
-    ["WP/(OR): Memory Stone - kill the 3 spirits", { groups: [], region: "Weeping Peninsula" }],
+    [
+      "WP/(OR): Memory Stone - kill the 3 spirits",
+      { groups: ["Rise"], region: "Weeping Peninsula" },
+    ],
     ["WP/OR: Starlight Shards - E of OR", { groups: [], region: "Weeping Peninsula" }],
     ["WP/BCPG: Stonesword Key - head far N", { groups: [], region: "Weeping Peninsula" }],
     [
@@ -13132,7 +13159,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ],
     [
       "MA/(CR): Ranni's Dark Moon - in chest top of rise, just google this puzzle :)",
-      { groups: [], region: "Moonlight Altar" },
+      { groups: ["Rise"], region: "Moonlight Altar" },
     ],
     [
       "MA/MA: Smithing Stone [7] x3 - to SW in the 3 gazebos, left",
@@ -13230,7 +13257,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ],
     [
       "LL/(SR): Memory Stone - in chest top of rise",
-      { groups: [], isMissable: true, region: "Caria Manor" },
+      { groups: ["Rise"], isMissable: true, region: "Caria Manor" },
     ],
     [
       "LL/(SR): Seluvis's Potion - talk to Seluvis",
@@ -13360,7 +13387,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: [], region: "Capital Outskirts" },
     ],
     [
-      "CO/OWPT: Map: Leyndell, Royal Capital - by map pillar",
+      "CO/OWPT: Map: Leyndell, Royal Capital - map pillar",
       { groups: [], region: "Capital Outskirts" },
     ],
     ["CO/OWPT: Holy Grease x2 - to SE on platform", { groups: [], region: "Capital Outskirts" }],
@@ -13831,7 +13858,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: ["Blizzard", "Scarab", "Post Leyndell"], region: "Consecrated Snowfield" },
     ],
     [
-      "CS/CS: St. Trina's Torch - in caraven chest to NE",
+      "CS/CS: St. Trina's Torch - in caravan chest to NE",
       { groups: ["Blizzard", "Post Leyndell"], region: "Consecrated Snowfield" },
     ],
     [
@@ -13932,7 +13959,11 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ],
     [
       "CS/(AR): Graven-Mass Talisman - top of rise, use Fanged Imp Ashes or bewitching branch to make spirit enemies fight",
-      { groups: ["Blizzard", "Post Leyndell"], isMissable: true, region: "Consecrated Snowfield" },
+      {
+        groups: ["Rise", "Blizzard", "Post Leyndell"],
+        isMissable: true,
+        region: "Consecrated Snowfield",
+      },
     ],
     [
       "CS/CF: Smithing Stone [8] x3 - breakable statue W of CF",
@@ -13967,7 +13998,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: [], region: "Great-Jar" },
     ],
     ["CL/CCO: Great-Jar's Arsenal - beat Great-Jar's knights", { groups: [], region: "Great-Jar" }],
-    ["CL/DW: Map: Dragonbarrow - to E", { groups: [], region: "Great-Jar" }],
+    ["CL/DW: Map: Dragonbarrow - map pillar to E", { groups: [], region: "Great-Jar" }],
     ["CL/DW: Golden Rune [5] - in lake to E", { groups: [], region: "Great-Jar" }],
     ["CL/DW: Gravel Stone - in lake to E", { groups: [], region: "Great-Jar" }],
     ["CL/DW: Sliver of Meat x3 - in lake to E", { groups: [], region: "Great-Jar" }],
@@ -14036,7 +14067,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "DB/(IMS): Gravity Stone Peddler's Bell Bearing - night boss drop",
       { groups: [], region: "Dragonbarrow" },
     ],
-    ["DB/(SE): Battlemage Hugues - Sellia Evergaol", { groups: [], region: "Dragonbarrow" }],
+    ["DB/(SE): Battlemage Hugues - boss drop Evergaol", { groups: [], region: "Dragonbarrow" }],
     [
       "DB/DW: Somber Smithing Stone [8] - scarab to NE",
       { groups: ["Scarab"], region: "Dragonbarrow" },
@@ -14157,7 +14188,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: ["Hidden"], region: "Dragonbarrow" },
     ],
     ["DB/BS: Golden Seed - seedtree SE of BS", { groups: [], region: "Dragonbarrow" }],
-    ["DB/(LR): Memory Stone - in chest top of tower", { groups: [], region: "Dragonbarrow" }],
+    ["DB/(LR): Memory Stone - in chest top of tower", { groups: ["Rise"], region: "Dragonbarrow" }],
     ["DB/FG: Dragon Heart - boss drop to S", { groups: [], region: "Dragonbarrow" }],
     ["DB/LR: Golden Rune [8] - graveyard SW of LR", { groups: [], region: "Dragonbarrow" }],
     ["DB/LR: Golden Rune [6] - graveyard SW of LR", { groups: [], region: "Dragonbarrow" }],
@@ -14594,7 +14625,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ],
     [
       "MotG/(HR): Founding Rain of Stars - in chest after crossing invisible bridge",
-      { groups: ["Post Leyndell"], region: "Mountaintops of the Giants" },
+      { groups: ["Rise", "Post Leyndell"], region: "Mountaintops of the Giants" },
     ],
     [
       "MotG/(CS): Golden Rune [4] - up ladder S of church, drop off outerwall to S, in graveyard to NE",
@@ -14840,7 +14871,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: ["Post Leyndell"], region: "Flame Peak" },
     ],
     [
-      "ARR/CBME: Rauh Ruins Spiritspring Stone, drop to E till cliff then up ledge to N",
+      "ARR/CBME: Rauh Ruins Spiritspring Stone - drop to E till cliff then up ledge to N",
       { groups: ["DLC"], region: "Ancient Ruins of Rauh" },
     ],
     [
@@ -15105,7 +15136,10 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "ARR/VMT: Fine Crucible Feather Talisman - down W hall from giant room second floor, right at intersection, up on roots",
       { groups: ["DLC"], region: "Ancient Ruins of Rauh" },
     ],
-    ["RB/(TTR): Rauh Base Spiritspring Stone to E", { groups: ["DLC"], region: "Rauh Base" }],
+    [
+      "RB/(TTR): Rauh Base Spiritspring Stone - stone to E",
+      { groups: ["DLC"], region: "Rauh Base" },
+    ],
     [
       "RB/SRC: Greater Potentate's Cookbook [8] - N of SRC on pile of brown",
       { groups: ["DLC"], region: "Rauh Base" },
@@ -15367,7 +15401,10 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       "CC/CCW: Scadutree Fragment - to N, in small cave through ravine",
       { groups: ["DLC"], region: "Cerulean Coast" },
     ],
-    ["CC/CCC: Map: Southern Shore - to N on path", { groups: ["DLC"], region: "Cerulean Coast" }],
+    [
+      "CC/CCC: Map: Southern Shore - map pillar to N on path",
+      { groups: ["DLC"], region: "Cerulean Coast" },
+    ],
     [
       "CC/CCC: St. Trina Disciple's Cookbook [1] - to N, on corpse under tree",
       { groups: ["DLC"], region: "Cerulean Coast" },
@@ -15560,10 +15597,13 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
       { groups: ["DLC"], region: "Rauh Ruins Limited" },
     ],
     [
-      "SA/(MR): Scaduview Cross Spiritspring Stone to SE",
+      "SA/(MR): Scaduview Cross Spiritspring Stone - stone to SE",
       { groups: ["DLC"], region: "Scadu Altus" },
     ],
-    ["SA/(RR): Rabbath's Rise Spiritspring Stone to S", { groups: ["DLC"], region: "Scadu Altus" }],
+    [
+      "SA/(RR): Rabbath's Rise Spiritspring Stone - stone to S",
+      { groups: ["DLC"], region: "Scadu Altus" },
+    ],
     [
       "SK/SKMG: Aspects of the Crucible: Thorns - boss drop",
       { groups: ["DLC"], region: "Scadu Altus" },
@@ -16032,7 +16072,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ],
     [
       "SA/(CMM): Ruins Map - given by Ymir on first meeting",
-      { groups: ["DLC"], isMissable: true, region: "Scadu Altus" },
+      { groups: ["DLC"], region: "Scadu Altus" },
     ],
     [
       "SA/(CMM): Beloved Stardust - given by Ymir after ringing the hanging bell in FRR",
@@ -16102,7 +16142,7 @@ export const LOCATION_GROUPS: ReadonlyMap<string, LocationGroups> = new Map<stri
     ],
     [
       "SA/(RR): Rabbath's Cannon - in chest top of rise",
-      { groups: ["DLC"], region: "Scadu Altus" },
+      { groups: ["DLC", "Rise"], region: "Scadu Altus" },
     ],
     ["SA/SC: Scadutree Fragment - by cross", { groups: ["DLC"], region: "Scadu Altus" }],
     [

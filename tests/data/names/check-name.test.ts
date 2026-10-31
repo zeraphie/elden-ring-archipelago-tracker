@@ -3,7 +3,7 @@ import { LOCATION_GROUPS } from "../../../src/data/checks/location-groups.js";
 import { checkName } from "../../../src/data/names/check-name.js";
 import { keySpot } from "../../../src/data/names/key-spots.js";
 import { readLocationName } from "../../../src/data/names/location-name.js";
-import { expandPlaces, PLACE_EXCEPTIONS, placeName } from "../../../src/data/names/place-names.js";
+import { expandPlaces, placeName } from "../../../src/data/names/place-names.js";
 import { regionName } from "../../../src/data/names/regions.js";
 
 // The first location the apworld lists that has no hand-written name, with or without a place code.
@@ -33,11 +33,6 @@ describe("checkName", () => {
       place: placeName(read?.placeKey ?? ""),
       encounter: expandPlaces(read?.description ?? "", read?.regions ?? []),
     });
-  });
-
-  test("a spot its code places wrongly is named by the place it's in", () => {
-    const [location, key] = [...PLACE_EXCEPTIONS][0] ?? ["", ""];
-    expect(checkName(location).place).toBe(placeName(key));
   });
 
   test("a spot with no place code is placed by its region", () => {
