@@ -13,6 +13,8 @@ here first, then search the source, then write.
 - `callsIn()`: Every call to `callee` in the source, left out where its line is commented out.
 - `piecesFrom()`: The top-level pieces of a bracketed run, from just inside its opening bracket to its close, split at commas, with comments dropped and empty pieces left out.
 - `listAt()`: The pieces of the list that opens on `opening`, such as `region_order = [`; empty when it isn't there.
+- `RegionOrders`: The base game's and the DLC's regions, in the apworld's order.
+- `regionOrdersFrom()`: The regions in the apworld's region_names.py, in its order.
 - `pythonString()`: A Python string literal's value: `"Fia's Champions"` or `'say \"hi\"'`.
 - `trueKeywords()`: The names of a call's keyword arguments that are set to True.
 - `APWORLD_LICENCE`: The apworld's copyright and licence, as the notice of a file built from its source ends.
@@ -82,14 +84,14 @@ here first, then search the source, then write.
 **tools/write-location-groups.ts**
 - `EXCLUDABLE_GROUPS`: The groups a host can exclude locations by, in the apworld's own words.
 - `LocationFacts`: What the key-check rebuild and the rules need to know of one location.
-- `locationFactsFrom()`: Each location's facts from the apworld's locations.py source, events left out.
+- `locationFactsFrom()`: Each location's facts from the apworld's locations.py and region_names.py sources, events left out.
 - `locationGroupsModule()`: The source of src/data/checks/location-groups.ts: every location, with its region.
 - `LocationGroups`: What a room's key checks and rules need to know of a location.
 - `LOCATION_GROUPS`: Each location's groups and region, by its Archipelago name.
 
 **tools/write-region-graph.ts**
 - `RegionSource`: The regions and always-on connections of the base game and the DLC.
-- `regionSourceFrom()`: The regions and always-on connections from the apworld's __init__.py and locations.py.
+- `regionSourceFrom()`: The regions and always-on connections from the apworld's __init__.py and region_names.py.
 - `regionConnectionsModule()`: The source of src/data/rules/regions/region-connections.ts.
 - `BASE_REGIONS`: The base game's regions, in the apworld's order.
 - `DLC_REGIONS`: The DLC's regions, in the apworld's order.

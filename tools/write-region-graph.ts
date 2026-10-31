@@ -7,11 +7,11 @@
  * connections that hang on other options (where the run starts, how Mohgwyn
  * Palace and the DLC are reached) are ported by hand in region-graph.ts; this
  * stops if it meets one it doesn't know. Run it as
- * `bun run region-graph <path to __init__.py> <path to locations.py>`.
+ * `bun run region-graph <path to __init__.py> <path to region_names.py>`.
  */
 
 import { $ } from "bun";
-import { APWORLD_LICENCE, callsIn, listAt, pythonString } from "./apworld-source.js";
+import { APWORLD_LICENCE, callsIn, pythonString, regionOrdersFrom } from "./apworld-source.js";
 
 /** The regions and always-on connections of the base game and the DLC. */
 export interface RegionSource {
@@ -36,8 +36,9 @@ const BY_HAND = new Set([
   "Gravesite Plain > Limgrave",
 ]);
 
-/** The regions and always-on connections from the apworld's __init__.py and locations.py. */
-export function regionSourceFrom(init: string, locations: string): RegionSource {
+/** The regions and always-on connections from the apworld's __init__.py and region_names.py. */
+export function regionSourceFrom(init: string, regionNames: string): RegionSource {
+  const { base: baseRegions, dlc: dlcRegions } = regionOrdersFrom(regionNames);
   const start = init.indexOf("    def create_regions");
   const end = init.indexOf("\n    def ", start + 1);
   const body = init.slice(start, end);
@@ -60,12 +61,7 @@ export function regionSourceFrom(init: string, locations: string): RegionSource 
       );
     }
   }
-  return {
-    baseRegions: listAt(locations, "\nregion_order = [").map(pythonString),
-    dlcRegions: listAt(locations, "\nregion_order_dlc = [").map(pythonString),
-    baseConnections,
-    dlcConnections,
-  };
+  return { baseRegions, dlcRegions, baseConnections, dlcConnections };
 }
 
 // The block headers around a line, innermost first, up to the function's own
@@ -101,7 +97,7 @@ export function regionConnectionsModule(source: RegionSource): string {
     values.map(([from, to]) => `  [${JSON.stringify(from)}, ${JSON.stringify(to)}],`).join("\n");
   return `/*! Regions and connections from the Elden Ring apworld 0.1.3's create_regions and region orders, ${APWORLD_LICENCE} */
 
-// Written by tools/write-region-graph.ts from the apworld's __init__.py and locations.py: run \`bun run region-graph\` again rather than editing it.
+// Written by tools/write-region-graph.ts from the apworld's __init__.py and region_names.py: run \`bun run region-graph\` again rather than editing it.
 
 /** The base game's regions, in the apworld's order. */
 export const BASE_REGIONS: readonly string[] = [
@@ -126,14 +122,14 @@ ${pairs(source.dlcConnections)}
 }
 
 if (import.meta.main) {
-  const [initPath, locationsPath] = process.argv.slice(2);
-  if (initPath === undefined || locationsPath === undefined) {
-    console.error("Usage: bun run region-graph <path to __init__.py> <path to locations.py>");
+  const [initPath, regionNamesPath] = process.argv.slice(2);
+  if (initPath === undefined || regionNamesPath === undefined) {
+    console.error("Usage: bun run region-graph <path to __init__.py> <path to region_names.py>");
     process.exit(1);
   }
   const source = regionSourceFrom(
     await Bun.file(initPath).text(),
-    await Bun.file(locationsPath).text()
+    await Bun.file(regionNamesPath).text()
   );
   await Bun.write(OUTPUT, regionConnectionsModule(source));
   // Formatted as written, so the file in the repo is exactly this tool's.

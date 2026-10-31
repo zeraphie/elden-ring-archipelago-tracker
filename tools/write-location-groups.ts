@@ -6,7 +6,8 @@
  * checks and rules depend on. That's the groups a host can exclude it by,
  * whether the apworld counts it missable, and its region, the table it's
  * listed in. It mirrors the apworld's own location_groups() and the loops after
- * its tables. Run it as `bun run location-groups <path to locations.py>`.
+ * its tables. Run it as
+ * `bun run location-groups <path to locations.py> <path to region_names.py>`.
  */
 
 import { $ } from "bun";
@@ -16,6 +17,7 @@ import {
   listAt,
   piecesFrom,
   pythonString,
+  regionOrdersFrom,
   trueKeywords,
 } from "./apworld-source.js";
 
@@ -23,6 +25,7 @@ import {
 export const EXCLUDABLE_GROUPS = [
   "DLC",
   "Hidden",
+  "Rise",
   "Blizzard",
   "Scarab",
   "Furnace Golem",
@@ -50,10 +53,9 @@ const CAPITAL = "Leyndell, Royal Capital";
 // The DLC's merchants at the Roundtable, valued as Gravesite Plain.
 const ROUNDTABLE_DLC = "Roundtable Hold DLC Only";
 
-/** Each location's facts from the apworld's locations.py source, events left out. */
-export function locationFactsFrom(source: string): LocationFacts[] {
-  const baseOrder = listAt(source, "\nregion_order = [").map(pythonString);
-  const dlcOrder = listAt(source, "\nregion_order_dlc = [").map(pythonString);
+/** Each location's facts from the apworld's locations.py and region_names.py sources, events left out. */
+export function locationFactsFrom(source: string, regionNames: string): LocationFacts[] {
+  const { base: baseOrder, dlc: dlcOrder } = regionOrdersFrom(regionNames);
   const dungeons = new Set(listAt(source, "for region in [ # dungeons").map(pythonString));
   const order = [...baseOrder, ...dlcOrder];
   // A table's place in the order, as the apworld's region_value; 0 for a table not in it.
@@ -77,6 +79,7 @@ export function locationFactsFrom(source: string): LocationFacts[] {
       const groups = [
         isDlc && "DLC",
         (flags.has("hidden") || flags.has("hangingpot")) && "Hidden",
+        flags.has("rise") && "Rise",
         flags.has("blizzard") && "Blizzard",
         flags.has("scarab") && !isDlc && "Scarab",
         flags.has("furnacegolem") && "Furnace Golem",
@@ -130,12 +133,17 @@ ${rows.join("\n")}
 }
 
 if (import.meta.main) {
-  const path = process.argv[2];
-  if (path === undefined) {
-    console.error("Usage: bun run location-groups <path to the apworld's locations.py>");
+  const [locationsPath, regionNamesPath] = process.argv.slice(2);
+  if (locationsPath === undefined || regionNamesPath === undefined) {
+    console.error(
+      "Usage: bun run location-groups <path to locations.py> <path to region_names.py>"
+    );
     process.exit(1);
   }
-  const facts = locationFactsFrom(await Bun.file(path).text());
+  const facts = locationFactsFrom(
+    await Bun.file(locationsPath).text(),
+    await Bun.file(regionNamesPath).text()
+  );
   await Bun.write(OUTPUT, locationGroupsModule(facts));
   // Formatted as written, so the file in the repo is exactly this tool's.
   await $`oxfmt ${OUTPUT}`.quiet();

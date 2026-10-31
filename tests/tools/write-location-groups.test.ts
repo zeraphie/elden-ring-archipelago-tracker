@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { locationFactsFrom, locationGroupsModule } from "../../tools/write-location-groups.js";
 
-// A small locations.py in the apworld's own shape: 22 base tables, so the
-// Post Leyndell range (the last 21 base tables and the first DLC one) is real.
+// A small region_names.py and locations.py in the apworld's own shape: 22 base tables,
+// so the Post Leyndell range (the last 21 base tables and the first DLC one) is real.
 const BASE = ["Limgrave", ...Array.from({ length: 20 }, (_, i) => `Late ${i + 1}`), "Late 21"];
-const SOURCE = `
+const REGION_NAMES = `
 region_order = [
     # Limgrave
 ${BASE.map((table) => `    "${table}",`).join("\n")}
@@ -15,11 +15,13 @@ region_order_dlc = [
     "Gravesite Plain",
     "Belurat",
 ]
-
+`;
+const SOURCE = `
 location_tables: Dict[str, List[ERLocationData]] = {
     "Limgrave": [
         ERLocationData("LG/(SG): Finger Severer - beside grace", "Finger Severer"),
         ERLocationData("LG/A: Pot Item - in a hanging pot", "Pot Item", hangingpot=True),
+        ERLocationData("LG/A: Rise Item - top of rise", "Rise Item", rise=True),
         ERLocationData("LG/A: Scarab Item - scarab", "Scarab Item", scarab=True, exclusive=True),
         ERLocationData("LG/A: An Event", None),
         # ERLocationData("LG/A: Cut - commented out", "Cut"),
@@ -53,10 +55,10 @@ for region in [ # dungeons
 `;
 
 describe("locationFactsFrom", () => {
-  const facts = new Map(locationFactsFrom(SOURCE).map((fact) => [fact.name, fact]));
+  const facts = new Map(locationFactsFrom(SOURCE, REGION_NAMES).map((fact) => [fact.name, fact]));
 
   test("reads every location but events and commented-out lines", () => {
-    expect(facts.size).toBe(10);
+    expect(facts.size).toBe(11);
     expect(facts.has("LG/A: An Event")).toBe(false);
     expect(facts.has("LG/A: Cut - commented out")).toBe(false);
   });
@@ -64,6 +66,14 @@ describe("locationFactsFrom", () => {
   test("a hanging pot is hidden, and an exclusive spot missable", () => {
     expect(facts.get("LG/A: Pot Item - in a hanging pot")?.groups).toEqual(["Hidden"]);
     expect(facts.get("LG/A: Scarab Item - scarab")?.isMissable).toBe(true);
+  });
+
+  test("a rise's spot is in the Rise group", () => {
+    expect(facts.get("LG/A: Rise Item - top of rise")?.groups).toEqual(["Rise"]);
+  });
+
+  test("stops when the regions aren't there, rather than reading every spot as Post Leyndell", () => {
+    expect(() => locationFactsFrom(SOURCE, SOURCE)).toThrow();
   });
 
   test("a dungeon table's spots are Dungeon, except on the critical path", () => {
@@ -112,7 +122,7 @@ describe("locationFactsFrom", () => {
 });
 
 describe("locationGroupsModule", () => {
-  const module = locationGroupsModule(locationFactsFrom(SOURCE));
+  const module = locationGroupsModule(locationFactsFrom(SOURCE, REGION_NAMES));
 
   test("lists every location with the table it's in as its region", () => {
     expect(module).toContain(

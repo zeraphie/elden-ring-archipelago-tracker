@@ -82,6 +82,13 @@ export default {
       instead: "`callsIn()`, `listAt()`, `piecesFrom()` and `pythonString()`",
     },
     {
+      what: "the apworld's region orders read by hand",
+      // The bracket keeps this row from matching itself.
+      pattern: /region_orde[r]/,
+      home: "tools/apworld-source.ts",
+      instead: "`regionOrdersFrom()`",
+    },
+    {
       what: "the apworld's licence line written into a generator by hand",
       pattern: /Copyright \(c\) \d{4} Bedrock/,
       home: "tools/apworld-source.ts",

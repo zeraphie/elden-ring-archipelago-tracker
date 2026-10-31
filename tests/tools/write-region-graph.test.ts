@@ -29,7 +29,7 @@ class EldenRing:
     def create_region(self, name):
         pass
 `;
-const LOCATIONS = `
+const REGION_NAMES = `
 region_order = [
     "Limgrave",
     "Stormhill",
@@ -42,11 +42,15 @@ region_order_dlc = [
 
 describe("regionSourceFrom", () => {
   test("splits the always-on connections by their half of the game", () => {
-    const source = regionSourceFrom(INIT, LOCATIONS);
+    const source = regionSourceFrom(INIT, REGION_NAMES);
     expect(source.baseConnections).toEqual([["Limgrave", "Stormhill"]]);
     expect(source.dlcConnections).toEqual([["Gravesite Plain", "Belurat"]]);
     expect(source.baseRegions).toEqual(["Limgrave", "Stormhill"]);
     expect(source.dlcRegions).toEqual(["Gravesite Plain"]);
+  });
+
+  test("stops when the regions aren't there", () => {
+    expect(() => regionSourceFrom(INIT, "nothing here")).toThrow();
   });
 
   test("stops at a connection under a condition it doesn't port", () => {
@@ -54,6 +58,6 @@ describe("regionSourceFrom", () => {
       '            create_connection("Limgrave", "Stormhill")',
       '            if self.options.soft_logic:\n                create_connection("Limgrave", "Stormhill")'
     );
-    expect(() => regionSourceFrom(changed, LOCATIONS)).toThrow("Stormhill");
+    expect(() => regionSourceFrom(changed, REGION_NAMES)).toThrow("Stormhill");
   });
 });

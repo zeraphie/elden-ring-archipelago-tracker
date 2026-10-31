@@ -87,7 +87,10 @@ if (import.meta.main) {
     console.error("Usage: bun run key-spots <path to the apworld's eldenring folder>");
     process.exit(1);
   }
-  const facts = locationFactsFrom(await Bun.file(`${folder}/locations.py`).text());
+  const facts = locationFactsFrom(
+    await Bun.file(`${folder}/locations.py`).text(),
+    await Bun.file(`${folder}/region_names.py`).text()
+  );
   const calls = callsIn(await Bun.file(`${folder}/bosses.py`).text(), "ERBossInfo");
   const bossDrops = new Set(bossArenasFrom(calls).arenas.flatMap((arena) => arena.drops));
   const spots = possibleKeySpots(facts, bossDrops);

@@ -78,6 +78,28 @@ export function listAt(source: string, opening: string): string[] {
   return at === -1 ? [] : piecesFrom(source, at + opening.length);
 }
 
+/** The base game's and the DLC's regions, in the apworld's order. */
+export interface RegionOrders {
+  readonly base: readonly string[];
+  readonly dlc: readonly string[];
+}
+
+/**
+ * The regions in the apworld's region_names.py, in its order.
+ *
+ * @throws When either list is missing, as every region and group built on them would come out wrong.
+ */
+export function regionOrdersFrom(regionNames: string): RegionOrders {
+  const base = listAt(regionNames, "\nregion_order = [").map(pythonString);
+  const dlc = listAt(regionNames, "\nregion_order_dlc = [").map(pythonString);
+  if (base.length === 0 || dlc.length === 0) {
+    throw new Error(
+      `Found ${base.length} base and ${dlc.length} DLC regions, expected both: is this the apworld's region_names.py?`
+    );
+  }
+  return { base, dlc };
+}
+
 /** A Python string literal's value: `"Fia's Champions"` or `'say \"hi\"'`. */
 export function pythonString(literal: string): string {
   const quote = literal.charAt(0);

@@ -4,6 +4,7 @@ import {
   listAt,
   piecesFrom,
   pythonString,
+  regionOrdersFrom,
   trueKeywords,
 } from "../../tools/apworld-source.js";
 
@@ -41,6 +42,20 @@ describe("callsIn", () => {
     const names = callsIn(SOURCE, "ERBossInfo").map((call) => call.args[0]);
     expect(names).not.toContain('"Cut Boss (LG)"');
     expect(names).not.toContain('"Lookalike"');
+  });
+});
+
+describe("regionOrdersFrom", () => {
+  const SOURCE =
+    '# Regions\nregion_order = [\n    "Limgrave",\n]\n\nregion_order_dlc = [\n    "Belurat",\n]\n';
+
+  test("reads both orders", () => {
+    expect(regionOrdersFrom(SOURCE)).toEqual({ base: ["Limgrave"], dlc: ["Belurat"] });
+  });
+
+  test("stops when either is missing", () => {
+    expect(() => regionOrdersFrom("nothing here")).toThrow();
+    expect(() => regionOrdersFrom('\nregion_order = [\n    "Limgrave",\n]\n')).toThrow();
   });
 });
 
