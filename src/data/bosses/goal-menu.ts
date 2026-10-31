@@ -14,7 +14,7 @@ import { reachOf, startOf, type Room } from "../rules/room-reach.js";
 import { location, type Need } from "../rules/rules.js";
 import { BOSSES, type Boss } from "./bosses.js";
 import { bossDropping, goalBosses, type GoalBoss } from "./goal.js";
-import { isMainPathItemNeed, MAIN_PATH_BOSSES } from "./main-path.js";
+import { isMainPathItemNeed, MAIN_PATH_BOSSES, STARSCOURGE_RADAHN } from "./main-path.js";
 
 /** What the goal menu holds: what's still needed, what's met, and the goal's bosses. */
 export interface GoalMenu {
@@ -76,8 +76,9 @@ export function goalMenu(
 }
 
 // The main path's bosses in the room standing in the way of a goal boss's drops, in the order the
-// path meets them: those whose arena lies on its way, and those the rules ask to defeat on it. A
-// boss the goal names itself is its own row, so it's left out.
+// path meets them: those whose arena lies on its way, those the rules ask to defeat on it, and
+// Radahn when the way goes through Mohgwyn Palace into the DLC. A boss the goal names itself is
+// its own row, so it's left out.
 function mainPathBossesOnTheWay(drops: readonly string[], room: Room, start: RoomReach): Boss[] {
   const [first] = drops;
   const region = first === undefined ? undefined : start.rules.regionOf(first);
@@ -90,6 +91,9 @@ function mainPathBossesOnTheWay(drops: readonly string[], room: Room, start: Roo
       need.kind === "location" ? [bossDropping(need.location, MAIN_PATH_BOSSES)?.flag] : []
     )
   );
+  if (way.has("Mohgwyn Palace") && way.has("Gravesite Plain")) {
+    asked.add(STARSCOURGE_RADAHN);
+  }
   return [...MAIN_PATH_BOSSES].flatMap(([flag, boss]) => {
     const arenaDrop = boss.drops.find((drop) => room.locations.has(drop));
     const arena = arenaDrop === undefined ? undefined : start.rules.regionOf(arenaDrop);

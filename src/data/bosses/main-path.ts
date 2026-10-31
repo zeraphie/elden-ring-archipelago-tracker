@@ -39,11 +39,17 @@ const DRACONIC_TREE_SENTINEL: readonly [number, Boss] = [
 
 // The main path's other bosses, by defeat flag, in the order it meets them: Godfrey's golden
 // shade, Morgott, the Fire Giant, the Godskin Duo, Maliketh, Sir Gideon Ofnir and Hoarah Loux;
-// then Starscourge Radahn, Mohg, whose palace leads to the DLC, and Romina.
+// then the DLC's Starscourge Radahn and Mohg, for the way in, and Romina.
 const GOAL_BOSS_FLAGS = [
   11000850, 11000800, 1252520800, 13000850, 13000800, 11050850, 11050800, 1252380800, 12050800,
   2044450800,
 ];
+
+/**
+ * Starscourge Radahn's defeat flag. The game shuts the DLC's way in at Mohgwyn Palace until he's
+ * defeated, which the apworld's rules read only as reaching his arena.
+ */
+export const STARSCOURGE_RADAHN = 1252380800;
 
 /** The bosses whose arenas bar the main path, by defeat flag, in the order it meets them. */
 export const MAIN_PATH_BOSSES: ReadonlyMap<number, Boss> = new Map([

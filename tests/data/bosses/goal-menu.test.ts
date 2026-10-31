@@ -18,6 +18,7 @@ const GODSKIN_DUO = 13000850;
 const MALIKETH = 13000800;
 const GIDEON = 11050850;
 const HOARAH_LOUX = 11050800;
+const STARSCOURGE_RADAHN = 1252380800;
 const MOHG = 12050800;
 const ROMINA = 2044450800;
 const MORGOTTS_DROP = "LRC/QB: Morgott's Great Rune - mainboss drop";
@@ -122,9 +123,11 @@ describe("goalMenu", () => {
     ]);
   });
 
-  test("the DLC's way in asks for Mohg, unless the run starts in the DLC", () => {
+  test("the DLC's way in asks for Starscourge Radahn and Mohg, unless the run starts in the DLC", () => {
     const fromTheBase = goalMenu(roomOf("[Long]", PROMISED_CONSORT), new Map(), new Set());
-    expect(bossesIn(fromTheBase.needed)).toEqual(expect.arrayContaining([MOHG, ROMINA]));
+    expect(bossesIn(fromTheBase.needed)).toEqual(
+      expect.arrayContaining([STARSCOURGE_RADAHN, MOHG, ROMINA])
+    );
     const fromTheDlc = goalMenu(roomOf("[Short] DLC Only", PROMISED_CONSORT), new Map(), new Set());
     expect(bossesIn(fromTheDlc.needed)).toEqual([ROMINA]);
   });
