@@ -101,7 +101,8 @@ here first, then search the source, then write.
 ## src/archipelago
 
 **src/archipelago/elden-ring-slot.ts** (src/state)
-- `readKeyCheckSlotData()`: The part of an Elden Ring slot's slot_data that its key checks are rebuilt from; undefined in any other shape.
+- `readCheckNames()`: Each check in an Elden Ring slot's room, by id, named by the game's data package; undefined in any other shape.
+- `readKeyCheckSlotData()`: The part of an Elden Ring slot's slot_data that its key checks are rebuilt from, with its checks' names; undefined in any other shape.
 - `readRulesSlotData()`: The part of an Elden Ring slot's slot_data its rules and goal are read from; undefined in any other shape.
 - `readMapSlotData()`: The part of an Elden Ring slot's slot_data that places its checks on the map: each check's key and name, by id; undefined in any other shape.
 - `readSlotVersions()`: The apworld versions an Elden Ring slot's slot_data says made it, such as ">=0.1 <0.2"; undefined when it says none.
@@ -575,7 +576,7 @@ here first, then search the source, then write.
 - `GoalBoss`: One of a room's goal bosses, and how it stands.
 
 **src/data/checks/key-checks.ts** (src/archipelago)
-- `KeyCheckSlotData`: What rebuilding a room's key checks reads from its Elden Ring slot_data.
+- `KeyCheckSlotData`: What rebuilding a room's key checks reads from its Elden Ring slot_data, with its checks' names from the data package.
 
 **src/data/checks/map-pins.ts** (src/components/organisms, src/components/utils, src/state)
 - `PinState`: How a pin stands: every key check on its tile checked, some left, or some left in a locked region.
@@ -674,7 +675,7 @@ here first, then search the source, then write.
 - `releaseOf()`: What becomes of the items left in the slot's world, its goal done: by the room's permission, or a release it announced.
 
 **src/state/utils/key-checks.ts** (src/components/organisms)
-- `keyChecksFrom()`: A slot's key checks, by location id, worked out from its slot_data; undefined in a shape they can't be.
+- `keyChecksFrom()`: A slot's key checks, by location id, worked out from its slot_data and the names of its game's data package; undefined in a shape they can't be.
 
 **src/state/utils/map.ts** (src/components/organisms, src/components/utils)
 - `MapView`: Each sheet's regions and coast, how each region stands by its code, and each sheet's key-check pins.

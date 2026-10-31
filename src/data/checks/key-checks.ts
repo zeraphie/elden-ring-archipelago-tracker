@@ -2,7 +2,7 @@
  * ─ Key checks ─
  *
  * A room's key checks, the spots that can hold a key item, rebuilt from its
- * slot_data. slot_data carries the host's choices, not the apworld's final
+ * slot_data and its checks' names. slot_data carries the host's choices, not the apworld's final
  * priority set, so this does what the apworld does: it reads the excluded
  * groups back from the exclude list, keeps the priority spots that are in the
  * room, can't be missed and aren't excluded, adds the spots generation tops
@@ -28,7 +28,7 @@ export interface KeyCheckOptions {
   readonly physick_flask_option: number;
 }
 
-/** What rebuilding a room's key checks reads from its Elden Ring slot_data. */
+/** What rebuilding a room's key checks reads from its Elden Ring slot_data, with its checks' names from the data package. */
 export interface KeyCheckSlotData {
   readonly options: KeyCheckOptions;
   /** Every check in the room, by location id. */

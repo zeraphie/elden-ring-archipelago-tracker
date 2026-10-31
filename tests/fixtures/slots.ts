@@ -4,7 +4,7 @@
 import type { DataPackage } from "../../src/archipelago/web-responses.js";
 import type { CheckInputs } from "../../src/state/utils/checks.js";
 import { PRESETS } from "./presets.js";
-import { seed, slotOf } from "./seeds.js";
+import { arrivingSlot, LOCATION_NAMES, seed, slotOf } from "./seeds.js";
 
 export const GODFREY = 11000850;
 export const MORGOTT = 11000800;
@@ -14,7 +14,7 @@ const SLOT = slotOf(seed("Izzy's preset"));
 
 /** Izzy's preset's slot_data, with its rules' options and Godfrey and Morgott as its goal. */
 export const SLOT_DATA: Readonly<Record<string, unknown>> = {
-  ...SLOT,
+  ...arrivingSlot(seed("Izzy's preset")),
   options: { ...SLOT.options, ...PRESETS["Izzy's preset"] },
   goal: [GODFREY, MORGOTT],
 };
@@ -40,7 +40,7 @@ export const PACKAGES = new Map<string, DataPackage>([
         [2, "Godrick's Great Rune"],
         [3, "Dectus Medallion (Left)"],
       ]),
-      locationNames: new Map(),
+      locationNames: LOCATION_NAMES,
     },
   ],
 ]);

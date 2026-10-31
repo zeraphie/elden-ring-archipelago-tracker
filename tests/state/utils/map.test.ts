@@ -9,6 +9,7 @@ const LIURNIA = firstCoded("LL");
 const PLACED_SLOT = {
   ...SLOT_DATA,
   locationIdsToKeys: {
+    ...(SLOT_DATA["locationIdsToKeys"] as Record<string, string>),
     [LIMGRAVE]: "604038,0:0000000000::",
     [LIURNIA]: "603649,0:0000000000::",
   },
@@ -48,6 +49,11 @@ describe("mapOf", () => {
   });
 
   test("slot_data that doesn't place its checks has no map", () => {
-    expect(mapOf(data, inputs())).toBeUndefined();
+    const { locationIdsToKeys: _left, ...unplaced } = SLOT_DATA;
+    expect(mapOf(data, inputs({ slotData: unplaced }))).toBeUndefined();
+  });
+
+  test("has no map until the data package names its checks", () => {
+    expect(mapOf(data, inputs({ slotData: PLACED_SLOT, packages: new Map() }))).toBeUndefined();
   });
 });

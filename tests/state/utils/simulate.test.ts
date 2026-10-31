@@ -9,7 +9,7 @@ import {
   withAllBosses,
 } from "../../../src/state/utils/simulate.js";
 import { keyChecksFrom } from "../../../src/state/utils/key-checks.js";
-import { seed, slotOf } from "../../fixtures/seeds.js";
+import { arrivingSlot, LOCATION_NAMES, seed, slotOf } from "../../fixtures/seeds.js";
 import { firstCoded, GODFREY, idOf, inputs, SLOT_DATA } from "../../fixtures/slots.js";
 
 const LIMGRAVE = firstCoded("LG");
@@ -70,7 +70,7 @@ describe("nextBossDefeat", () => {
 });
 
 describe("withAllBosses", () => {
-  const room = { ...slotOf(seed("Izzy's preset")) };
+  const room = arrivingSlot(seed("Izzy's preset"));
   const swapped = withAllBosses(data, room);
 
   test("takes the All Bosses preset's rules and every boss as the goal, keeping the room's checks", () => {
@@ -79,15 +79,16 @@ describe("withAllBosses", () => {
       key_item_shards: { MessmerKindlingShards: { Max: 5, Req: 3 } },
     });
     expect(swapped["goal"]).toEqual([...data.BOSSES.keys()]);
-    expect(swapped["locationIdsToName"]).toBe(room.locationIdsToName);
+    expect(swapped["locationIdsToKeys"]).toBe(room["locationIdsToKeys"]);
   });
 
   test("gives the room the preset's key checks, among its own checks", () => {
-    const own = keyChecksFrom(data, room);
-    const preset = keyChecksFrom(data, swapped);
+    const own = keyChecksFrom(data, room, LOCATION_NAMES);
+    const preset = keyChecksFrom(data, swapped, LOCATION_NAMES);
     expect(preset?.size).toBeGreaterThan(0);
     expect(preset).not.toEqual(own);
-    expect([...(preset ?? [])].every((id) => String(id) in room.locationIdsToName)).toBe(true);
+    const { locationIdsToName } = slotOf(seed("Izzy's preset"));
+    expect([...(preset ?? [])].every((id) => String(id) in locationIdsToName)).toBe(true);
   });
 });
 

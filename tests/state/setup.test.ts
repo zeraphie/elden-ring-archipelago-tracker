@@ -11,11 +11,12 @@ import {
   type SetupFailure,
 } from "../../src/state/setup.js";
 import { keyChecks } from "../../src/data/checks/key-checks.js";
-import { seed, slotOf } from "../fixtures/seeds.js";
+import { arrivingSlot, LOCATION_NAMES, seed, slotOf } from "../fixtures/seeds.js";
 import { testRoom, TRACKER_VERSION } from "../fixtures/sockets.js";
 import { memory } from "../fixtures/stores.js";
 import { settle, until } from "../fixtures/waits.js";
 import { recordedWeb } from "../fixtures/web.js";
+import webApi from "../fixtures/web-api.json";
 
 const ROOM = "q3Xh8sJm2PzK0tLw9RbVcA";
 const NOW = () => Date.parse("Thu, 22 Oct 2026 21:00:00 GMT");
@@ -157,11 +158,16 @@ describe("Setup", () => {
     run.setup.stop();
   });
 
-  test("the slot's key checks are worked out from its slot_data once the Elden Ring data is in", async () => {
-    const slot = slotOf(seed("Izzy's preset"));
+  test("the slot's key checks are worked out from its slot_data and names once the Elden Ring data is in", async () => {
+    const preset = seed("Izzy's preset");
+    const slot = slotOf(preset);
+    const names = Object.fromEntries([...LOCATION_NAMES].map(([id, name]) => [name, id]));
     const run = settingUp(await found("room"), {
       fetcher: recordedWeb({
-        slot_data_tracker: { body: [{ player: 1, slot_data: { ...slot, slot: "Tarnished" } }] },
+        datapackage: { body: { ...webApi.datapackage, location_name_to_id: names } },
+        slot_data_tracker: {
+          body: [{ player: 1, slot_data: { ...arrivingSlot(preset), slot: "Tarnished" } }],
+        },
       }).fetcher,
     });
     await until(() => run.ended.isReady);

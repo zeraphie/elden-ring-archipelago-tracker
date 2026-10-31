@@ -10,7 +10,7 @@
  */
 
 import type { StateStorage } from "zustand/middleware";
-import type { Found, FoundRoom } from "../archipelago/look-up.js";
+import { ELDEN_RING, type Found, type FoundRoom } from "../archipelago/look-up.js";
 import type { RoomLink } from "../archipelago/room-link.js";
 import type { RoomWatch } from "../archipelago/room-watch.js";
 import type { LoginProblem, SocketOpener } from "../archipelago/room-socket.js";
@@ -164,25 +164,27 @@ export class Setup {
   private async run(loaded: Promise<void>): Promise<void> {
     const { found, choice, options } = this;
     // In once it's in the store, so the tracker is never ready without its names.
-    void this.ask("data package", async () => {
+    const packages = this.ask("data package", async () => {
       const names = await dataPackages(found, options.fetcher);
       await loaded;
       if (!this.isStopped) {
         this.store.getState().takePackages(names);
       }
+      return names;
     });
     const slots =
       found.kind === "room"
         ? this.ask("slot data", () => getSlotData(found.status.tracker, options.fetcher))
         : Promise.resolve(found.slotData);
-    // In once the slot's key checks are worked out from it and in the store.
+    // In once the slot's key checks are worked out from it and the names, and in the store.
     void this.ask("elden ring data", async () => {
-      const [data, slotData] = await Promise.all([this.loadEldenRing(), slots]);
+      const [data, slotData, names] = await Promise.all([this.loadEldenRing(), slots, packages]);
       this.eldenRing = data;
       await loaded;
       const mine = slotData?.find(({ player }) => player === choice.player);
-      if (!this.isStopped && mine !== undefined) {
-        this.store.getState().takeKeyChecks(keyChecksFrom(data, mine.slotData));
+      const locationNames = names?.get(ELDEN_RING)?.locationNames;
+      if (!this.isStopped && mine !== undefined && locationNames !== undefined) {
+        this.store.getState().takeKeyChecks(keyChecksFrom(data, mine.slotData, locationNames));
       }
     });
     await loaded;

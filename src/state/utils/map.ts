@@ -8,6 +8,7 @@
  */
 
 import { readMapSlotData } from "../../archipelago/elden-ring-slot.js";
+import { ELDEN_RING } from "../../archipelago/look-up.js";
 import type { MapPin } from "../../data/checks/map-pins.js";
 import type { PlacedLocation, Sheet, SheetTiles } from "../../data/checks/map-tiles.js";
 import type { RegionSummary } from "../../data/rules/region-summary.js";
@@ -55,8 +56,12 @@ export function mapOf(data: EldenRingData, inputs: MapInputs): MapView | undefin
   if (last !== undefined && last.data === data && last.view === view && last.regions === regions) {
     return last.map;
   }
-  const { keyChecks = NO_KEY_CHECKS, slotData } = inputs;
-  const layout = slotData === undefined ? undefined : layoutOf(data, slotData);
+  const { keyChecks = NO_KEY_CHECKS, slotData, packages } = inputs;
+  const locationNames = packages.get(ELDEN_RING)?.locationNames;
+  const layout =
+    slotData === undefined || locationNames === undefined
+      ? undefined
+      : layoutOf(data, slotData, locationNames);
   const map =
     view === undefined || layout === undefined || regions === undefined
       ? undefined
@@ -71,9 +76,13 @@ export function mapOf(data: EldenRingData, inputs: MapInputs): MapView | undefin
   return map;
 }
 
-function layoutOf(data: EldenRingData, slotData: Readonly<Record<string, unknown>>) {
+function layoutOf(
+  data: EldenRingData,
+  slotData: Readonly<Record<string, unknown>>,
+  locationNames: ReadonlyMap<number, string>
+) {
   if (!LAYOUTS.has(slotData)) {
-    const read = readMapSlotData(slotData);
+    const read = readMapSlotData(slotData, locationNames);
     const placed = read === undefined ? undefined : data.placedLocations(read);
     LAYOUTS.set(
       slotData,

@@ -5,7 +5,8 @@
  * boundary into the shapes the domain code takes. It arrives untyped, from the
  * web API or the login, so each field is checked; slot_data in another shape,
  * as an older or newer apworld might write it, reads as nothing rather than as
- * a wrong answer.
+ * a wrong answer. slot_data doesn't name a room's checks, so what needs their
+ * names takes the Elden Ring data package's too.
  */
 
 import type { KeyCheckSlotData } from "../data/checks/key-checks.js";
@@ -44,12 +45,31 @@ const OPTION_KINDS = {
   rykard_encounter: "flag",
 } as const satisfies Record<keyof WorldRuleOptions, "number" | "flag" | "names" | "shards">;
 
-/** The part of an Elden Ring slot's slot_data that its key checks are rebuilt from; undefined in any other shape. */
+/** Each check in an Elden Ring slot's room, by id, named by the game's data package; undefined in any other shape. */
+export function readCheckNames(
+  slotData: Readonly<Record<string, unknown>>,
+  locationNames: ReadonlyMap<number, string>
+): Readonly<Record<string, string>> | undefined {
+  const { locationIdsToKeys } = slotData;
+  if (!isNames(locationIdsToKeys)) {
+    return undefined;
+  }
+  return Object.fromEntries(
+    Object.keys(locationIdsToKeys).flatMap((id) => {
+      const name = locationNames.get(Number(id));
+      return name === undefined ? [] : [[id, name]];
+    })
+  );
+}
+
+/** The part of an Elden Ring slot's slot_data that its key checks are rebuilt from, with its checks' names; undefined in any other shape. */
 export function readKeyCheckSlotData(
-  slotData: Readonly<Record<string, unknown>>
+  slotData: Readonly<Record<string, unknown>>,
+  locationNames: ReadonlyMap<number, string>
 ): KeyCheckSlotData | undefined {
-  const { options, locationIdsToName, duplicatedLocations } = slotData;
-  if (!isRecord(options) || !isNames(locationIdsToName)) {
+  const { options, duplicatedLocations } = slotData;
+  const locationIdsToName = readCheckNames(slotData, locationNames);
+  if (!isRecord(options) || locationIdsToName === undefined) {
     return undefined;
   }
   if (duplicatedLocations !== undefined && !isNames(duplicatedLocations)) {
@@ -101,14 +121,18 @@ export function readRulesSlotData(
 }
 
 /** The part of an Elden Ring slot's slot_data that places its checks on the map: each check's key and name, by id; undefined in any other shape. */
-export function readMapSlotData(slotData: Readonly<Record<string, unknown>>):
+export function readMapSlotData(
+  slotData: Readonly<Record<string, unknown>>,
+  locationNames: ReadonlyMap<number, string>
+):
   | {
       readonly locationIdsToKeys: Readonly<Record<string, string>>;
       readonly locationIdsToName: Readonly<Record<string, string>>;
     }
   | undefined {
-  const { locationIdsToKeys, locationIdsToName } = slotData;
-  return isNames(locationIdsToKeys) && isNames(locationIdsToName)
+  const { locationIdsToKeys } = slotData;
+  const locationIdsToName = readCheckNames(slotData, locationNames);
+  return isNames(locationIdsToKeys) && locationIdsToName !== undefined
     ? { locationIdsToKeys, locationIdsToName }
     : undefined;
 }

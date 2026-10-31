@@ -1,17 +1,18 @@
 import { describe, expect, test } from "bun:test";
 import {
+  readCheckNames,
   readKeyCheckSlotData,
   readMapSlotData,
   readRulesSlotData,
   readSlotVersions,
 } from "../../src/archipelago/elden-ring-slot.js";
 import { PRESETS } from "../fixtures/presets.js";
-import { SEEDS, seed, slotOf } from "../fixtures/seeds.js";
+import { arrivingSlot, LOCATION_NAMES, SEEDS, seed, slotOf } from "../fixtures/seeds.js";
 import webApi from "../fixtures/web-api.json";
 
 // A seed's slot_data as it arrives: JSON, untyped.
 const arriving = (label: string) =>
-  JSON.parse(JSON.stringify(slotOf(seed(label)))) as Record<string, unknown>;
+  JSON.parse(JSON.stringify(arrivingSlot(seed(label)))) as Record<string, unknown>;
 
 // A preset's options as slot_data carries them, with a goal.
 const rulesSlot = (label: string, extra: Record<string, unknown> = {}) => ({
@@ -20,23 +21,50 @@ const rulesSlot = (label: string, extra: Record<string, unknown> = {}) => ({
   ...extra,
 });
 
+describe("readCheckNames", () => {
+  test("names each check in the room by the data package, and only those", () => {
+    const names = new Map([
+      [1, "LG/A: In the room - here"],
+      [2, "LG/A: Not in the room - there"],
+    ]);
+    expect(readCheckNames({ locationIdsToKeys: { 1: "604038,0:1::" } }, names)).toEqual({
+      1: "LG/A: In the room - here",
+    });
+  });
+
+  test("leaves out a check the data package doesn't name", () => {
+    expect(readCheckNames({ locationIdsToKeys: { 9: "604038,0:1::" } }, new Map())).toEqual({});
+  });
+
+  test("is nothing without its keys, or with a key that isn't text", () => {
+    expect(readCheckNames({}, LOCATION_NAMES)).toBeUndefined();
+    expect(readCheckNames({ locationIdsToKeys: { 1: 7 } }, LOCATION_NAMES)).toBeUndefined();
+  });
+});
+
 describe("readKeyCheckSlotData", () => {
   test.each(SEEDS.map(({ label }) => [label]))("%s: reads back whole", (label) => {
-    expect(readKeyCheckSlotData(arriving(label))).toEqual(slotOf(seed(label)));
+    expect(readKeyCheckSlotData(arriving(label), LOCATION_NAMES)).toEqual(slotOf(seed(label)));
   });
 
   test("slot_data without the options key checks read is nothing", () => {
-    expect(readKeyCheckSlotData(webApi.slot_data_tracker[0]?.slot_data ?? {})).toBeUndefined();
+    expect(
+      readKeyCheckSlotData(webApi.slot_data_tracker[0]?.slot_data ?? {}, LOCATION_NAMES)
+    ).toBeUndefined();
   });
 
   test("a field in the wrong shape is nothing, rather than a wrong answer", () => {
     const slot = arriving("Izzy's preset");
     const options = slot.options as Record<string, unknown>;
-    expect(readKeyCheckSlotData({ ...slot, options: { ...options, world_logic: "0" } })).toBe(
-      undefined
-    );
-    expect(readKeyCheckSlotData({ ...slot, locationIdsToName: { 1: 7 } })).toBeUndefined();
-    expect(readKeyCheckSlotData({ ...slot, duplicatedLocations: [] })).toBeUndefined();
+    expect(
+      readKeyCheckSlotData({ ...slot, options: { ...options, world_logic: "0" } }, LOCATION_NAMES)
+    ).toBeUndefined();
+    expect(
+      readKeyCheckSlotData({ ...slot, locationIdsToKeys: { 1: 7 } }, LOCATION_NAMES)
+    ).toBeUndefined();
+    expect(
+      readKeyCheckSlotData({ ...slot, duplicatedLocations: [] }, LOCATION_NAMES)
+    ).toBeUndefined();
   });
 });
 
@@ -83,21 +111,19 @@ describe("readRulesSlotData", () => {
 });
 
 describe("readMapSlotData", () => {
-  const names = { 7000000: "LG/(SGr): Finger Severer - beside grace" };
+  const names = new Map([[7000000, "LG/(SGr): Finger Severer - beside grace"]]);
   const keys = { 7000000: "604038,0:0000000000::" };
 
   test("each check's key and name, by id", () => {
-    expect(readMapSlotData({ locationIdsToKeys: keys, locationIdsToName: names })).toEqual({
+    expect(readMapSlotData({ locationIdsToKeys: keys }, names)).toEqual({
       locationIdsToKeys: keys,
-      locationIdsToName: names,
+      locationIdsToName: { 7000000: "LG/(SGr): Finger Severer - beside grace" },
     });
   });
 
   test("without its keys, or with a key that isn't text, is nothing", () => {
-    expect(readMapSlotData({ locationIdsToName: names })).toBeUndefined();
-    expect(readMapSlotData({ locationIdsToKeys: { 7000000: 1 }, locationIdsToName: names })).toBe(
-      undefined
-    );
+    expect(readMapSlotData({}, names)).toBeUndefined();
+    expect(readMapSlotData({ locationIdsToKeys: { 7000000: 1 } }, names)).toBeUndefined();
   });
 });
 

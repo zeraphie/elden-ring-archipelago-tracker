@@ -24,6 +24,11 @@ const NAMES: readonly string[] = fixture.names;
 /** The location name a fixture index stands for. */
 export const nameOf = (index: number): string => NAMES[index] ?? "";
 
+/** Every location the fixture names, by id, as the Elden Ring data package gives them. */
+export const LOCATION_NAMES: ReadonlyMap<number, string> = new Map(
+  NAMES.map((name, index) => [index, name])
+);
+
 // The All Bosses seed's options are the preset's own, which src keeps for the development build's
 // Simulate; here they take indices into the names, as every other seed's do.
 const ALL_BOSSES = "[Very Long] All Bosses";
@@ -58,7 +63,16 @@ function withOptions(seed: FixtureSeed): FixtureSeed {
 /** Every seed in the key-check fixture. */
 export const SEEDS = (fixture.seeds as unknown as readonly FixtureSeed[]).map(withOptions);
 
-/** A seed's slot_data, each location's id being its index in the fixture's names. */
+/** A seed's slot_data as the apworld writes it: its checks by id with their keys, which the fixture leaves blank, and no names. */
+export function arrivingSlot(seed: FixtureSeed): Readonly<Record<string, unknown>> {
+  const { locationIdsToName, ...rest } = slotOf(seed);
+  const locationIdsToKeys = Object.fromEntries(
+    Object.keys(locationIdsToName).map((id) => [id, ""])
+  );
+  return { ...rest, locationIdsToKeys };
+}
+
+/** A seed's slot_data as key checks read it, each location's id being its index in the fixture's names. */
 export function slotOf(seed: FixtureSeed): KeyCheckSlotData {
   return {
     options: {

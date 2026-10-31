@@ -17,6 +17,7 @@
  */
 
 import { LitElement, css, html, nothing } from "lit";
+import { ELDEN_RING } from "../../../archipelago/look-up.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerStore } from "../../../state/store.js";
 import { keyChecksFrom } from "../../../state/utils/key-checks.js";
@@ -181,7 +182,8 @@ export class ErSimulate extends LitElement {
     const next = this.ownSlotData ?? withAllBosses(data, slotData);
     this.ownSlotData = this.ownSlotData === undefined ? slotData : undefined;
     state.takeSlotData(next);
-    state.takeKeyChecks(keyChecksFrom(data, next));
+    const locationNames = state.packages.get(ELDEN_RING)?.locationNames ?? new Map();
+    state.takeKeyChecks(keyChecksFrom(data, next, locationNames));
   };
 
   private readonly goal = (): void => {

@@ -8,8 +8,9 @@
  * same reach.
  */
 
-import { readKeyCheckSlotData, readRulesSlotData } from "../../archipelago/elden-ring-slot.js";
+import { readCheckNames, readRulesSlotData } from "../../archipelago/elden-ring-slot.js";
 import { ELDEN_RING } from "../../archipelago/look-up.js";
+import type { DataPackage } from "../../archipelago/web-responses.js";
 import type { Room } from "../../data/rules/room-reach.js";
 import type { TrackerState } from "../store.js";
 
@@ -46,14 +47,14 @@ export function roomViewOf(inputs: RoomInputs): RoomView | undefined {
 }
 
 function worked({ slotData, received, checked, packages }: RoomInputs): RoomView | undefined {
-  const found = slotData === undefined ? undefined : roomOf(slotData);
-  const itemNames = packages.get(ELDEN_RING)?.itemNames;
-  if (found === undefined || itemNames === undefined) {
+  const elden = packages.get(ELDEN_RING);
+  const found = slotData === undefined || elden === undefined ? undefined : roomOf(slotData, elden);
+  if (found === undefined || elden === undefined) {
     return undefined;
   }
   const items = new Map<string, number>();
   for (const { value } of received) {
-    const name = itemNames.get(value.item);
+    const name = elden.itemNames.get(value.item);
     if (name !== undefined) {
       items.set(name, (items.get(name) ?? 0) + 1);
     }
@@ -66,10 +67,10 @@ function worked({ slotData, received, checked, packages }: RoomInputs): RoomView
   };
 }
 
-function roomOf(slotData: Readonly<Record<string, unknown>>) {
+function roomOf(slotData: Readonly<Record<string, unknown>>, { locationNames }: DataPackage) {
   if (!ROOMS.has(slotData)) {
     const rules = readRulesSlotData(slotData);
-    const names = readKeyCheckSlotData(slotData)?.locationIdsToName;
+    const names = readCheckNames(slotData, locationNames);
     ROOMS.set(
       slotData,
       rules === undefined || names === undefined
