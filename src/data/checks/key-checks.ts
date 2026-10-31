@@ -2,11 +2,11 @@
  * ─ Key checks ─
  *
  * A room's key checks, the spots that can hold a key item, rebuilt from its
- * slot_data and its checks' names. slot_data carries the host's choices, not the apworld's final
- * priority set, so this does what the apworld does: it reads the excluded
- * groups back from the exclude list, keeps the priority spots that are in the
- * room, can't be missed and aren't excluded, adds the spots generation tops
- * up and duplicates, and adds the vanilla spots an option pins a key item to.
+ * slot_data and its checks' names. slot_data carries the host's choices, not
+ * the apworld's final priority set, so this does what the apworld does: it
+ * keeps the priority spots that are in the room, can't be missed and aren't on
+ * the exclude list, adds the spots generation tops up and duplicates, and adds
+ * the vanilla spots an option pins a key item to.
  * Exact for a solo room; a multiworld's random trim isn't recorded anywhere.
  */
 
@@ -37,10 +37,6 @@ export interface KeyCheckSlotData {
   readonly duplicatedLocations?: Readonly<Record<string, string>>;
 }
 
-// An excluded group still lists most of its members once the apworld has
-// taken back the ones whose vanilla item it counts important: 82 to 100% in
-// the rooms measured, where groups nobody chose list 15 to 26%.
-const EXCLUDED_SHARE = 0.5;
 // The priority spots generation adds when a region the run starts in has none.
 const LIMGRAVE_TOP_UP = "LG/(SGr): Finger Severer - beside grace";
 const GRAVESITE_TOP_UP = "GP/TPC: Scadutree Fragment - by cross";
@@ -63,16 +59,11 @@ export function prioritySpots(
 ): Set<string> {
   const { options } = slot;
   const room = new Set(Object.values(slot.locationIdsToName));
-  const excluded = excludedGroups(options, groups);
+  const excluded = new Set(options.exclude_locations);
   const spots = new Set(
-    options.priority_location_groups.filter((name) => {
-      const facts = groups.get(name);
-      return (
-        room.has(name) &&
-        facts?.isMissable !== true &&
-        !(facts?.groups ?? []).some((group) => excluded.has(group))
-      );
-    })
+    options.priority_location_groups.filter(
+      (name) => room.has(name) && groups.get(name)?.isMissable !== true && !excluded.has(name)
+    )
   );
   if (options.world_logic === 0) {
     const hasSpotIn = (region: string): boolean =>
@@ -110,36 +101,4 @@ export function keyChecks(
     }
   }
   return ids;
-}
-
-/**
- * The groups the host excluded, read back from slot_data's exclude list: those
- * with at least half their members still listed. Only members the list could
- * hold count: the apworld clears the DLC's spots off it when the DLC is off,
- * and the base game's when the run is the DLC's alone.
- */
-export function excludedGroups(
-  options: KeyCheckOptions,
-  groups: ReadonlyMap<string, LocationGroups> = LOCATION_GROUPS
-): Set<string> {
-  const listed = new Set(options.exclude_locations);
-  const members = new Map<string, { total: number; listed: number }>();
-  for (const [name, facts] of groups) {
-    const isDlc = facts.groups.includes("DLC");
-    if (isDlc ? !options.enable_dlc : !isBaseOn(options)) {
-      continue;
-    }
-    for (const group of facts.groups) {
-      const count = members.get(group) ?? { total: 0, listed: 0 };
-      members.set(group, {
-        total: count.total + 1,
-        listed: count.listed + (listed.has(name) ? 1 : 0),
-      });
-    }
-  }
-  return new Set(
-    [...members]
-      .filter(([, count]) => count.listed / count.total >= EXCLUDED_SHARE)
-      .map(([group]) => group)
-  );
 }

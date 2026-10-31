@@ -19,6 +19,8 @@ import {
 
 /** The options create_regions reads, with the apworld's names. */
 export interface RegionGraphOptions {
+  /** 0 for region lock. */
+  readonly world_logic: number;
   readonly enable_dlc: number | boolean;
   /** 0 for the base game first, 1 for the DLC alone, 2 for both from the DLC. */
   readonly dlc_start: number;
@@ -28,6 +30,7 @@ export interface RegionGraphOptions {
   readonly missable_location_behavior: number;
   /** 3 or more leaves excluded spots unrandomized. */
   readonly excluded_location_behavior: number;
+  /** Every spot the host's choices exclude, before the apworld takes back any it counts important. */
   readonly exclude_locations: readonly string[];
 }
 
@@ -97,12 +100,22 @@ export function isBaseOn(options: Pick<RegionGraphOptions, "enable_dlc" | "dlc_s
 /**
  * Whether Varré's medal is randomized, as the apworld's should_randomize
  * decides it: not when missable spots, or excluded ones it's among, are left
- * unrandomized.
+ * unrandomized. The apworld takes an important item back off the exclude list
+ * first, which slot_data's list doesn't show.
  */
 export function isPurebloodMedalRandomized(options: RegionGraphOptions): boolean {
   return !(
     options.missable_location_behavior >= UNRANDOMIZED ||
     (options.excluded_location_behavior >= UNRANDOMIZED &&
-      options.exclude_locations.includes(PUREBLOOD_MEDAL))
+      options.exclude_locations.includes(PUREBLOOD_MEDAL) &&
+      !isPurebloodMedalImportant(options))
+  );
+}
+
+// The apworld's is_important for the medal: it opens Mohgwyn on the way to the DLC.
+function isPurebloodMedalImportant(options: RegionGraphOptions): boolean {
+  return (
+    Boolean(options.enable_dlc) &&
+    (options.world_logic === 0 || (options.dlc_timing !== 2 && options.dlc_start !== 1))
   );
 }

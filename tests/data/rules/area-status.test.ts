@@ -76,7 +76,7 @@ describe("areaStatuses, end to end", () => {
   });
 
   test("a region counts its checked key checks, an extra copy in its spot's region", () => {
-    const keys = keyCheckNames("Izzy's live room");
+    const keys = keyCheckNames("Izzy's preset");
     const copy = keys.find((name) => withoutExtra(name).extra !== undefined) ?? "";
     const room = roomReach(IZZY, ...everyItem(IZZY));
     const region = room.rules.regionOf(withoutExtra(copy).base) ?? "";

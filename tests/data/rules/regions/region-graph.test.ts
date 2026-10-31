@@ -1,11 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import {
+  isPurebloodMedalRandomized,
   regionGraph,
   type RegionGraph,
   type RegionGraphOptions,
 } from "../../../../src/data/rules/regions/region-graph.js";
 
 const OPTIONS: RegionGraphOptions = {
+  world_logic: 0,
   enable_dlc: 0,
   dlc_start: 0,
   dlc_timing: 0,
@@ -87,6 +89,21 @@ describe("regionGraph", () => {
         ],
       })
     ).toBe(true);
+  });
+
+  test("Varré's medal stays randomized on the exclude list while it's the DLC's way in", () => {
+    const excluded = {
+      excluded_location_behavior: 3,
+      exclude_locations: [
+        "LL/(RC): Pureblood Knight's Medal - talk to Varré after invading Magnus in AP and returning the bloodsoaked Lord of Blood's Favor",
+      ],
+    };
+    const isRandomized = (options: Partial<RegionGraphOptions>): boolean =>
+      isPurebloodMedalRandomized({ ...OPTIONS, ...excluded, ...options });
+    expect(isRandomized({ enable_dlc: 1, world_logic: 0 })).toBe(true);
+    expect(isRandomized({ enable_dlc: 1, world_logic: 1, dlc_timing: 0 })).toBe(true);
+    expect(isRandomized({ enable_dlc: 1, world_logic: 1, dlc_timing: 2 })).toBe(false);
+    expect(isRandomized({ enable_dlc: 0 })).toBe(false);
   });
 
   test("the DLC is entered from Mohgwyn Palace after the base game", () => {

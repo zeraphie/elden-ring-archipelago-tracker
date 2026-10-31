@@ -26,6 +26,7 @@ export interface RulesSlotData {
 // How each option the rules read is written: a number, a number or a boolean, a list of
 // location names, or each key's shards. Every option the rules take must be here.
 const OPTION_KINDS = {
+  world_logic: "number",
   enable_dlc: "flag",
   dlc_start: "number",
   dlc_timing: "number",

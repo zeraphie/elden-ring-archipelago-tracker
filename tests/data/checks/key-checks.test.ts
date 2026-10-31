@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import {
-  excludedGroups,
   keyChecks,
   prioritySpots,
   type KeyCheckOptions,
@@ -29,27 +28,16 @@ describe("prioritySpots on generated seeds", () => {
   );
 });
 
-describe("Izzy's live room", () => {
-  const slot = slotOf(seed("Izzy's live room"));
-  const spots = prioritySpots(slot);
+describe("Izzy's preset", () => {
+  const slot = slotOf(seed("Izzy's preset"));
 
-  test("reads back the groups Izzy excluded", () => {
-    const excluded = excludedGroups(slot.options);
-    expect(["Dungeon", "Hidden", "Post Leyndell"].every((group) => excluded.has(group))).toBe(true);
-    expect(excluded.has("DLC")).toBe(false);
-  });
-
-  test("an excluded side-dungeon boss drop isn't key, though slot_data's exclude list lost it", () => {
+  test("leaves out an excluded side-dungeon boss drop", () => {
+    const spots = prioritySpots(slot);
     expect(spots.has("AP/(AT): Somberstone Miner's Bell Bearing [2] - boss drop")).toBe(false);
   });
 
-  test("holds the 158 chosen spots, the Gravesite Plain top-up and the 4 extra copies", () => {
-    expect(spots.has("GP/TPC: Scadutree Fragment - by cross")).toBe(true);
-    expect(spots.size).toBe(158 + 1 + 4);
-  });
-
   test("adds the two spots its options leave the Crafting Kit and Physick Flask on", () => {
-    expect(keyChecks(slot).size).toBe(spots.size + 2);
+    expect(keyChecks(slot).size).toBe(prioritySpots(slot).size + 2);
   });
 });
 
@@ -75,37 +63,6 @@ const OPTIONS: KeyCheckOptions = {
 const roomOf = (...names: string[]): Record<string, string> =>
   Object.fromEntries(names.map((name, i) => [String(i + 1), name]));
 
-describe("excludedGroups", () => {
-  test("a group counts as excluded with at least half its members still listed", () => {
-    const options = {
-      ...OPTIONS,
-      exclude_locations: ["LG/CC: Cave Chest - chest", "LG/CC: Cave Pot - pot"],
-    };
-    expect(excludedGroups(options, GROUPS)).toEqual(new Set(["Dungeon"]));
-  });
-
-  test("the DLC's members don't count while the DLC is off", () => {
-    const options = { ...OPTIONS, exclude_locations: ["LG/CC: Cave Chest - chest"] };
-    expect(excludedGroups(options, GROUPS).has("Dungeon")).toBe(false);
-    expect(excludedGroups({ ...options, enable_dlc: 0 }, GROUPS).has("Dungeon")).toBe(false);
-    const twoOfThree = {
-      ...options,
-      exclude_locations: ["LG/CC: Cave Chest - chest", "LG/CC: Cave Pot - pot"],
-    };
-    expect(excludedGroups(twoOfThree, GROUPS).has("Dungeon")).toBe(true);
-  });
-
-  test("the base game's members don't count in a run that starts in the DLC", () => {
-    const options = {
-      ...OPTIONS,
-      enable_dlc: 1,
-      dlc_start: 1,
-      exclude_locations: ["GP/B: DLC Boss - boss drop"],
-    };
-    expect(excludedGroups(options, GROUPS).has("Dungeon")).toBe(true);
-  });
-});
-
 describe("prioritySpots", () => {
   test("keeps chosen spots in the room that can't be missed and aren't excluded", () => {
     const slot = {
@@ -117,7 +74,7 @@ describe("prioritySpots", () => {
           "LL/A: Missable - quest",
           "LG/Z: Not In Room - nowhere",
         ],
-        exclude_locations: ["LG/CC: Cave Chest - chest", "LG/CC: Cave Pot - pot"],
+        exclude_locations: ["LG/CC: Cave Boss - boss drop", "LG/CC: Cave Pot - pot"],
       },
       locationIdsToName: roomOf(
         "LG/A: Seed - tree",

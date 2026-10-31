@@ -4,6 +4,7 @@ import { regionOf } from "../../../../src/data/rules/regions/location-region.js"
 import { regionGraph } from "../../../../src/data/rules/regions/region-graph.js";
 
 const BOTH = {
+  world_logic: 0,
   enable_dlc: 1,
   dlc_start: 0,
   dlc_timing: 0,
