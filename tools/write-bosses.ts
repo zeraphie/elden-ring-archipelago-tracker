@@ -103,7 +103,7 @@ export function bossesModule(
       `  [${flag}, { name: ${JSON.stringify(name)}, where: ${where === undefined ? "undefined" : JSON.stringify(where)}, drops: ${JSON.stringify(drops)} }],`
   );
   const arenaRows = arenas.map(({ id, drops }) => `  [${id}, ${JSON.stringify(drops)}],`);
-  return `/*! Boss names, defeat flags and arenas from the Elden Ring apworld 0.1.3's bosses.py, ${APWORLD_LICENCE} */
+  return `/*! Boss names, defeat flags and arenas from the Elden Ring apworld 0.1.4's bosses.py, ${APWORLD_LICENCE} */
 
 // Written by tools/write-bosses.ts from the apworld's bosses.py: run \`bun run bosses\` again rather than editing it.
 

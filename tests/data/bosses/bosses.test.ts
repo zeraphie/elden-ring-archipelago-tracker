@@ -22,7 +22,7 @@ describe("BOSSES", () => {
     });
   });
 
-  test("holds every boss a goal can name in apworld 0.1.3", () => {
+  test("holds every boss a goal can name in apworld 0.1.4", () => {
     expect(BOSSES.size).toBe(203);
   });
 
@@ -46,7 +46,7 @@ describe("BOSSES", () => {
 });
 
 describe("ARENA_DROPS", () => {
-  test("holds every boss's arena in apworld 0.1.3, by the game's id", () => {
+  test("holds every boss's arena in apworld 0.1.4, by the game's id", () => {
     expect(ARENA_DROPS.size).toBe(215);
   });
 

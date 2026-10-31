@@ -3,7 +3,7 @@ What the MIT licence in LICENSE covers, and what it doesn't.
 The MIT licence covers this project's own work. These parts of the
 repository are someone else's, and keep their own terms:
 
-- Data and rules from the Elden Ring apworld 0.1.3, Copyright (c) 2026
+- Data and rules from the Elden Ring apworld 0.1.4, Copyright (c) 2026
   Bedrock, under its Modified MIT License in src/data/apworld-licence.txt.
   That licence forbids relicensing or selling any substantial portion of it
   without Bedrock's written permission, so these files are not under MIT.

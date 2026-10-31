@@ -70,7 +70,7 @@ export function unnamedSpots(
 
 /** The source of tests/fixtures/possible-key-spots.ts for these spots. */
 export function possibleKeySpotsModule(spots: readonly string[]): string {
-  return `/*! Location names from the Elden Ring apworld 0.1.3's locations.py, ${APWORLD_LICENCE} */
+  return `/*! Location names from the Elden Ring apworld 0.1.4's locations.py, ${APWORLD_LICENCE} */
 
 // Written by tools/key-spots-report.ts from the apworld's locations.py and bosses.py: run \`bun run key-spots\` again rather than editing it.
 

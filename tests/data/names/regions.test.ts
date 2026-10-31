@@ -6,7 +6,7 @@ import {
   shortRegionName,
 } from "../../../src/data/names/regions.js";
 
-// Every region code the Elden Ring apworld 0.1.3's location names use.
+// Every region code the Elden Ring apworld 0.1.4's location names use.
 const APWORLD_CODES = [
   "LL",
   "LG",

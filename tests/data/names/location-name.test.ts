@@ -5,7 +5,7 @@ import {
   withoutExtra,
 } from "../../../src/data/names/location-name.js";
 
-// Every name here is a real one from the Elden Ring apworld 0.1.3.
+// Every name here is a real one from the Elden Ring apworld 0.1.4.
 describe("readLocationName", () => {
   test("reads the common form: region, place, item and where", () => {
     expect(readLocationName("SV/LL: Shabriri Grape - from LL/LFC to E, inside by ghost")).toEqual({

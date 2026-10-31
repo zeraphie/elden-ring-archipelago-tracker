@@ -1,4 +1,4 @@
-/*! Key spots' names are built on the Elden Ring apworld 0.1.3's location names, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
+/*! Key spots' names are built on the Elden Ring apworld 0.1.4's location names, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
 import type { KeySpot } from "../../key-spots.js";
 import { placeName } from "../../place-names.js";

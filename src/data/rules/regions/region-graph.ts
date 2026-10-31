@@ -1,4 +1,4 @@
-/*! The region graph follows the Elden Ring apworld 0.1.3's create_regions, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
+/*! The region graph follows the Elden Ring apworld 0.1.4's create_regions, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
 /**
  * ─ Region graph ─

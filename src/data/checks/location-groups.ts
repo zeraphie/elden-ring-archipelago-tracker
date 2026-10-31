@@ -1,4 +1,4 @@
-/*! Location groups from the Elden Ring apworld 0.1.3's locations.py, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
+/*! Location groups from the Elden Ring apworld 0.1.4's locations.py, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
 // Written by tools/write-location-groups.ts from the apworld's locations.py: run `bun run location-groups` again rather than editing it.
 

@@ -1,4 +1,4 @@
-/*! The DLC's rules follow the Elden Ring apworld 0.1.3's set_rules, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
+/*! The DLC's rules follow the Elden Ring apworld 0.1.4's set_rules, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
 /**
  * ─ DLC rules ─

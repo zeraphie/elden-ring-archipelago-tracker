@@ -1,4 +1,4 @@
-/*! Location names from the Elden Ring apworld 0.1.3's locations.py, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
+/*! Location names from the Elden Ring apworld 0.1.4's locations.py, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
 // Written by tools/key-spots-report.ts from the apworld's locations.py and bosses.py: run `bun run key-spots` again rather than editing it.
 

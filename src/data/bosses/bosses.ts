@@ -1,4 +1,4 @@
-/*! Boss names, defeat flags and arenas from the Elden Ring apworld 0.1.3's bosses.py, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
+/*! Boss names, defeat flags and arenas from the Elden Ring apworld 0.1.4's bosses.py, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
 // Written by tools/write-bosses.ts from the apworld's bosses.py: run `bun run bosses` again rather than editing it.
 

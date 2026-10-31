@@ -1,4 +1,4 @@
-/*! Region codes and names from the Elden Ring apworld 0.1.3 and its region guide, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
+/*! Region codes and names from the Elden Ring apworld 0.1.4 and its region guide, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
 /**
  * ─ Regions ─

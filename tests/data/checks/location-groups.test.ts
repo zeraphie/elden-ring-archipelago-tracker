@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { LOCATION_GROUPS } from "../../../src/data/checks/location-groups.js";
 
-// The group sizes the apworld 0.1.3's own location_groups() and the loops after its tables give.
+// The group sizes the apworld 0.1.4's own location_groups() and the loops after its tables give.
 const SIZES = {
   DLC: 1287,
   Hidden: 29,

@@ -95,7 +95,7 @@ export function regionConnectionsModule(source: RegionSource): string {
     values.map((value) => `  ${JSON.stringify(value)},`).join("\n");
   const pairs = (values: readonly (readonly [string, string])[]): string =>
     values.map(([from, to]) => `  [${JSON.stringify(from)}, ${JSON.stringify(to)}],`).join("\n");
-  return `/*! Regions and connections from the Elden Ring apworld 0.1.3's create_regions and region orders, ${APWORLD_LICENCE} */
+  return `/*! Regions and connections from the Elden Ring apworld 0.1.4's create_regions and region orders, ${APWORLD_LICENCE} */
 
 // Written by tools/write-region-graph.ts from the apworld's __init__.py and region_names.py: run \`bun run region-graph\` again rather than editing it.
 

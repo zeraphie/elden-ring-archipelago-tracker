@@ -1,4 +1,4 @@
-/*! The region locks follow the Elden Ring apworld 0.1.3's _region_lock(), Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
+/*! The region locks follow the Elden Ring apworld 0.1.4's _region_lock(), Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
 /**
  * ─ Region locks ─

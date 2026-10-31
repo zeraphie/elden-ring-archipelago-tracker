@@ -1,4 +1,4 @@
-/*! Regions and connections from the Elden Ring apworld 0.1.3's create_regions and region orders, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
+/*! Regions and connections from the Elden Ring apworld 0.1.4's create_regions and region orders, Copyright (c) 2026 Bedrock, under its Modified MIT License, in src/data/apworld-licence.txt. */
 
 // Written by tools/write-region-graph.ts from the apworld's __init__.py and region_names.py: run `bun run region-graph` again rather than editing it.
 

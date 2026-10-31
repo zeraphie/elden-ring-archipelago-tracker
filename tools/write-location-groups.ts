@@ -111,7 +111,7 @@ export function locationGroupsModule(facts: readonly LocationFacts[]): string {
     parts.push(`region: ${JSON.stringify(fact.table)}`);
     return `  [${JSON.stringify(fact.name)}, { ${parts.join(", ")} }],`;
   });
-  return `/*! Location groups from the Elden Ring apworld 0.1.3's locations.py, ${APWORLD_LICENCE} */
+  return `/*! Location groups from the Elden Ring apworld 0.1.4's locations.py, ${APWORLD_LICENCE} */
 
 // Written by tools/write-location-groups.ts from the apworld's locations.py: run \`bun run location-groups\` again rather than editing it.
 
