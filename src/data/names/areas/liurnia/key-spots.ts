@@ -471,4 +471,44 @@ export const LIURNIA_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     "LL/(CM): Black Leather Shield - Pidia shop",
     { place: "Caria Manor", encounter: "Pidia, Carian Servant" },
   ],
+  [
+    "LL/TQ: Icerind Hatchet - in chest to SE, in tower S side of TQ",
+    { place: "Tower south east of Temple Quarter", encounter: "Chest" },
+  ],
+  [
+    "LL/(CM): Sword of Night and Flame - in chest, drop down from upper walkway onto building, down ladder",
+    { place: "Caria Manor, below the upper walkway", encounter: "Chest" },
+  ],
+  [
+    "LL/AGT: Stonesword Key - in chest N of upper AGT main stairs, within second tower left of big building",
+    { place: "Tower north of Academy Gate Town's main stairs", encounter: "Chest" },
+  ],
+  [
+    "LL/BC: Great Mace - in chest NE of BC in right camp after choke point",
+    { place: "Camp north east of Bellum Church", encounter: "Chest" },
+  ],
+  [
+    "LL/(ACC): Crystal Staff - in chest behind illusory wall, left of storage room",
+    { place: "Academy Crystal Cave, behind the illusory wall", encounter: "Chest" },
+  ],
+  [
+    "LL/(ACC): Rune Arc - in chest in storage room",
+    { place: "Academy Crystal Cave storage room", encounter: "Chest" },
+  ],
+  [
+    "LL/(REC): Raya Lucaria Soldier Ashes - in chest in hidden dead-end room",
+    { place: "Road's End Catacombs hidden room", encounter: "Chest" },
+  ],
+  [
+    "LL/(LCC): Arteria Leaf - in chest beside grace",
+    { place: placeName("LL/(LCC)"), encounter: "Chest" },
+  ],
+  [
+    "LL/(RLCT): Somber Smithing Stone [2] - in chest on platform near grace",
+    { place: "Raya Lucaria Crystal Tunnel, platform near the grace", encounter: "Chest" },
+  ],
+  [
+    "LL/(RLCT): Crystal Knife - bottom of shortcut elevator, in chest side room 2",
+    { place: "Raya Lucaria Crystal Tunnel, below the shortcut elevator", encounter: "Chest" },
+  ],
 ]);

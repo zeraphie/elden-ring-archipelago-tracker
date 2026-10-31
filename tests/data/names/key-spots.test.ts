@@ -15,8 +15,8 @@ const ADDED_ONE_BY_ONE: ReadonlySet<string> = new Set([
 ]);
 
 describe("KEY_SPOTS", () => {
-  test("holds the 821 key spots", () => {
-    expect(KEY_SPOTS.size).toBe(821);
+  test("holds the 834 key spots", () => {
+    expect(KEY_SPOTS.size).toBe(834);
   });
 
   test("every spot a host's groups can make a key check has a full name", () => {

@@ -565,4 +565,16 @@ export const ALTUS_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Flower field north east of Hermit Merchant's Shack", encounter: "Basin" },
   ],
   ["CO/(ME): Twiggy Cracked Tear - in basin", { place: placeName("CO/(ME)"), encounter: "Basin" }],
+  [
+    "AP/AHJ: Sacrificial Twig - in chest to W in N camp",
+    { place: "North camp west of Altus Highway Junction", encounter: "Chest" },
+  ],
+  [
+    "AP/(ScC): Dragonbolt Blessing - in chest",
+    { place: placeName("AP/(ScC)"), encounter: "Chest" },
+  ],
+  [
+    "AP/(WfR): Wrath of Gold - in chest underground in S most ruins",
+    { place: "Below Woodfolk Ruins", encounter: "Chest" },
+  ],
 ]);

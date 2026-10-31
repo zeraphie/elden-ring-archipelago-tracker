@@ -212,4 +212,12 @@ export const UNDERGROUND_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     "DD/TNEC: Crucible Tree Armor - in chest way to W within tree stump",
     { place: "Tree stump west of The Nameless Eternal City", encounter: "Chest" },
   ],
+  [
+    "LR/GC: Nomadic Warrior's Cookbook [22] - in chest SW corner of LR within structure",
+    { place: "Structure in the south west of Lake of Rot", encounter: "Chest" },
+  ],
+  [
+    "NR/(NSG): Mimic Tear Ashes - in chest behind imp statue upper interior",
+    { place: "Night's Sacred Ground, behind the imp statue", encounter: "Chest" },
+  ],
 ]);

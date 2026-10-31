@@ -13,13 +13,6 @@ export const REALM_OF_SHADOW_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
     { place: "Theatre of the Divine Beast", encounter: "Statue" },
   ],
   [
-    "BTS/TDB: Tower of Shadow Message - at the top of the stairs after boss",
-    {
-      place: "Theatre of the Divine Beast, top of the stairs",
-      encounter: "Divine Beast Dancing Lion",
-    },
-  ],
-  [
     "BTS/BTS: Revered Spirit Ash x2 - to SE, statue by stairs",
     { place: "Stairs south east of Belurat, Tower Settlement", encounter: "Statue" },
   ],
@@ -206,10 +199,6 @@ export const REALM_OF_SHADOW_KEY_SPOTS: ReadonlyMap<string, KeySpot> = new Map([
   [
     "ScV/SKBG: Remembrance of the Wild Boar Rider - mainboss drop",
     { place: "Shadow Keep, Back Gate", encounter: "Commander Gaius" },
-  ],
-  [
-    "SCF/GDP: St. Trina Disciple's Cookbook [3] - right of St. Trina",
-    { place: "Garden of Deep Purple", encounter: "St. Trina" },
   ],
   [
     "SCF/FD: Remembrance of Putrescence - mainboss drop",
