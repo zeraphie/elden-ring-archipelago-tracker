@@ -8,7 +8,7 @@ Elden Ring can be an incredibly long game for Archipelago gameplay, and has up t
 
 ## Setting up Elden Ring Archipelago
 
-You need the latest Elden Ring version (1.17.2) with Shadow of the Erdtree (if randomising with the dlc), and the [randomizer v0.1.3 or later](https://github.com/thefifthmatt/SoulsRandomizers/releases).
+You need the latest Elden Ring version (1.17.2) with Shadow of the Erdtree (if randomising with the dlc), and the [randomizer v0.1.4](https://github.com/thefifthmatt/SoulsRandomizers/releases/tag/eldenring-ap-0.1.4).
 
 0. Install Archipelago from [https://github.com/ArchipelagoMW/Archipelago/releases](https://github.com/ArchipelagoMW/Archipelago/releases), this tracker is tested on version 0.6.8.
 1. Extract the randomizer zip to its own folder.
