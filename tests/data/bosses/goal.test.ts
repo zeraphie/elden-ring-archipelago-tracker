@@ -19,8 +19,8 @@ const room = (label: string): FixtureRoom => {
 };
 const NONE = new Set<string>();
 
-describe("goalBosses in Izzy's live room", () => {
-  const live = room("Izzy's live room");
+describe("goalBosses in Izzy's preset", () => {
+  const live = room("Izzy's preset");
   const drops = new Set(live.roomDrops);
 
   test("names both bosses of the Leyndell goal, in slot_data's order", () => {

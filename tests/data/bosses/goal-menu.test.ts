@@ -18,7 +18,6 @@ const GODSKIN_DUO = 13000850;
 const MALIKETH = 13000800;
 const GIDEON = 11050850;
 const HOARAH_LOUX = 11050800;
-const STARSCOURGE_RADAHN = 1252380800;
 const MOHG = 12050800;
 const ROMINA = 2044450800;
 const MORGOTTS_DROP = "LRC/QB: Morgott's Great Rune - mainboss drop";
@@ -32,7 +31,7 @@ const roomOf = (options: string, ...goal: number[]): Room => ({
   locations: new Set(LOCATION_GROUPS.keys()),
 });
 // Izzy's preset with Godfrey and Morgott as its goal.
-const ROOM = roomOf("Izzy's preset", GODFREY, MORGOTT);
+const ROOM = roomOf("Early legacy dungeons", GODFREY, MORGOTT);
 const items = (...names: string[]) => new Map(names.map((name) => [name, 1]));
 // The main-path bosses among some needs, by flag, in their order.
 const bossesIn = (needs: readonly Need[]): (number | undefined)[] =>
@@ -112,7 +111,7 @@ describe("goalMenu", () => {
   });
 
   test("the Elden Beast's way passes the bosses whose arenas lie on it, not Godfrey's or Morgott's", () => {
-    const menu = goalMenu(roomOf("Izzy's preset", ELDEN_BEAST), new Map(), new Set());
+    const menu = goalMenu(roomOf("Early legacy dungeons", ELDEN_BEAST), new Map(), new Set());
     expect(bossesIn(menu.needed)).toEqual([
       DRACONIC_TREE_SENTINEL,
       FIRE_GIANT,
@@ -123,17 +122,19 @@ describe("goalMenu", () => {
     ]);
   });
 
-  test("the DLC's way in asks for Starscourge Radahn and Mohg, unless the run starts in the DLC", () => {
+  test("the DLC's way in asks for Mohg, unless the run starts in the DLC", () => {
     const fromTheBase = goalMenu(roomOf("[Long]", PROMISED_CONSORT), new Map(), new Set());
-    expect(bossesIn(fromTheBase.needed)).toEqual(
-      expect.arrayContaining([STARSCOURGE_RADAHN, MOHG, ROMINA])
-    );
+    expect(bossesIn(fromTheBase.needed)).toEqual(expect.arrayContaining([MOHG, ROMINA]));
     const fromTheDlc = goalMenu(roomOf("[Short] DLC Only", PROMISED_CONSORT), new Map(), new Set());
     expect(bossesIn(fromTheDlc.needed)).toEqual([ROMINA]);
   });
 
   test("a main-path boss the goal names is its own row, not a need too", () => {
-    const menu = goalMenu(roomOf("Izzy's preset", MALIKETH, ELDEN_BEAST), new Map(), new Set());
+    const menu = goalMenu(
+      roomOf("Early legacy dungeons", MALIKETH, ELDEN_BEAST),
+      new Map(),
+      new Set()
+    );
     expect(bossesIn(menu.needed)).not.toContain(MALIKETH);
     expect(menu.bosses.map(({ flag }) => flag)).toEqual([MALIKETH, ELDEN_BEAST]);
   });

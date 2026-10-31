@@ -17,7 +17,7 @@ import {
   type Options,
 } from "../../../fixtures/rooms.js";
 
-const IZZY: Options = PRESETS["Izzy's preset"];
+const IZZY: Options = PRESETS["Early legacy dungeons"];
 const MARGIT_DROP = "SV/CT: Talisman Pouch - boss drop";
 const FIRE_GIANT_DROP = "FP/FF: Remembrance of the Fire Giant - mainboss drop";
 const MORGOTT_DROP = "LRC/QB: Morgott's Great Rune - mainboss drop";

@@ -36,7 +36,6 @@ const STONESWORD_KEYS: readonly Weighted[] = [
 ];
 
 const RADAHN_REMEMBRANCE = "CL/(WD): Remembrance of the Starscourge - mainboss drop";
-const MOHG_REMEMBRANCE = "MP/(MDM): Remembrance of the Blood Lord - mainboss drop";
 
 /** The base game's rules on a region's way in, for a room's options, by the region each leads to. */
 export function baseGameEntrances(options: BaseGameRuleOptions): (readonly [string, Rule])[] {
@@ -46,9 +45,9 @@ export function baseGameEntrances(options: BaseGameRuleOptions): (readonly [stri
     // _key_rules: each count includes the keys the imp statues before it took.
     ["Fringefolk Hero's Grave", keysFor(3, "Limgrave Master Key")],
     ["Academy Crystal Cave", keysFor(16, "Liurnia Master Key")],
-    ["Old Altus Tunnel", keysFor(24, "Altus Master Key")],
-    ["Unsightly Catacombs", keysFor(24, "Altus Master Key")],
-    ["Gaol Cave", keysFor(27, "Caelid Master Key")],
+    ["Old Altus Tunnel", keysFor(25, "Altus Master Key")],
+    ["Unsightly Catacombs", keysFor(25, "Altus Master Key")],
+    ["Gaol Cave", keysFor(28, "Caelid Master Key")],
     ["Seethewater Cave", keysFor(31, "Mt. Gelmir Master Key")],
     ["Spiritcaller Cave", keysFor(41, "Mountaintops Master Key")],
     ["Cave of the Forlorn", keysFor(45, "Snowfield Master Key")],
@@ -126,22 +125,28 @@ export function baseGameEntrances(options: BaseGameRuleOptions): (readonly [stri
 }
 
 // The rules on Mohgwyn Palace and the DLC's way in that hang on Varré's medal
-// and on when Mohgwyn opens. Gravesite Plain asks for Mohg's and Radahn's
-// remembrances, and the Rold Medallion too when Mohgwyn opens from the Snowfield.
+// and on when Mohgwyn opens. Gravesite Plain asks for Wailing Dunes, and the
+// Rold Medallion too when Mohgwyn opens from the Snowfield.
 function purebloodMedalEntrances(options: BaseGameRuleOptions, rold: Rule): [string, Rule][] {
   const isBaseFirst = Boolean(options.enable_dlc) && options.dlc_start === 0;
-  const remembrances = [location(MOHG_REMEMBRANCE), location(RADAHN_REMEMBRANCE)];
+  const snowfield = area("Consecrated Snowfield");
+  const dunes = area("Wailing Dunes");
   if (!isPurebloodMedalRandomized(options)) {
-    return isBaseFirst ? [["Gravesite Plain", { kind: "all", rules: remembrances }]] : [];
+    return isBaseFirst
+      ? [
+          ["Mohgwyn Palace", snowfield],
+          ["Gravesite Plain", dunes],
+        ]
+      : [];
   }
   const medal = item("Pureblood Knight's Medal");
   if (!isBaseFirst) {
-    return [["Mohgwyn Palace", { kind: "any", rules: [medal, area("Consecrated Snowfield")] }]];
+    return [["Mohgwyn Palace", { kind: "any", rules: [medal, snowfield] }]];
   }
   if (options.dlc_timing === 2) {
     return [
-      ["Mohgwyn Palace", area("Consecrated Snowfield")],
-      ["Gravesite Plain", { kind: "all", rules: [rold, ...remembrances] }],
+      ["Mohgwyn Palace", snowfield],
+      ["Gravesite Plain", { kind: "all", rules: [rold, dunes] }],
     ];
   }
   const entrances: [string, Rule][] = [
@@ -149,7 +154,7 @@ function purebloodMedalEntrances(options: BaseGameRuleOptions, rold: Rule): [str
       "Mohgwyn Palace",
       options.dlc_timing === 1 ? { kind: "all", rules: [medal, area("Altus Plateau")] } : medal,
     ],
-    ["Gravesite Plain", { kind: "all", rules: remembrances }],
+    ["Gravesite Plain", dunes],
   ];
   // The early medal, another of soft_logic_enabled's rules.
   if (options.dlc_timing === 0 && options.missable_location_behavior <= 1) {

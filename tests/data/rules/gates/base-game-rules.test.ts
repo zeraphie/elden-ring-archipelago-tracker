@@ -13,7 +13,7 @@ import {
   type Options,
 } from "../../../fixtures/rooms.js";
 
-const IZZY: Options = PRESETS["Izzy's preset"];
+const IZZY: Options = PRESETS["Early legacy dungeons"];
 const DEFAULT: Options = PRESETS.Default;
 // Izzy's way to Altus: region lock, with early legacy dungeons on.
 const TO_ALTUS = [
@@ -24,7 +24,6 @@ const TO_ALTUS = [
   "Dectus Medallion (Right)",
 ];
 const RADAHN = "CL/(WD): Remembrance of the Starscourge - mainboss drop";
-const MOHG = "MP/(MDM): Remembrance of the Blood Lord - mainboss drop";
 
 describe("the base game's rules, on Izzy's preset", () => {
   // Each row: a region, and every item that opens the way to it, from the
@@ -93,6 +92,15 @@ describe("the base game's rules, on Izzy's preset", () => {
 
   test("the Erdtree takes no great runes", () => {
     expect(rulesOf(IZZY).entrances.has("Erdtree")).toBe(false);
+  });
+
+  test("Altus's imp statues take 25 keys and Caelid's 28, each counting those before it", () => {
+    expect(needsFor("Old Altus Tunnel", IZZY, ...TO_ALTUS)).toEqual(
+      count("Stonesword Keys", 0, 25)
+    );
+    expect(needsFor("Gaol Cave", IZZY, ...TO_ALTUS, "Caelid Lock")).toEqual(
+      count("Stonesword Keys", 0, 28)
+    );
   });
 
   test("a side dungeon behind an imp statue takes Stonesword Keys, an x3 counting for three", () => {
@@ -205,18 +213,18 @@ describe("the option rules", () => {
     ).toBeUndefined();
   });
 
-  test("starting in the base game, the DLC takes every bell bearing as well as its lock and the remembrances", () => {
+  test("starting in the base game, the DLC takes every bell bearing as well as its lock and Wailing Dunes", () => {
     const bearings = [1, 2, 3, 4].map((n) => `Smithing-Stone Miner's Bell Bearing [${n}]`);
     bearings.push(...[1, 2, 3, 4, 5].map((n) => `Somberstone Miner's Bell Bearing [${n}]`));
     expect(needsFor("Gravesite Plain", DEFAULT, ...bearings)).toEqual(
-      all(item("Gravesite Lock"), all(location(MOHG), location(RADAHN)))
+      all(item("Gravesite Lock"), area("Wailing Dunes"))
     );
   });
 
   test("with Mohgwyn open from the Snowfield, the DLC also takes the Rold Medallion", () => {
     expect(needsFor("Mohgwyn Palace", IZZY, "Mohgwyn Lock")).toEqual(area("Consecrated Snowfield"));
     expect(needsFor("Gravesite Plain", IZZY, "Gravesite Lock")).toEqual(
-      all(item("Rold Medallion"), location(MOHG), location(RADAHN))
+      all(item("Rold Medallion"), area("Wailing Dunes"))
     );
   });
 
@@ -250,11 +258,11 @@ describe("the option rules", () => {
     );
   });
 
-  test("when the medal stays where it is, Mohgwyn takes only its lock, and the DLC only the remembrances", () => {
+  test("when the medal stays where it is, Mohgwyn takes the Snowfield, and the DLC Wailing Dunes", () => {
     const fixed: Options = { ...IZZY, missable_location_behavior: 3 };
-    expect(needsFor("Mohgwyn Palace", fixed)).toEqual(item("Mohgwyn Lock"));
-    expect(needsFor("Gravesite Plain", fixed, "Gravesite Lock")).toEqual(
-      all(location(MOHG), location(RADAHN))
+    expect(needsFor("Mohgwyn Palace", fixed, "Mohgwyn Lock")).toEqual(
+      area("Consecrated Snowfield")
     );
+    expect(needsFor("Gravesite Plain", fixed, "Gravesite Lock")).toEqual(area("Wailing Dunes"));
   });
 });

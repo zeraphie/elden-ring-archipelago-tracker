@@ -15,7 +15,7 @@ const SLOT = slotOf(seed("Izzy's preset"));
 /** Izzy's preset's slot_data, with its rules' options and Godfrey and Morgott as its goal. */
 export const SLOT_DATA: Readonly<Record<string, unknown>> = {
   ...arrivingSlot(seed("Izzy's preset")),
-  options: { ...SLOT.options, ...PRESETS["Izzy's preset"] },
+  options: { ...SLOT.options, ...PRESETS["Early legacy dungeons"] },
   goal: [GODFREY, MORGOTT],
 };
 

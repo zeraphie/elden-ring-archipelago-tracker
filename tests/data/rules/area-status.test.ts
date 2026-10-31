@@ -22,7 +22,7 @@ import {
 } from "../../fixtures/rooms.js";
 import { nameOf, seed, slotOf } from "../../fixtures/seeds.js";
 
-const IZZY: Options = PRESETS["Izzy's preset"];
+const IZZY: Options = PRESETS["Early legacy dungeons"];
 const EVERY: Options = PRESETS["Every priority group"];
 const MORGOTT = 11000800;
 // Izzy's way to Altus: region lock, with early legacy dungeons on.

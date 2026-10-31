@@ -39,7 +39,7 @@ const DRACONIC_TREE_SENTINEL: readonly [number, Boss] = [
 
 // The main path's other bosses, by defeat flag, in the order it meets them: Godfrey's golden
 // shade, Morgott, the Fire Giant, the Godskin Duo, Maliketh, Sir Gideon Ofnir and Hoarah Loux;
-// then the DLC's Starscourge Radahn and Mohg, for the way in, and Romina.
+// then Starscourge Radahn, Mohg, whose palace leads to the DLC, and Romina.
 const GOAL_BOSS_FLAGS = [
   11000850, 11000800, 1252520800, 13000850, 13000800, 11050850, 11050800, 1252380800, 12050800,
   2044450800,
