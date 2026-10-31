@@ -96,16 +96,16 @@ describe("the base game's rules, on Izzy's preset", () => {
 
   test("Altus's imp statues take 25 keys and Caelid's 28, each counting those before it", () => {
     expect(needsFor("Old Altus Tunnel", IZZY, ...TO_ALTUS)).toEqual(
-      count("Stonesword Keys", 0, 25)
+      count("Stonesword Keys in logic", 0, 25)
     );
     expect(needsFor("Gaol Cave", IZZY, ...TO_ALTUS, "Caelid Lock")).toEqual(
-      count("Stonesword Keys", 0, 28)
+      count("Stonesword Keys in logic", 0, 28)
     );
   });
 
   test("a side dungeon behind an imp statue takes Stonesword Keys, an x3 counting for three", () => {
     expect(needsFor("Fringefolk Hero's Grave", IZZY, ["Stonesword Key", 2])).toEqual(
-      count("Stonesword Keys", 2, 3)
+      count("Stonesword Keys in logic", 2, 3)
     );
     expect(opens("Fringefolk Hero's Grave", IZZY, "Stonesword Key x3")).toBe(true);
   });

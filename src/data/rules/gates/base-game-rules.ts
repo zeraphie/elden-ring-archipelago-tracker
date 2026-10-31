@@ -179,5 +179,5 @@ function keysOrMasterKey(needs: number, masterKey: string, options: BaseGameRule
   if (options.use_master_key === 2) {
     return item("Stonesword Master Key");
   }
-  return { kind: "count", label: "Stonesword Keys", items: STONESWORD_KEYS, needs };
+  return { kind: "count", label: "Stonesword Keys in logic", items: STONESWORD_KEYS, needs };
 }
