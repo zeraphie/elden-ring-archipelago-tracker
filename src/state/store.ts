@@ -6,9 +6,10 @@
  * received and sent, the log, and the roster of every slot. A live event goes to the slices it changes, the
  * latest word replacing what was held; the web API's history fills in what
  * the websocket didn't see, and never overrules it. What persists is what's
- * stamped, the items and the whole log, per room in the tracker's database;
- * the password is never part of it. The store says when it has loaded, so the
- * socket opens only onto a store that's ready.
+ * stamped, the items and the whole log, per room in the tracker's database,
+ * written once the room goes quiet; the password is never part of it. The
+ * store says when it has loaded, so the socket opens only onto a store that's
+ * ready.
  */
 
 import {
@@ -30,6 +31,7 @@ import { createLogSlice, type LogSlice } from "./slices/log.js";
 import { createRosterSlice, type RosterSlice } from "./slices/roster.js";
 import { createSeedSlice, type SeedSlice } from "./slices/seed.js";
 import { createStandingSlice, type StandingSlice } from "./slices/standing.js";
+import { quietStorage, type QuietOptions } from "./utils/quiet-storage.js";
 
 /** What the tracker knows of a room, and the ways the room's word comes in. */
 export type TrackerState = ConnectionSlice &
@@ -64,6 +66,8 @@ export interface TrackerStoreOptions {
   readonly storage?: StateStorage;
   /** Called once what this device kept has loaded, or failed to, with the error, and the store carries on empty. */
   readonly onLoaded?: (error?: unknown) => void;
+  /** How what's kept waits to be written; the browser's own timer and page events when left out. */
+  readonly quiet?: QuietOptions;
 }
 
 /**
@@ -73,8 +77,9 @@ export interface TrackerStoreOptions {
  */
 export function createTrackerStore(
   link: RoomLink,
-  { now = Date.now, storage = stateStorage, onLoaded }: TrackerStoreOptions = {}
+  { now = Date.now, storage = stateStorage, onLoaded, quiet }: TrackerStoreOptions = {}
 ): TrackerStore {
+  const kept = createJSONStorage(() => storage);
   return createStore<TrackerState>()(
     subscribeWithSelector(
       persist(
@@ -121,7 +126,7 @@ export function createTrackerStore(
         {
           name: keptName(link),
           version: 1,
-          storage: createJSONStorage(() => storage),
+          storage: kept && quietStorage(kept, quiet),
           partialize: ({ received, sent, log }) => ({ received, sent, log }),
           onRehydrateStorage: () => (_state, error) => onLoaded?.(error),
         }

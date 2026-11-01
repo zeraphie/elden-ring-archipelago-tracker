@@ -32,6 +32,11 @@ export function loaded(
 ): Promise<TrackerStore> {
   const link: RoomLink = typeof room === "string" ? { kind: "room", room } : room;
   return new Promise((resolve) => {
-    const store = createTrackerStore(link, { ...options, onLoaded: () => resolve(store) });
+    const store = createTrackerStore(link, {
+      // Kept at once, as a test has no room to go quiet.
+      quiet: { timer: (run) => run() },
+      ...options,
+      onLoaded: () => resolve(store),
+    });
   });
 }
