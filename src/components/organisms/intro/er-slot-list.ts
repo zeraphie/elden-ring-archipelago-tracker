@@ -4,7 +4,7 @@
  * A room's slots to pick from, a row each with its name and game. The rows
  * are native radios, so the arrow keys move between them and a screen reader
  * hears a group of choices. Only Elden Ring's can be picked; another game's
- * row stays in the list, dimmed, and says why.
+ * row stays in the list, dimmed.
  */
 
 import { LitElement, css, html } from "lit";
@@ -88,7 +88,6 @@ export class ErSlotList extends LitElement {
       <legend class="sr">Slots</legend>
       ${this.slots.map((slot) => {
         const isOn = slot.team === this.chosen?.team && slot.player === this.chosen.player;
-        const game = gameName(slot.game);
         return html`<label
           class="row band-row ring-within"
           ?data-on=${isOn}
@@ -103,7 +102,7 @@ export class ErSlotList extends LitElement {
             @change=${() => emit<SlotChoice>(this, "er-choose", { team: slot.team, player: slot.player })}
           />
           <span>${slotName(slot.name, slot.player)}</span>
-          <span class="game">${slot.isEldenRing ? game : `${game}, not Elden Ring`}</span>
+          <span class="game">${gameName(slot.game)}</span>
         </label>`;
       })}
     </fieldset>`;
