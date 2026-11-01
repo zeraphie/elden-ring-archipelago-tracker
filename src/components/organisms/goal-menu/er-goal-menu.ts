@@ -59,6 +59,7 @@ import {
   type RowView,
 } from "../../utils/goal-rows.js";
 import { bossName, rowWords } from "../../utils/goal-words.js";
+import { listLimits } from "../../utils/list-limits.js";
 import { isMotionReduced } from "../../utils/motion.js";
 import { iconUrl } from "../../utils/icons.js";
 import { MediaController } from "../../utils/media.js";
@@ -212,10 +213,6 @@ export class ErGoalMenu extends LitElement {
         z-index: 1;
         top: 0;
         background-color: var(--er-surface);
-      }
-      nav[data-split] summary:has(er-resize-handle:hover) {
-        background-color: var(--er-raised);
-        box-shadow: var(--er-glow);
       }
       er-resize-handle {
         display: inline-block;
@@ -599,11 +596,9 @@ export class ErGoalMenu extends LitElement {
   private readonly toDoLimits = (): readonly [number, number] => {
     const list = this.toDoList();
     const under = this.renderRoot.querySelector<HTMLElement>(".under");
-    if (list === null || under === null) {
-      return [ROWS_LEAST_PX, ROWS_LEAST_PX];
-    }
-    const room = list.offsetHeight + under.offsetHeight - UNDER_LEAST_PX;
-    return [ROWS_LEAST_PX, Math.max(ROWS_LEAST_PX, Math.min(list.scrollHeight, room))];
+    return list === null || under === null
+      ? [ROWS_LEAST_PX, ROWS_LEAST_PX]
+      : listLimits(list, under, ROWS_LEAST_PX, UNDER_LEAST_PX);
   };
 
   private readonly openDrop = ({ detail }: CustomEvent<string>): void => {

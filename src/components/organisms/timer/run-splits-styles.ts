@@ -88,13 +88,30 @@ export const runSplitsStyles = [
       padding: 4px 16px 4px 12px;
       font-size: 1.1em;
     }
+    .band er-resize-handle {
+      --er-resize-justify: flex-start;
+    }
+    .band-words {
+      color: var(--er-ink-heading);
+    }
+    .divider {
+      flex: none;
+      height: 7px;
+    }
+    .divider .line {
+      flex-grow: 1;
+      margin: 0;
+    }
+    .divider:hover .line {
+      background: var(--er-gold);
+    }
     :host([data-look="comfort"]) .rows {
       display: flex;
       flex-direction: column;
       gap: 2px;
       padding: 4px 0 0;
     }
-    :host([data-look="comfort"]) .done {
+    :host([data-look="comfort"]) .done:not(:last-of-type) {
       flex: none;
       max-height: 45%;
     }
@@ -124,6 +141,21 @@ export const runSplitsStyles = [
     }
     .row[data-left] .frame img {
       filter: grayscale(1) brightness(0.85);
+    }
+    /* On a long goal the two lists scroll apart, Done as high as it's dragged to, and the rows
+       left taking what remains. */
+    :host([data-long]) .done:not(:last-of-type) {
+      flex: 0 1 var(--done-height, 150px);
+      max-height: none;
+    }
+    :host([data-long]) .left {
+      flex: 1 1 0;
+      min-height: 60px;
+    }
+    /* Held apart from the rows left, as LiveSplit holds a run's last split. */
+    .last {
+      flex: none;
+      margin-top: 10px;
     }
     .release {
       flex: none;

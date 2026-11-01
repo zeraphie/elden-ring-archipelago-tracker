@@ -9,7 +9,9 @@
  * gotten sorts up at once, by the time it came, a dash for one the tracker
  * didn't see come, and opens its check, or the items for what came from
  * elsewhere. Once the goal's achieved, what becomes of the items left comes
- * under the rows.
+ * under the rows. Where the rows don't all fit, the two lists scroll apart,
+ * Done keeping to its latest, and Comfort's To do band or Compact's line drags
+ * to give either more room; Compact holds the goal's last row apart too.
  */
 
 import { LitElement, html, nothing } from "lit";
@@ -23,6 +25,7 @@ import type { Run } from "../../../state/slices/run.js";
 import { goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
 import { rowTimesOf } from "../../../state/utils/run-times.js";
 import "../../molecules/er-release.js";
+import "../../molecules/er-resize-handle.js";
 import { slotName } from "../../utils/entry-words.js";
 import { figure } from "../../utils/figure.js";
 import {
@@ -39,6 +42,8 @@ import {
 } from "../../utils/goal-rows.js";
 import { rowWords } from "../../utils/goal-words.js";
 import { iconUrl } from "../../utils/icons.js";
+import { listLimits } from "../../utils/list-limits.js";
+import { StickToBottom } from "../../utils/stick-to-bottom.js";
 import { StoreController } from "../../utils/store-controller.js";
 import "./er-run-timer.js";
 import { runSplitsStyles } from "./run-splits-styles.js";
@@ -46,6 +51,8 @@ import { splitTime } from "./run-words.js";
 
 // A time or a difference with nothing to show.
 const DASH = "-";
+// The least either list can be dragged to: about two rows.
+const LIST_LEAST_PX = 60;
 
 /**
  * The run's splits: the goal's rows, in the timer's column.
@@ -61,6 +68,8 @@ export class ErRunSplits extends LitElement {
     achieved: { attribute: false },
     allDone: { attribute: false },
     say: { attribute: false },
+    isLong: { state: true },
+    doneHeight: { state: true },
   };
 
   static override styles = runSplitsStyles;
@@ -91,9 +100,25 @@ export class ErRunSplits extends LitElement {
   // The check each item the slot found in its own world was in, by the item's name, as the rows were placed.
   private ownFinds: ReadonlyMap<string | undefined, number> = new Map();
   private placedFrom: { readonly menu: GoalMenu; readonly isAllDone: boolean } | undefined;
+  // Whether the rows don't all fit, so the lists scroll apart, and the height Done was dragged to, for the visit.
+  private isLong = false;
+  private doneHeight: number | undefined;
+  private readonly doneStays = new StickToBottom(this, () => this.doneList());
+  private readonly sized = new ResizeObserver(() => this.checkFit());
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.sized.observe(this);
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.sized.disconnect();
+  }
 
   protected override willUpdate(): void {
     this.dataset.look = this.look.value;
+    this.toggleAttribute("data-long", this.isLong);
     const { store, data } = this;
     if (store !== undefined && data !== undefined && this.menu === undefined) {
       this.menu = new StoreController(this, store, (state) => goalMenuOf(data, state));
@@ -129,6 +154,17 @@ export class ErRunSplits extends LitElement {
     );
   }
 
+  // On the next frame, so what this finds can change what's drawn.
+  protected override updated(): void {
+    requestAnimationFrame(this.checkFit);
+  }
+
+  private readonly checkFit = (): void => {
+    const { obtained, toDo } = this.rows;
+    const column = this.renderRoot.querySelector("er-run-timer");
+    this.isLong = obtained.length > 0 && toDo.length > 0 && column?.fitsColumn() === false;
+  };
+
   override render() {
     const { store, data, rows } = this;
     if (store === undefined || data === undefined) {
@@ -150,12 +186,18 @@ export class ErRunSplits extends LitElement {
       (key) => key,
       (key) => this.row(key, data, key === latest, timeOf(key))
     );
-    const left = repeat(
-      toDo,
-      (key) => key,
-      (key) => this.row(key, data, false, undefined)
-    );
-    return html`<er-run-timer column .store=${store}>
+    const left = (keys: readonly string[]) =>
+      repeat(
+        keys,
+        (key) => key,
+        (key) => this.row(key, data, false, undefined)
+      );
+    const height = this.isLong ? this.doneHeight : undefined;
+    return html`<er-run-timer
+      column
+      .store=${store}
+      style=${height === undefined ? nothing : `--done-height: ${height}px`}
+    >
       <div slot="top">
         <h2 class="name">${this.name?.value}</h2>
         <p class="goal">
@@ -165,17 +207,8 @@ export class ErRunSplits extends LitElement {
       </div>
       ${
         this.look.value === "comfort"
-          ? html`${this.banded("Done", "rows done scroller", gotten, obtained.length)}
-            ${this.banded("To do", "rows scroller", left, toDo.length)}`
-          : html`<ul class="rows scroller" aria-label="Goal">
-              ${gotten}
-              ${
-                obtained.length > 0 && toDo.length > 0
-                  ? html`<li class="line" aria-hidden="true"></li>`
-                  : nothing
-              }
-              ${left}
-            </ul>`
+          ? this.comfortRows(gotten, left(toDo), obtained.length, toDo.length)
+          : this.compactRows(gotten, left, obtained.length, toDo)
       }
       ${
         this.achieved
@@ -190,15 +223,91 @@ export class ErRunSplits extends LitElement {
     </er-run-timer>`;
   }
 
-  // A list under its band, and neither when it has no rows.
-  private banded(word: string, listClass: string, rows: unknown, count: number) {
-    return count === 0
-      ? nothing
-      : html`<h3 class="band band-heading">${word} <span class="fig">${figure(count)}</span></h3>
-          <ul class=${listClass}>
-            ${rows}
-          </ul>`;
+  // Each list under its band, and neither when it has no rows. On a long goal the To do band is
+  // what moves the line between them.
+  private comfortRows(gotten: unknown, left: unknown, doneCount: number, leftCount: number) {
+    const words = (word: string, count: number) =>
+      html`${word} <span class="fig">${figure(count)}</span>`;
+    return html`${
+      doneCount === 0
+        ? nothing
+        : html`<h3 class="band band-heading">${words("Done", doneCount)}</h3>
+            <ul class="rows done scroller">
+              ${gotten}
+            </ul>`
+    }
+    ${
+      leftCount === 0
+        ? nothing
+        : html`${
+              this.isLong
+                ? html`<div class="band band-heading">
+                    ${this.handle("", html`<span class="band-words">${words("To do", leftCount)}</span>`)}
+                  </div>`
+                : html`<h3 class="band band-heading">${words("To do", leftCount)}</h3>`
+            }
+            <ul class="rows left scroller">
+              ${left}
+            </ul>`
+    }`;
   }
+
+  // The lists with a line between them, which moves on a long goal, and the goal's last row then
+  // held apart under them.
+  private compactRows(
+    gotten: unknown,
+    left: (keys: readonly string[]) => unknown,
+    doneCount: number,
+    toDo: readonly string[]
+  ) {
+    const line = html`<div class="line" aria-hidden="true"></div>`;
+    return html`<ul class="rows done scroller" aria-label="Goal rows done">
+        ${gotten}
+      </ul>
+      ${doneCount === 0 || toDo.length === 0 ? nothing : this.isLong ? this.handle("divider", line) : line}
+      <ul class="rows left scroller" aria-label="Goal rows left">
+        ${left(this.isLong ? toDo.slice(0, -1) : toDo)}
+      </ul>
+      ${
+        this.isLong
+          ? html`<ul class="rows last">
+              ${left(toDo.slice(-1))}
+            </ul>`
+          : nothing
+      }`;
+  }
+
+  // What moves the line between the lists, dragged by `by`.
+  private handle(handleClass: string, by: unknown) {
+    return html`<er-resize-handle
+      class=${handleClass}
+      .axis=${"y"}
+      .grows=${1}
+      .measure=${this.doneHeightNow}
+      .limits=${this.doneLimits}
+      .label=${"Goal rows done"}
+      @er-resize=${this.setDoneHeight}
+      >${by}</er-resize-handle
+    >`;
+  }
+
+  private doneList(): HTMLElement | null {
+    return this.renderRoot.querySelector(".done");
+  }
+
+  private readonly doneHeightNow = (): number => this.doneList()?.offsetHeight ?? 0;
+
+  private readonly doneLimits = (): readonly [number, number] => {
+    const done = this.doneList();
+    const left = this.renderRoot.querySelector<HTMLElement>(".left");
+    return done === null || left === null
+      ? [LIST_LEAST_PX, LIST_LEAST_PX]
+      : listLimits(done, left, LIST_LEAST_PX, LIST_LEAST_PX);
+  };
+
+  private readonly setDoneHeight = ({ detail }: CustomEvent<number>): void => {
+    this.doneHeight = detail;
+  };
 
   private row(key: string, data: EldenRingData, isLatest: boolean, time: number | undefined) {
     const view = this.views.get(key);

@@ -21,12 +21,17 @@ export const panelTitleStyles = css`
 
 /**
  * A section heading on a band that fades out to the right, as the game's
- * "Purchase Item": `.band-heading`, its size and room set where it's used.
+ * "Purchase Item": `.band-heading`, its size and room set where it's used. One
+ * holding a resize handle lifts and glows while it's pointed at.
  */
 export const bandHeadingStyles = css`
   .band-heading {
     background: var(--er-heading-band);
     font-weight: 600;
     color: var(--er-ink-heading);
+  }
+  .band-heading:has(er-resize-handle:hover) {
+    background-color: var(--er-raised);
+    box-shadow: var(--er-glow);
   }
 `;

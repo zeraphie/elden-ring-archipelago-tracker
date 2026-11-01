@@ -522,6 +522,9 @@ here first, then search the source, then write.
 **src/components/organisms/settings/er-settings.ts**
 - `ErSettings`: The settings panel, over the right-hand panel.
 
+**src/components/organisms/timer/column-height.ts**
+- `fullHeight()`: How high the parts of a column would be with nothing cut: each list by its rows, the rest as they stand.
+
 **src/components/organisms/timer/er-run-splits.ts**
 - `ErRunSplits`: The run's splits: the goal's rows, in the timer's column.
 
@@ -638,6 +641,9 @@ here first, then search the source, then write.
 - `UNNAMED_ITEM`: An item whose game's data package doesn't name it.
 - `playerName()`: A player as an item's sender or receiver is named; slot 0 is the room's server, which hands out starting items.
 - `foundIn()`: Where a received item was found: in which game, at which of its locations, as far as they're known.
+
+**src/components/utils/list-limits.ts** (src/components/organisms)
+- `listLimits()`: The least and the most a list can be dragged to, against what's beside it: `least` of it, `leastBeside` left of the other, and no more than its rows take.
 
 **src/components/utils/material-icons.ts** (src/components/molecules, src/components/organisms)
 - `backpackIcon`: A backpack, for items: the Items tab, and the simulated item.
