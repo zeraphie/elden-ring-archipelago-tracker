@@ -318,7 +318,7 @@ here first, then search the source, then write.
 
 **src/components/organisms/header/header-words.ts**
 - `LiveState`: How the tracker is keeping up with the room, as the header shows it.
-- `liveState()`: How the tracker is keeping up with the room, from where following it stands.
+- `liveState()`: How the tracker is keeping up with the room, from where following it stands; nothing on a tracker link that's reading the web API as it should.
 - `statusText()`: A player's client status in words; 0 is a client that hasn't connected, or hasn't said.
 
 **src/components/organisms/intro/curtain.ts** (src, src/components)

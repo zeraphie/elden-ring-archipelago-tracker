@@ -157,9 +157,9 @@ export class ErHeader extends LitElement {
       }
       /* Three alignments: the two ends take equal shares, which holds the checks in the bar's true
          middle, and neither is ever narrower than what's in it, so a long end pushes them along
-         rather than over. Under a window of 976 px, the widest of them all stops fitting, so the
+         rather than over. Under a window of 932 px, the widest of them all stops fitting, so the
          checks go back beside the name. */
-      @container bar (min-width: 59.2em) {
+      @container bar (min-width: 56.5em) {
         .bar[data-room] {
           display: grid;
           grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
@@ -305,7 +305,11 @@ export class ErHeader extends LitElement {
   }
 
   private live(phase: ConnectionPhase, link: RoomLink) {
-    const { kind, text, detail } = liveState(phase);
+    const state = liveState(phase);
+    if (state === undefined) {
+      return nothing;
+    }
+    const { kind, text, detail } = state;
     return html`<a
       class="button live"
       data-tone="bare"

@@ -3,15 +3,16 @@
  *
  * What the header says of the room: how the tracker is keeping up with it,
  * and how each player stands by the client status Archipelago keeps for them.
+ * The status is live feedback, so a tracker link, which has none, says nothing.
  */
 
 import type { ConnectionPhase } from "../../../state/slices/connection.js";
 import { GOAL_STATUS } from "../../../state/slices/roster.js";
-import { failureText, reducedTrackerNote } from "../../utils/entry-words.js";
+import { failureText } from "../../utils/entry-words.js";
 
 /** How the tracker is keeping up with the room, as the header shows it. */
 export interface LiveState {
-  readonly kind: "live" | "every minute" | "waiting" | "asleep" | "trouble";
+  readonly kind: "live" | "waiting" | "asleep" | "trouble";
   readonly text: string;
   /** More on it, for a hover and a screen reader. */
   readonly detail?: string;
@@ -24,13 +25,13 @@ const STATUS_WORDS: Readonly<Record<number, string>> = {
   [GOAL_STATUS]: "Goal complete",
 };
 
-/** How the tracker is keeping up with the room, from where following it stands. */
-export function liveState(phase: ConnectionPhase): LiveState {
+/** How the tracker is keeping up with the room, from where following it stands; nothing on a tracker link that's reading the web API as it should. */
+export function liveState(phase: ConnectionPhase): LiveState | undefined {
   switch (phase.phase) {
     case "connected":
       return { kind: "live", text: "Live" };
     case "web only":
-      return { kind: "every minute", text: "Updates every minute", detail: reducedTrackerNote() };
+      return undefined;
     case "looking":
     case "connecting":
       return {
