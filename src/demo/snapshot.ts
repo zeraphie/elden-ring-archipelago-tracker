@@ -17,7 +17,13 @@ import { readLocationName } from "../data/names/location-name.js";
 import { RULES_APWORLD } from "../data/rules/apworld.js";
 import { keyChecksFrom } from "../state/utils/key-checks.js";
 import { regionsOf } from "../state/utils/regions.js";
-import { checkMade, itemSent, nextCheck, type SimulateInputs } from "../state/utils/simulate.js";
+import {
+  checkMade,
+  itemSent,
+  nextCheck,
+  PROGRESSION,
+  type SimulateInputs,
+} from "../state/utils/simulate.js";
 import { idIn, OTHER_PLAYERS } from "./players.js";
 import { demoItemNames, demoLocationNames, demoSlotData, DEMO_PLAYER } from "./room.js";
 
@@ -33,7 +39,9 @@ export interface Snapshot {
   /** Every item the slot holds, in the order it came. */
   readonly received: readonly NetworkItem[];
   readonly sent: readonly SentItem[];
-  /** The item the opening hint names, in a key check still to make. */
+  /** The key checks still to make, for a hint to name. */
+  readonly keyChecksLeft: readonly number[];
+  /** The item the opening hint names, in the first of those. */
   readonly hint: NetworkItem;
 }
 
@@ -47,8 +55,6 @@ const SENT_AT = 7;
 // The share of each open region's other checks made, about what a player has passed on the way.
 const OTHERS_MADE = 0.3;
 const HINTED_ITEM = "Dectus Medallion (Left)";
-// NetworkItem.flags: the item can unlock logical advancement.
-const PROGRESSION = 0b001;
 
 let made: Snapshot | undefined;
 
@@ -128,14 +134,15 @@ function played(): Snapshot {
       others.slice(0, Math.ceil(others.length * OTHERS_MADE)).forEach((id) => take(ownItem(id)));
     }
   }
-  const hinted = nextCheck(data, inputs(), undefined)?.id ?? 0;
+  const done = new Set(checked);
   return {
     checked,
     received,
     sent,
+    keyChecksLeft: [...(keyChecks ?? [])].filter((id) => !done.has(id)),
     hint: {
       item: [...itemNames].find(([, name]) => name === HINTED_ITEM)?.[0] ?? 0,
-      location: hinted,
+      location: nextCheck(data, inputs(), undefined)?.id ?? 0,
       player: DEMO_PLAYER.player,
       flags: PROGRESSION,
     },

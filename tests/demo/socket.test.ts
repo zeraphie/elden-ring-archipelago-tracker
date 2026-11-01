@@ -18,12 +18,12 @@ const SNAPSHOT = demoSnapshot();
 const open = () => RoomSocket.open(roomAddress(38281), demoOpener());
 
 // The packets as the live room reads them, through a login.
-async function loggedIn(): Promise<{ readonly events: LiveEvent[]; readonly socket: RoomSocket }> {
+async function loggedIn(): Promise<{ readonly events: LiveEvent[]; readonly live: LiveRoom }> {
   const socket = await open();
   const events: LiveEvent[] = [];
-  new LiveRoom(socket, (event) => events.push(event));
+  const live = new LiveRoom(socket, (event) => events.push(event));
   await socket.logIn(DEMO_SLOT, TRACKER_VERSION);
-  return { events, socket };
+  return { events, live };
 }
 
 describe("demoOpener", () => {
@@ -88,6 +88,23 @@ describe("demoOpener", () => {
       receiving: DEMO_PLAYER.player,
       found: false,
     });
+  });
+
+  test("sends what the slot says back, once it's logged in", async () => {
+    const { events, live } = await loggedIn();
+    await until(() => events.some(({ kind }) => kind === "hint"));
+    live.say("hello");
+    await until(() => events.some((event) => event.kind === "chat" && event.message === "hello"));
+    expect(events.at(-1)).toMatchObject({ kind: "chat", slot: DEMO_PLAYER.player });
+  });
+
+  test("answers a hint asked for, as a live room does", async () => {
+    const { events, live } = await loggedIn();
+    await until(() => events.some(({ kind }) => kind === "hint"));
+    const before = events.length;
+    live.say("!hint Rusty Key");
+    await until(() => events.length >= before + 2);
+    expect(events.slice(before).map(({ kind }) => kind)).toEqual(["chat", "hint"]);
   });
 
   test("tells whoever's listening when it's closed", async () => {

@@ -5,12 +5,12 @@
  * one, which speaks for the server when told to, and the tests drive it by
  * hand. The demo room's says RoomInfo as it opens, and answers a login with
  * the slot's standing and the items it holds, in one message, as a server does,
- * then what the room has to say.
+ * then what the room has to say, and it answers what the slot says.
  */
 
 import type { SocketLike, SocketOpener } from "../archipelago/room-socket.js";
 import type { NetworkItem } from "../archipelago/web-responses.js";
-import { openingLines } from "./chat.js";
+import { answersTo, openingLines } from "./chat.js";
 import { DEMO_CHECKSUMS, OTHER_PLAYERS } from "./players.js";
 import { demoLocationNames, demoSlotData, DEMO_PLAYER, DEMO_SLOT } from "./room.js";
 import { demoSnapshot, type Snapshot } from "./snapshot.js";
@@ -60,13 +60,18 @@ class DemoSocket extends LocalSocket {
   }
 
   override send(data: string): void {
-    const packets = JSON.parse(data) as readonly { readonly cmd: string }[];
-    if (packets.some(({ cmd }) => cmd === "Connect")) {
-      const snapshot = demoSnapshot();
-      queueMicrotask(() => {
-        this.serve(connected(snapshot), itemsReceived(snapshot.received));
-        this.serve(...openingLines(snapshot));
-      });
+    const packets = JSON.parse(data) as readonly { readonly cmd: string; readonly text?: string }[];
+    for (const { cmd, text = "" } of packets) {
+      if (cmd === "Connect") {
+        const snapshot = demoSnapshot();
+        queueMicrotask(() => {
+          this.serve(connected(snapshot), itemsReceived(snapshot.received));
+          this.serve(...openingLines(snapshot));
+        });
+      }
+      if (cmd === "Say") {
+        queueMicrotask(() => this.serve(...answersTo(text, demoSnapshot())));
+      }
     }
   }
 }
