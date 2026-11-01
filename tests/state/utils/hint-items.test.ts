@@ -4,7 +4,7 @@ import * as data from "../../../src/data/elden-ring.js";
 import { demoItemNames, demoLocationNames, demoSlotData } from "../../../src/demo/room.js";
 import { demoSnapshot } from "../../../src/demo/snapshot.js";
 import { goalMenuOf } from "../../../src/state/utils/goal.js";
-import { hintItemsOf } from "../../../src/state/utils/hint-items.js";
+import { hintItemsOf, hintMatches } from "../../../src/state/utils/hint-items.js";
 
 const ITEMS = demoItemNames();
 const { checked, received } = demoSnapshot();
@@ -22,6 +22,40 @@ const held = (name: string) => {
   const [item = 0] = [...ITEMS].find(([, each]) => each === name) ?? [];
   return { value: { item, location: 0, player: 2, flags: 1 } };
 };
+
+describe("hintMatches", () => {
+  const KEYS = ["Haligtree Lock", "Haligtree Secret Medallion (Left)", "Rusty Key"];
+
+  test("has nothing for plain chat", () => {
+    expect(hintMatches("hello", KEYS)).toEqual([]);
+    expect(hintMatches("", KEYS)).toEqual([]);
+  });
+
+  test("has nothing for another command", () => {
+    expect(hintMatches("!help", KEYS)).toEqual([]);
+    expect(hintMatches("!hinted", KEYS)).toEqual([]);
+  });
+
+  test("has everything while the draft is still becoming !hint", () => {
+    expect(hintMatches("!", KEYS)).toEqual(KEYS);
+    expect(hintMatches("!hi", KEYS)).toEqual(KEYS);
+    expect(hintMatches("!hint", KEYS)).toEqual(KEYS);
+    expect(hintMatches("!hint ", KEYS)).toEqual(KEYS);
+  });
+
+  test("narrows to the items holding what's typed, in any case and anywhere in the name", () => {
+    expect(hintMatches("!hint halig", KEYS)).toEqual(KEYS.slice(0, 2));
+    expect(hintMatches("!HINT MEDALLION", KEYS)).toEqual(KEYS.slice(1, 2));
+  });
+
+  test("has nothing once the draft names an item whole, as it's ready to send", () => {
+    expect(hintMatches("!hint Rusty Key", KEYS)).toEqual([]);
+  });
+
+  test("has nothing for what no item holds", () => {
+    expect(hintMatches("!hint Moon Pearl", KEYS)).toEqual([]);
+  });
+});
 
 describe("hintItemsOf", () => {
   test("starts with what the goal still waits on", () => {

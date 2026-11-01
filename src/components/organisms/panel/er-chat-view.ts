@@ -6,17 +6,18 @@
  * bottom, each with how long ago the tracker saw it. The list stays at the
  * bottom as lines come, unless it's been scrolled up to read, when a button
  * takes it back. Under it, the input sends a chat line or a command such as
- * !hint, with the hints available over it, and suggests items once a command
- * is begun; from a tracker link, which has no websocket, a note says where to
- * open the tracker to send.
+ * !hint, with the hints available over it, and a !hint begun lists the items
+ * it can name, to pick from with the arrow keys and Enter, or a press; Escape
+ * shuts the list. From a tracker link, which has no websocket, a note says
+ * where to open the tracker to send.
  */
 
-import { LitElement, css, html, nothing } from "lit";
+import { LitElement, css, html, nothing, type PropertyValues } from "lit";
 import { shallow } from "zustand/vanilla/shallow";
 import { ELDEN_RING } from "../../../archipelago/look-up.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
-import { hintItemsOf } from "../../../state/utils/hint-items.js";
+import { HINT_COMMAND, hintItemsOf, hintMatches } from "../../../state/utils/hint-items.js";
 import { buttonStyles } from "../../atoms/button.js";
 import { fieldStyles } from "../../atoms/field.js";
 import { focusRing } from "../../atoms/focus.js";
@@ -30,6 +31,7 @@ import { StickToBottom } from "../../utils/stick-to-bottom.js";
 import { StoreController } from "../../utils/store-controller.js";
 import { chatLines, type ChatLine, type ChatNames } from "./chat-lines.js";
 import { hintLine, SPEAKERS } from "./chat-words.js";
+import { HINT_LIST, hintList, hintListStyles, hintRowId } from "./hint-list.js";
 
 /**
  * The chat log and its input.
@@ -40,6 +42,8 @@ export class ErChatView extends LitElement {
     data: { attribute: false },
     say: { attribute: false },
     draft: { state: true },
+    hintRow: { state: true },
+    isHintListShut: { state: true },
   };
 
   static override styles = [
@@ -144,7 +148,12 @@ export class ErChatView extends LitElement {
       .button {
         min-height: 40px;
       }
+      /* It gives up all its room before the hint list gives up any. */
+      .scroller-frame {
+        flex-basis: 0;
+      }
     `,
+    hintListStyles,
   ];
 
   /** The room's store. */
@@ -154,6 +163,9 @@ export class ErChatView extends LitElement {
   /** Says something to the room. */
   say: (text: string) => void = () => {};
   private draft = "";
+  // Which row of the hint list is picked, and whether Escape has shut it for this draft.
+  private hintRow = 0;
+  private isHintListShut = false;
   private watch: StoreController<TrackerState, unknown[]> | undefined;
   private readonly stick = new StickToBottom(this, () =>
     this.renderRoot.querySelector(".scroller")
@@ -179,6 +191,14 @@ export class ErChatView extends LitElement {
         ],
         shallow
       );
+    }
+  }
+
+  protected override updated(changed: PropertyValues): void {
+    if (changed.has("hintRow")) {
+      this.renderRoot
+        .querySelector('.hint[aria-current="true"]')
+        ?.scrollIntoView({ block: "nearest" });
     }
   }
 
@@ -216,32 +236,36 @@ export class ErChatView extends LitElement {
   private input(state: TrackerState) {
     const isLive = state.connection.phase === "connected";
     const points = hintLine(state.hintPoints, state.hintCost);
-    // Chat stays clear of suggestions: they come once a command is begun.
-    const isCommand = this.draft.startsWith("!");
-    const items = isCommand && this.data !== undefined ? hintItemsOf(this.data, state) : [];
-    return html`<form @submit=${this.send}>
-      <label class="sr" for="say">Chat, or a command such as !hint</label>
-      ${points === undefined ? nothing : html`<span class="label">${points}</span>`}
-      <div class="send">
-        <input
-          id="say"
-          class="field"
-          type="text"
-          autocomplete="off"
-          list=${isCommand ? "hint-items" : nothing}
-          placeholder="!hint Dectus Medallion (Right)"
-          .value=${this.draft}
-          @input=${(event: Event) => {
-            this.draft = (event.target as HTMLInputElement).value;
-          }}
-        />
-        <datalist id="hint-items">
-          ${items.map((item) => html`<option value=${`!hint ${item}`}></option>`)}
-        </datalist>
-        <button class="button" type="submit" ?disabled=${!isLive}>Send</button>
-      </div>
-      ${isLive ? nothing : html`<span class="label">Sending waits for the room to connect.</span>`}
-    </form>`;
+    const rows = this.hintRows(state);
+    const hasRows = rows.length > 0;
+    return html`${hasRows ? hintList(rows, this.hintRow, this.pickHint) : nothing}
+      <form @submit=${this.send}>
+        <label class="sr" for="say">Chat, or a command such as !hint</label>
+        ${points === undefined ? nothing : html`<span class="label">${points}</span>`}
+        <div class="send">
+          <input
+            id="say"
+            class="field"
+            type="text"
+            role="combobox"
+            autocomplete="off"
+            aria-autocomplete="list"
+            aria-expanded=${String(hasRows)}
+            aria-controls=${HINT_LIST}
+            aria-activedescendant=${hasRows ? hintRowId(this.hintRow) : nothing}
+            placeholder="!hint Dectus Medallion (Right)"
+            .value=${this.draft}
+            @input=${(event: Event) => {
+              this.draft = (event.target as HTMLInputElement).value;
+              this.hintRow = 0;
+              this.isHintListShut = false;
+            }}
+            @keydown=${this.moveInHints}
+          />
+          <button class="button" type="submit" ?disabled=${!isLive}>Send</button>
+        </div>
+        ${isLive ? nothing : html`<span class="label">Sending waits for the room to connect.</span>`}
+      </form>`;
   }
 
   private trackerNote() {
@@ -251,6 +275,43 @@ export class ErChatView extends LitElement {
     </p>`;
   }
 
+  private hintRows(state: TrackerState): readonly string[] {
+    return this.data === undefined || this.isHintListShut
+      ? []
+      : hintMatches(this.draft, hintItemsOf(this.data, state));
+  }
+
+  // The list's keys, while it's open: the arrows move the row picked, Enter takes it, and Escape shuts the list.
+  private readonly moveInHints = (event: KeyboardEvent): void => {
+    const state = this.store?.getState();
+    const rows = state === undefined ? [] : this.hintRows(state);
+    if (rows.length === 0) {
+      return;
+    }
+    switch (event.key) {
+      case "ArrowDown":
+        this.hintRow = (this.hintRow + 1) % rows.length;
+        break;
+      case "ArrowUp":
+        this.hintRow = (this.hintRow + rows.length - 1) % rows.length;
+        break;
+      case "Enter":
+        this.pickHint(rows[this.hintRow] ?? "");
+        break;
+      case "Escape":
+        this.isHintListShut = true;
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+  };
+
+  private readonly pickHint = (item: string): void => {
+    this.draft = `${HINT_COMMAND}${item}`;
+    this.hintRow = 0;
+  };
+
   private readonly send = (event: SubmitEvent): void => {
     event.preventDefault();
     const text = this.draft.trim();
@@ -259,6 +320,8 @@ export class ErChatView extends LitElement {
     }
     this.say(text);
     this.draft = "";
+    this.hintRow = 0;
+    this.isHintListShut = false;
   };
 }
 

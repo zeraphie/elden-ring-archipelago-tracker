@@ -515,6 +515,12 @@ here first, then search the source, then write.
 - `filterCounts()`: How many items each filter keeps.
 - `filterLabel()`: Each filter's button, with how many items it holds where it holds one kind.
 
+**src/components/organisms/panel/hint-list.ts**
+- `HINT_LIST`: The id of the list, for the input to name it.
+- `hintRowId()`: The id of a row, for the input to say which is picked.
+- `hintListStyles`: The list's look, in a column it can shrink in.
+- `hintList()`: The rows of a list of items, `active` the one picked, telling `onPick` of the one pressed.
+
 **src/components/organisms/panel/region-parts.ts**
 - `needsText()`: What a region still needs while it's locked, in English, its checks named in full; undefined once it's open.
 
@@ -756,6 +762,8 @@ here first, then search the source, then write.
 - `releaseOf()`: What becomes of the items left in the slot's world, its goal done: by the room's permission, or a release it announced.
 
 **src/state/utils/hint-items.ts** (src/components/organisms)
+- `HINT_COMMAND`: The command a hint is asked for with, with the space before its item.
+- `hintMatches()`: The items a draft leads to, in the order given.
 - `hintItemsOf()`: The items the hint box suggests, by name; none until the room can be read.
 
 **src/state/utils/key-checks.ts** (src/components/organisms, src/demo)
