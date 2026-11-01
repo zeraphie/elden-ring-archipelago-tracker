@@ -478,6 +478,7 @@ here first, then search the source, then write.
 **src/components/organisms/toasts/toast-queue.ts**
 - `QueueClock`: How the queue reads the time and waits: the browser's, or a test's.
 - `QueuedToast`: A toast in the queue: its value, and, once it's going, the way it leaves, -1 left or 1 right.
+- `MAX_SHOWN`: How many toasts show at once, as more wait their turn.
 - `ToastQueue`: The toasts showing, told to `onChange` each time they change.
 - Also: `TOAST_MS`, `QUICK_MS`, `ALONE_MIN_MS`, `LEAVE_MS`
 

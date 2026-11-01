@@ -30,6 +30,8 @@ export const QUICK_MS = 900;
 export const ALONE_MIN_MS = 2500;
 // How long a toast takes to slide out.
 export const LEAVE_MS = 220;
+/** How many toasts show at once, as more wait their turn. */
+export const MAX_SHOWN = 5;
 
 const BROWSER: QueueClock = {
   now: () => Date.now(),
@@ -52,9 +54,9 @@ export class ToastQueue<T> {
     private readonly clock: QueueClock = BROWSER
   ) {}
 
-  /** The toasts showing, newest first. */
+  /** The toasts showing, newest first: the oldest few, the rest waiting their turn. */
   get shown(): readonly QueuedToast<T>[] {
-    return this.toasts;
+    return this.toasts.slice(-MAX_SHOWN);
   }
 
   /** Show a toast on top. */

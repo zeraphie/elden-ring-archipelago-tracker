@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   ALONE_MIN_MS,
   LEAVE_MS,
+  MAX_SHOWN,
   QUICK_MS,
   TOAST_MS,
   ToastQueue,
@@ -116,6 +117,17 @@ describe("ToastQueue", () => {
     queue.release();
     clock.pass(QUICK_MS);
     expect(queue.shown.find(({ value }) => value === "first")?.leaving).toBe(1);
+  });
+
+  test("shows the oldest few, and the rest come in as those go", () => {
+    const clock = clockOf();
+    const queue = new ToastQueue<string>(() => {}, clock);
+    const values = ["a", "b", "c", "d", "e", "f", "g"];
+    values.forEach((value) => queue.add(value));
+    expect(valuesOf(queue)).toEqual(["e", "d", "c", "b", "a"]);
+    expect(queue.shown).toHaveLength(MAX_SHOWN);
+    clock.pass(QUICK_MS + LEAVE_MS);
+    expect(valuesOf(queue)).toEqual(["f", "e", "d", "c", "b"]);
   });
 
   test("clearing takes every toast away at once, and leaves nothing waiting", () => {
