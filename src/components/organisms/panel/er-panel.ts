@@ -198,7 +198,7 @@ export class ErPanel extends LitElement {
   /** Shows the Items tab, on a filter that holds what's been received. */
   showItems(): void {
     this.view = "items";
-    if (this.itemFilter === "sent") {
+    if (this.itemFilter !== "all") {
       this.itemFilter = "received";
     }
   }

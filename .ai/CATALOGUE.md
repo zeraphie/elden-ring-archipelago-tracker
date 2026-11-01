@@ -212,6 +212,9 @@ here first, then search the source, then write.
 - `NARROW_MEDIA`: Where the page stacks, at a tablet's width and below: the map on top, the panel under it, and the goal menu a strip along the map's foot.
 - `narrow`: `NARROW_MEDIA` for a css template's `@media`.
 
+**src/components/atoms/more.ts** (src/components/organisms)
+- `moreStyles`: A long list's way to its other rows: `.more` holding a `.segment`, at least 44 px at a tablet's width and below, for a finger.
+
 **src/components/atoms/popover.ts** (src/components/molecules, src/components/organisms)
 - `popoverStyles`: A native popover floating over the page, under what opens it: `.popover` on an element with `popover`.
 
@@ -494,7 +497,7 @@ here first, then search the source, then write.
 - `ErChecksView`: The search, the region picker, and the region picked with its checks.
 
 **src/components/organisms/panel/er-items-view.ts**
-- `ErItemsView`: The items received and sent, under a filter.
+- `ErItemsView`: The items received, obtained and sent, under a filter.
 
 **src/components/organisms/panel/er-panel.ts**
 - `ErPanel`: The panel beside the map, its tabs and the view chosen.
@@ -506,14 +509,17 @@ here first, then search the source, then write.
 - `ErRegionLine`: The region picked as one line, its name the picker of every region.
 
 **src/components/organisms/panel/feed-words.ts**
-- `FeedFilter`: Which items the tab shows: those received, those sent, or both.
+- `FeedFilter`: Which items the tab shows: those received, those obtained, those sent, or every one.
 - `FEED_FILTERS`: Each filter, as its button names it, in order.
+- `keeps()`: Whether a filter keeps an item.
+- `filterCounts()`: How many items each filter keeps.
 - `filterLabel()`: Each filter's button, with how many items it holds where it holds one kind.
 
 **src/components/organisms/panel/region-parts.ts**
 - `needsText()`: What a region still needs while it's locked, in English, its checks named in full; undefined once it's open.
 
 **src/components/organisms/panel/row-words.ts**
+- `ROWS_SHOWN`: How many rows a long list shows before it's asked for all of them.
 - `CheckFilter`: Which checks a list shows: those still to do, those done, or all.
 - `FILTERS`: Each filter, as its button names it, in order.
 - `NO_KEY_CHECKS`: What the key checks' list says when its filter leaves none.
@@ -733,7 +739,9 @@ here first, then search the source, then write.
 - `FeedPlayer`: A player in the feed, by slot, with their name as the roster has it; slot 0 is the server.
 - `FeedEntry`: An item that moved: received from another player, or sent to one.
 - `OwnFind`: An item the slot found in its own world: what it was, how it counts, and the check it was in.
+- `ItemEntry`: An item the Items tab lists: one that moved, or one the slot found for itself.
 - `feedOf()`: The items received from the others and sent to them, newest last.
+- `itemsOf()`: Every item that moved, and every item the slot found for itself, newest last.
 - `ownFindsOf()`: The items the slot found for itself, in the order they came; the feed leaves these out, as they're its checks' own.
 
 **src/state/utils/findings.ts** (src/components/molecules, src/components/organisms, src/components/utils)

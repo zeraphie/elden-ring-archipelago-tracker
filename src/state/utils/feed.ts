@@ -4,9 +4,10 @@
  * The items that moved between this slot and the others, newest last: each
  * item another player found for it, with where in their world, and each item
  * it found for another player, with the check it was in. Items it found for
- * itself are its checks' own, and aren't here. Each item is named by its own
- * game's data package, and a player by the roster; one the tracker saw come
- * before it was watching has no time, and comes first.
+ * itself are its checks' own, and are kept apart, for the toasts and the Items
+ * tab to join them as they need. Each item is named by its own game's data
+ * package, and a player by the roster; one the tracker saw come before it was
+ * watching has no time, and comes first.
  */
 
 import { ELDEN_RING } from "../../archipelago/look-up.js";
@@ -58,7 +59,12 @@ export interface OwnFind {
   readonly location: number;
   /** The check it was in, once the room's names are in. */
   readonly check: KeySpot | undefined;
+  /** The region of the check it was in, by code, once the room's regions are in. */
+  readonly region: string | undefined;
 }
+
+/** An item the Items tab lists: one that moved, or one the slot found for itself. */
+export type ItemEntry = FeedEntry | OwnFind;
 
 // NetworkItem.flags: the item can unlock logical advancement.
 const PROGRESSION = 0b001;
@@ -73,6 +79,14 @@ let last:
       findings: ReadonlyMap<number, Finding>;
       regions: ReadonlyMap<string, RegionSummary> | undefined;
       feed: readonly FeedEntry[];
+    }
+  | undefined;
+// The last list of every item worked out, and the feed and the items received it was worked out with.
+let lastItems:
+  | {
+      feed: readonly FeedEntry[];
+      received: FeedInputs["received"];
+      items: readonly ItemEntry[];
     }
   | undefined;
 
@@ -122,13 +136,21 @@ export function feedOf(data: EldenRingData, inputs: FeedInputs): readonly FeedEn
       });
     }
   }
-  // Newest last, and those with no time first, each kind in the order it came.
-  const ordered = feed
-    .map((entry, order) => ({ entry, order }))
-    .sort((a, b) => (a.entry.at ?? -1) - (b.entry.at ?? -1) || a.order - b.order)
-    .map(({ entry }) => entry);
+  const ordered = newestLast(feed);
   last = { findings, regions, feed: ordered };
   return ordered;
+}
+
+/** Every item that moved, and every item the slot found for itself, newest last. */
+export function itemsOf(data: EldenRingData, inputs: FeedInputs): readonly ItemEntry[] {
+  const feed = feedOf(data, inputs);
+  const { received } = inputs;
+  if (lastItems !== undefined && lastItems.feed === feed && lastItems.received === received) {
+    return lastItems.items;
+  }
+  const items = newestLast<ItemEntry>([...feed, ...ownFindsOf(data, inputs)]);
+  lastItems = { feed, received, items };
+  return items;
 }
 
 /** The items the slot found for itself, in the order they came; the feed leaves these out, as they're its checks' own. */
@@ -136,6 +158,7 @@ export function ownFindsOf(data: EldenRingData, inputs: FeedInputs): OwnFind[] {
   const { received, packages, keyChecks, slot } = inputs;
   const itemNames = packages.get(ELDEN_RING)?.itemNames;
   const names = roomViewOf(inputs)?.names;
+  const regionOf = regionsById(regionsOf(data, inputs));
   return received.flatMap(({ value, at }) => {
     if (value.player !== slot) {
       return [];
@@ -150,7 +173,16 @@ export function ownFindsOf(data: EldenRingData, inputs: FeedInputs): OwnFind[] {
         isKeyCheck: keyChecks?.has(value.location) === true,
         location: value.location,
         check: name === undefined ? undefined : data.checkName(name),
+        region: regionOf.get(value.location),
       } as const,
     ];
   });
+}
+
+// Newest last, and those with no time first, each kind in the order it came.
+function newestLast<T extends { readonly at: number | undefined }>(entries: readonly T[]): T[] {
+  return entries
+    .map((entry, order) => ({ entry, order }))
+    .sort((a, b) => (a.entry.at ?? -1) - (b.entry.at ?? -1) || a.order - b.order)
+    .map(({ entry }) => entry);
 }

@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import type { DataPackage } from "../../../src/archipelago/web-responses.js";
 import * as data from "../../../src/data/elden-ring.js";
 import type { RosterEntry } from "../../../src/state/slices/roster.js";
-import { feedOf, ownFindsOf } from "../../../src/state/utils/feed.js";
+import { feedOf, itemsOf, ownFindsOf } from "../../../src/state/utils/feed.js";
 import { LOCATION_NAMES } from "../../fixtures/seeds.js";
 import { firstCoded, inputs, PACKAGES } from "../../fixtures/slots.js";
 
@@ -37,10 +37,51 @@ const item = (id: number, location: number, player: number) => ({
   flags: 0,
 });
 
+describe("itemsOf", () => {
+  const stamped = (id: number, player: number, at?: number) => ({
+    value: item(id, player === 1 ? LIMGRAVE : 900, player),
+    at,
+  });
+  const roster = [SAM];
+
+  test("joins what the others sent with what the slot found, newest last", () => {
+    const items = itemsOf(
+      data,
+      inputs({ packages: WITH_SAMS_GAME, roster, received: [stamped(1, 2, 20), stamped(2, 1, 10)] })
+    );
+    expect(items.map(({ kind, at }) => [kind, at])).toEqual([
+      ["found", 10],
+      ["received", 20],
+    ]);
+  });
+
+  test("puts what has no time first", () => {
+    const items = itemsOf(
+      data,
+      inputs({ packages: WITH_SAMS_GAME, roster, received: [stamped(1, 2, 20), stamped(2, 1)] })
+    );
+    expect(items.map(({ kind }) => kind)).toEqual(["found", "received"]);
+  });
+
+  test("gives the same list back while nothing's changed", () => {
+    const same = inputs({ packages: WITH_SAMS_GAME, roster, received: [stamped(1, 1, 5)] });
+    expect(itemsOf(data, same)).toBe(itemsOf(data, same));
+  });
+
+  test("has nothing before anything's come", () => {
+    expect(itemsOf(data, inputs())).toEqual([]);
+  });
+});
+
 describe("ownFindsOf", () => {
   const item = (id: number, player: number, flags = 0, location = LIMGRAVE) => ({
     value: { item: id, location, player, flags },
     at: 5,
+  });
+
+  test("says which region a find's check is in, for the row to open it", () => {
+    const [find] = ownFindsOf(data, inputs({ received: [item(1, 1)] }));
+    expect(find).toMatchObject({ location: LIMGRAVE, region: "LG" });
   });
 
   test("gives the slot's own finds, with their check, and not what others sent", () => {

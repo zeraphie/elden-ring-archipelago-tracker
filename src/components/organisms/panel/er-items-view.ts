@@ -1,47 +1,50 @@
 /**
  * ─ Items view ─
  *
- * The panel's Items tab: what the other players sent this slot, and what it
- * sent them, newest at the bottom, each with how long ago the tracker saw it,
- * kept current to the second. The list stays at the bottom as items come,
- * unless it's been scrolled up to read, when a button takes it back. A
- * received item says where in the sender's world it was; a sent one names
- * the check it was in, and "Show" opens that check. At a tablet's width and
- * below, the filters are text toggles, each with its count.
+ * The panel's Items tab: what the other players sent this slot, what it
+ * obtained for itself, and what it sent them, newest at the bottom, each with
+ * how long ago the tracker saw it, kept current to the second. The list stays
+ * at the bottom as items come, unless it's been scrolled up to read, when a
+ * button takes it back. A long list shows its newest rows, with the way to the
+ * rest over them, as a release can bring thousands. A received item says where
+ * in the sender's world it was; the others name the check they were in, and the
+ * row opens it. At a tablet's width and below, the filters are text toggles,
+ * each with its count.
  */
 
 import { LitElement, css, html, nothing } from "lit";
 import { shallow } from "zustand/vanilla/shallow";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
-import { feedOf, type FeedEntry } from "../../../state/utils/feed.js";
-import { bandRowStyles } from "../../atoms/band.js";
-import { narrow, NARROW_MEDIA } from "../../atoms/layout.js";
-import { buttonStyles } from "../../atoms/button.js";
+import { itemsOf, type ItemEntry } from "../../../state/utils/feed.js";
+import { NARROW_MEDIA } from "../../atoms/layout.js";
 import { figures } from "../../atoms/figures.js";
 import { focusRing } from "../../atoms/focus.js";
-import { sackStyles } from "../../atoms/sack.js";
+import { moreStyles } from "../../atoms/more.js";
 import { scrollerStyles } from "../../atoms/scroller.js";
 import { segmentStyles } from "../../atoms/segments.js";
+import { checkRowStyles } from "../../molecules/check-row.js";
 import "../../molecules/er-ago.js";
 import "../../molecules/er-to-bottom.js";
 import "../../molecules/er-toggle-row.js";
 import type { CheckPick } from "../../utils/check-pick.js";
 import { checkLine } from "../../utils/check-words.js";
 import { emit } from "../../utils/emit.js";
+import { figure } from "../../utils/figure.js";
 import { iconUrl } from "../../utils/icons.js";
 import { foundIn, playerName, UNNAMED_ITEM } from "../../utils/item-words.js";
 import { MediaController } from "../../utils/media.js";
 import { StickToBottom } from "../../utils/stick-to-bottom.js";
 import { StoreController } from "../../utils/store-controller.js";
-import { FEED_FILTERS, filterLabel, type FeedFilter } from "./feed-words.js";
+import { FEED_FILTERS, filterCounts, filterLabel, keeps, type FeedFilter } from "./feed-words.js";
+import { ROWS_SHOWN } from "./row-words.js";
 
 const SACK = iconUrl("sack");
 
 /**
- * The items received and sent, under a filter.
+ * The items received, obtained and sent, under a filter.
  *
- * @fires er-check - "Show" was pressed on a sent item; `detail` is a `CheckPick`, the check it was in.
+ * @fires er-check - A row with a check was clicked; `detail` is a `CheckPick`, the check it was in.
  * @fires er-filter - A filter was chosen; `detail` is the filter.
  */
 export class ErItemsView extends LitElement {
@@ -49,14 +52,14 @@ export class ErItemsView extends LitElement {
     store: { attribute: false },
     data: { attribute: false },
     filter: { attribute: false },
+    isAllShown: { state: true },
   };
 
   static override styles = [
-    bandRowStyles,
-    buttonStyles,
+    checkRowStyles,
     figures,
     focusRing,
-    sackStyles,
+    moreStyles,
     scrollerStyles,
     segmentStyles,
     css`
@@ -74,12 +77,6 @@ export class ErItemsView extends LitElement {
         padding: 0 16px;
         border-bottom: 1px solid var(--er-panel-divider);
       }
-      /* At a tablet's width and below, the buttons are at least 44 px, for a finger. */
-      @media ${narrow} {
-        :host .button {
-          min-height: 44px;
-        }
-      }
       .segment {
         min-height: 38px;
         font-size: 0.92em;
@@ -89,25 +86,6 @@ export class ErItemsView extends LitElement {
         margin: 0;
         padding: 0 var(--er-panel-clear, 0px) 0 0;
         list-style: none;
-      }
-      li {
-        display: grid;
-        grid-template-columns: 26px minmax(0, 1fr) auto;
-        align-items: start;
-        gap: 2px 12px;
-        padding: 9px 16px;
-        border-bottom: 1px solid var(--er-panel-divider);
-      }
-      img {
-        width: 26px;
-        height: 26px;
-        margin-top: 1px;
-      }
-      .words {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        min-width: 0;
       }
       .top {
         display: flex;
@@ -131,16 +109,8 @@ export class ErItemsView extends LitElement {
       .where {
         font-size: 0.86em;
       }
-      .button {
-        align-self: center;
-        min-height: 34px;
-        padding: 2px 12px;
-        font-size: 0.85em;
-      }
       .empty {
-        display: block;
         padding: 14px 16px;
-        border: none;
         font-size: 0.92em;
         color: var(--er-ink-muted);
       }
@@ -153,7 +123,9 @@ export class ErItemsView extends LitElement {
   data: EldenRingData | undefined;
   /** Which items the tab shows; it's told back with `er-filter` when it's chosen here. */
   filter: FeedFilter = "received";
-  private feed: StoreController<TrackerState, readonly FeedEntry[]> | undefined;
+  private items: StoreController<TrackerState, readonly ItemEntry[]> | undefined;
+  // Whether a long list is showing all of its rows.
+  private isAllShown = false;
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
   private readonly stick = new StickToBottom(this, () =>
     this.renderRoot.querySelector(".scroller")
@@ -161,20 +133,34 @@ export class ErItemsView extends LitElement {
 
   protected override willUpdate(): void {
     const { store, data } = this;
-    if (store !== undefined && data !== undefined && this.feed === undefined) {
-      this.feed = new StoreController(this, store, (state) => feedOf(data, state), shallow);
+    if (store !== undefined && data !== undefined && this.items === undefined) {
+      this.items = new StoreController(this, store, (state) => itemsOf(data, state), shallow);
     }
   }
 
   override render() {
-    const feed = this.feed?.value ?? [];
-    const received = feed.filter(({ kind }) => kind === "received").length;
-    const shown = feed.filter(({ kind }) => this.filter === "all" || kind === this.filter);
-    return html`${this.filters(received, feed.length - received)}
+    const items = this.items?.value ?? [];
+    const kept = items.filter((item) => keeps(this.filter, item));
+    const shown = this.isAllShown ? kept : kept.slice(-ROWS_SHOWN);
+    return html`${this.filters(items)}
       <div class="scroller-frame">
         <ul class="scroller" aria-label="Items">
           ${shown.length === 0 ? html`<li class="empty">Nothing yet.</li>` : nothing}
-          ${shown.map((entry) => this.entry(entry))}
+          ${
+            shown.length < kept.length
+              ? html`<li class="more">
+                  <button
+                    class="segment"
+                    @click=${() => {
+                      this.isAllShown = true;
+                    }}
+                  >
+                    Show all <span class="fig">${figure(kept.length)}</span>
+                  </button>
+                </li>`
+              : nothing
+          }
+          ${shown.map((item) => this.row(item))}
         </ul>
         ${
           this.stick.isAway
@@ -185,13 +171,9 @@ export class ErItemsView extends LitElement {
   }
 
   // Joined buttons, or at a tablet's width and below text toggles, each with how many items it keeps.
-  private filters(received: number, sent: number) {
+  private filters(items: readonly ItemEntry[]) {
+    const counts = filterCounts(items);
     if (this.isNarrow.matches) {
-      const counts: Readonly<Record<FeedFilter, number>> = {
-        received,
-        sent,
-        all: received + sent,
-      };
       return html`<er-toggle-row
         .label=${"Show"}
         .options=${FEED_FILTERS.map(([key, label]) => ({ key, label, count: counts[key] }))}
@@ -212,7 +194,7 @@ export class ErItemsView extends LitElement {
             aria-pressed=${String(filter === this.filter)}
             @click=${() => this.choose(filter)}
           >
-            ${filterLabel(filter, received, sent)}
+            ${filterLabel(filter, counts)}
           </button>`
       )}
     </div>`;
@@ -220,43 +202,76 @@ export class ErItemsView extends LitElement {
 
   private choose(filter: FeedFilter): void {
     this.filter = filter;
+    this.isAllShown = false;
     this.stick.stay();
     emit<FeedFilter>(this, "er-filter", filter);
   }
 
-  private entry(entry: FeedEntry) {
-    const isReceived = entry.kind === "received";
-    const who = isReceived ? `from ${playerName(entry.from)}` : `to ${playerName(entry.to)}`;
-    const where = isReceived ? foundIn(entry.game, entry.location) : checkLine(entry.check.name);
-    return html`<li class="band-row">
-      <img class="sack" data-state=${isReceived ? "collected" : "todo"} src=${SACK} alt="" />
+  // A row with a check is a button that opens it; a received item's is in another world, so it's left to read.
+  private row(item: ItemEntry) {
+    const pick = this.pickOf(item);
+    return pick === undefined
+      ? html`<li class="row" data-key>${this.words(item)}</li>`
+      : html`<li>
+          <button
+            class="row band-row"
+            data-key
+            @click=${() => emit<CheckPick>(this, "er-check", pick)}
+          >
+            ${this.words(item)}
+          </button>
+        </li>`;
+  }
+
+  private words(item: ItemEntry) {
+    const where = this.placeOf(item);
+    return html`<img
+        class="sack"
+        data-state=${item.kind === "sent" ? "todo" : "collected"}
+        src=${SACK}
+        alt=""
+      />
       <span class="words">
         <span class="top">
-          <span
-            ><span class="item">${entry.item ?? UNNAMED_ITEM}</span>
-            <span class="who">– ${who}</span></span
-          >
-          <er-ago class="when" .at=${entry.at}></er-ago>
+          <span><span class="item">${item.item ?? UNNAMED_ITEM}</span>${this.who(item)}</span>
+          <er-ago class="when" .at=${item.at}></er-ago>
         </span>
         ${where === undefined ? nothing : html`<span class="where">${where}</span>`}
-      </span>
-      ${
-        entry.kind === "sent"
-          ? html`<button
-              class="button"
-              data-tone="quiet"
-              aria-label=${`Show ${checkLine(entry.check.name)}`}
-              @click=${() =>
-                emit<CheckPick>(this, "er-check", {
-                  region: entry.check.region,
-                  id: entry.check.id,
-                })}
-            >
-              Show
-            </button>`
-          : nothing
-      }
-    </li>`;
+      </span>`;
+  }
+
+  // Who it came from or went to; what's obtained says so only among the others.
+  private who(item: ItemEntry) {
+    switch (item.kind) {
+      case "received":
+        return html` <span class="who">– from ${playerName(item.from)}</span>`;
+      case "sent":
+        return html` <span class="who">– to ${playerName(item.to)}</span>`;
+      case "found":
+        return this.filter === "all" ? html` <span class="who">– Obtained</span>` : nothing;
+    }
+  }
+
+  private placeOf(item: ItemEntry): string | undefined {
+    switch (item.kind) {
+      case "received":
+        return foundIn(item.game, item.location);
+      case "sent":
+        return checkLine(item.check.name);
+      case "found":
+        return item.check && checkLine(item.check);
+    }
+  }
+
+  private pickOf(item: ItemEntry): CheckPick | undefined {
+    switch (item.kind) {
+      case "received":
+        return undefined;
+      case "sent":
+        return { region: item.check.region, id: item.check.id };
+      case "found":
+        return item.region === undefined ? undefined : { region: item.region, id: item.location };
+    }
   }
 }
 

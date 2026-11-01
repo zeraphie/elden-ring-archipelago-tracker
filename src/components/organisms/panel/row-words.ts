@@ -5,6 +5,9 @@
  * leaves nothing in it, and how many checks a search found.
  */
 
+/** How many rows a long list shows before it's asked for all of them. */
+export const ROWS_SHOWN = 80;
+
 /** Which checks a list shows: those still to do, those done, or all. */
 export type CheckFilter = "todo" | "done" | "all";
 

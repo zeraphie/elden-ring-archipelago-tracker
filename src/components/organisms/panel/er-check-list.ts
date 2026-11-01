@@ -12,8 +12,9 @@
 import { LitElement, css, html, nothing, type PropertyValues } from "lit";
 import type { CheckRow, RegionChecks } from "../../../state/utils/checks.js";
 import { figures } from "../../atoms/figures.js";
-import { narrow, NARROW_MEDIA } from "../../atoms/layout.js";
+import { NARROW_MEDIA } from "../../atoms/layout.js";
 import { bandHeadingStyles } from "../../atoms/heading.js";
+import { moreStyles } from "../../atoms/more.js";
 import { scrollerStyles } from "../../atoms/scroller.js";
 import { focusRing } from "../../atoms/focus.js";
 import { segmentStyles } from "../../atoms/segments.js";
@@ -24,10 +25,7 @@ import { emit } from "../../utils/emit.js";
 import { figure } from "../../utils/figure.js";
 import { MediaController } from "../../utils/media.js";
 import { checkRow, checkRowStyles } from "../../molecules/check-row.js";
-import { FILTERS, NO_KEY_CHECKS, type CheckFilter } from "./row-words.js";
-
-// How many other checks show before the list is asked for all of them.
-const OTHERS_SHOWN = 80;
+import { FILTERS, NO_KEY_CHECKS, ROWS_SHOWN, type CheckFilter } from "./row-words.js";
 
 /**
  * A region's key checks and other checks, under a filter.
@@ -51,6 +49,7 @@ export class ErCheckList extends LitElement {
     checkRowStyles,
     figures,
     focusRing,
+    moreStyles,
     segmentStyles,
     visuallyHidden,
     css`
@@ -67,12 +66,6 @@ export class ErCheckList extends LitElement {
         display: flex;
         padding: 10px 16px;
         border-bottom: 1px solid var(--er-panel-divider);
-      }
-      /* At a tablet's width and below, "Show all" is at least 44 px, for a finger. */
-      @media ${narrow} {
-        :host .more .segment {
-          min-height: 44px;
-        }
       }
       .segment {
         min-height: 38px;
@@ -118,14 +111,6 @@ export class ErCheckList extends LitElement {
         font-size: 0.9em;
         color: var(--er-ink-muted);
       }
-      .more {
-        padding: 12px 16px 18px;
-      }
-      .more .segment {
-        width: 100%;
-        margin: 0;
-        min-height: 40px;
-      }
     `,
   ];
 
@@ -166,7 +151,7 @@ export class ErCheckList extends LitElement {
   override render() {
     const key = this.checks.key.filter((row) => this.keeps(row));
     const others = this.checks.other.filter((row) => this.keeps(row));
-    const shown = this.areAllOthersShown ? others : others.slice(0, OTHERS_SHOWN);
+    const shown = this.areAllOthersShown ? others : others.slice(0, ROWS_SHOWN);
     return html`${this.filters()}
       <div class="scroller">
         <h3 class="head band-heading sr-narrow">
