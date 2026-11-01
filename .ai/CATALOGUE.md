@@ -472,6 +472,7 @@ here first, then search the source, then write.
 - `needsText()`: What a region still needs while it's locked, in English, its checks named in full; undefined once it's open.
 
 **src/components/organisms/panel/row-words.ts**
+- `spotLine()`: What follows a check's place: its encounter after a dash, and which copy it is: " – drop, 2 of 4".
 - `CheckFilter`: Which checks a list shows: those still to do, those done, or all.
 - `FILTERS`: Each filter, as its button names it, in order.
 - `NO_KEY_CHECKS`: What the key checks' list says when its filter leaves none.
@@ -603,9 +604,10 @@ here first, then search the source, then write.
 **src/data/names/key-spots.ts** (src/components/organisms, src/components/utils, src/state, tools)
 - `KeySpot`: A key spot's full name: where it is, and the encounter or object there.
 
-**src/data/names/location-name.ts** (tools)
+**src/data/names/location-name.ts** (src/components/organisms, src/state, tools)
 - `readLocationName()`: An Elden Ring location's name in its parts, or undefined for a name not in that form.
 - `withoutExtra()`: A location name apart from the generator's ", extra item N", and that N, so a copy reads as the spot it copies.
+- `SpotCopy`: Which of a spot's checks this one is, the spot itself first and the generator's copies after it, and how many there are.
 
 **src/data/names/place-names.ts** (tools)
 - `PLACE_NAMES`: Each place's full name, keyed by its location names' regions and code as written.

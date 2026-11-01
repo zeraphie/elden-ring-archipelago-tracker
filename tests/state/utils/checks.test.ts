@@ -46,6 +46,18 @@ describe("regionChecksOf", () => {
     expect(checked.key[0]?.finding?.item).toBe("Rusty Key");
   });
 
+  test("a spot's copies come straight after it, numbered in their order", () => {
+    const { key, other } = regionChecksOf(data, inputs(), "CL");
+    for (const rows of [key, other]) {
+      rows.forEach((row, i) => {
+        if (row.copy !== undefined && row.copy.nth > 1) {
+          expect(rows[i - 1]?.copy).toMatchObject({ first: row.copy.first, nth: row.copy.nth - 1 });
+        }
+      });
+    }
+    expect([...key, ...other].filter(({ copy }) => copy !== undefined).length).toBeGreaterThan(0);
+  });
+
   test("a region the room has no checks in has none", () => {
     expect(regionChecksOf(data, inputs(), "nowhere")).toEqual({ key: [], other: [] });
   });

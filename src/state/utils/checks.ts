@@ -2,8 +2,9 @@
  * ─ Checks ─
  *
  * The room's checks as the panel lists them, region by region: key checks
- * apart from the rest, each by its place and encounter, the item it holds in
- * the unrandomised game, how it stands, and once it's checked, what it held.
+ * apart from the rest, each by its place and encounter, which copy it is of a
+ * spot the generator copied, the item it holds in the unrandomised game, how
+ * it stands, and once it's checked, what it held.
  * A check's names are read once for each slot_data; the rows are worked out
  * again only when the regions or the findings change. Search looks through
  * them all, by every word of what a row says.
@@ -11,6 +12,7 @@
 
 import type { PinState } from "../../data/checks/map-pins.js";
 import type { KeySpot } from "../../data/names/key-spots.js";
+import type { SpotCopy } from "../../data/names/location-name.js";
 import type { RegionSummary } from "../../data/rules/region-summary.js";
 import type { EldenRingData } from "../setup.js";
 import { findingsOf, type Finding, type FindingInputs } from "./findings.js";
@@ -21,6 +23,8 @@ import { roomViewOf } from "./room.js";
 export interface CheckRow {
   readonly id: number;
   readonly name: KeySpot;
+  /** Which copy it is, of a spot the generator copied. */
+  readonly copy: SpotCopy | undefined;
   /** The item it holds in the unrandomised game. */
   readonly vanilla: string | undefined;
   readonly isKey: boolean;
@@ -30,7 +34,7 @@ export interface CheckRow {
   readonly finding: Finding | undefined;
 }
 
-/** A region's key checks and its other checks, each in id order. */
+/** A region's key checks and its other checks, each in id order, with a spot's copies straight after it. */
 export interface RegionChecks {
   readonly key: readonly CheckRow[];
   readonly other: readonly CheckRow[];
@@ -53,8 +57,14 @@ export type CheckInputs = RegionInputs & FindingInputs;
 
 const NO_CHECKS: RegionChecks = { key: [], other: [] };
 
-// Each check's place, encounter and vanilla item, by id, for each slot_data's names.
-const NAMES = new WeakMap<object, Map<number, Pick<CheckRow, "name" | "vanilla">>>();
+// What a check's names give its row.
+type RowNames = Pick<CheckRow, "name" | "copy" | "vanilla">;
+
+// Each check's place, encounter, copy and vanilla item, by id, for each slot_data's names.
+const NAMES = new WeakMap<
+  object,
+  { readonly read: Map<number, RowNames>; readonly copies: ReadonlyMap<number, SpotCopy> }
+>();
 
 // The last rows worked out, and what they were worked out from.
 let last:
@@ -88,8 +98,7 @@ export function roomChecksOf(
         const isKey = keyChecks.has(id);
         const row: CheckRow = {
           id,
-          name: names(id).name,
-          vanilla: names(id).vanilla,
+          ...names(id),
           isKey,
           state: isDone
             ? "collected"
@@ -100,11 +109,17 @@ export function roomChecksOf(
         };
         (isKey ? key : other).push(row);
       }
-      checks.set(region, { key, other });
+      checks.set(region, { key: key.sort(bySpot), other: other.sort(bySpot) });
     }
   }
   last = { summaries, findings, checks };
   return checks;
+}
+
+// In id order, but for a spot's copies, which come straight after it in their own order.
+function bySpot(a: CheckRow, b: CheckRow): number {
+  const spot = ({ id, copy }: CheckRow) => copy?.first ?? id;
+  return spot(a) - spot(b) || (a.copy?.nth ?? 0) - (b.copy?.nth ?? 0);
 }
 
 /** A region's checks, by its code; none until slot_data and the data package are in. */
@@ -158,18 +173,22 @@ export function searchChecks(
 
 // A check's names by id, read from its Archipelago name once for each slot_data.
 function namesOf(data: EldenRingData, names: Readonly<Record<string, string>>) {
-  let read = NAMES.get(names);
-  if (read === undefined) {
-    read = new Map();
-    NAMES.set(names, read);
+  let kept = NAMES.get(names);
+  if (kept === undefined) {
+    kept = { read: new Map(), copies: data.spotCopies(names) };
+    NAMES.set(names, kept);
   }
-  const cache = read;
-  return (id: number): Pick<CheckRow, "name" | "vanilla"> => {
-    let found = cache.get(id);
+  const { read, copies } = kept;
+  return (id: number): RowNames => {
+    let found = read.get(id);
     if (found === undefined) {
       const name = names[String(id)] ?? "";
-      found = { name: data.checkName(name), vanilla: data.readLocationName(name)?.vanilla };
-      cache.set(id, found);
+      found = {
+        name: data.checkName(name),
+        copy: copies.get(id),
+        vanilla: data.readLocationName(name)?.vanilla,
+      };
+      read.set(id, found);
     }
     return found;
   };

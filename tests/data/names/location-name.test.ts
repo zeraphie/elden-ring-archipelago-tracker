@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   readLocationName,
   spellCompass,
+  spotCopies,
   withoutExtra,
 } from "../../../src/data/names/location-name.js";
 
@@ -133,6 +134,35 @@ describe("withoutExtra", () => {
       base: "SV/SeC: Golden Seed - seedtree to SE",
       extra: undefined,
     });
+  });
+});
+
+describe("spotCopies", () => {
+  const SPOT = "SV/SeC: Golden Seed - seedtree to SE";
+
+  test("numbers a spot's checks, the spot itself first, then its copies in their order", () => {
+    const copies = spotCopies({
+      "30": `${SPOT}, extra item 2`,
+      "10": SPOT,
+      "20": `${SPOT}, extra item 1`,
+    });
+    expect(copies.get(10)).toEqual({ first: 10, nth: 1, of: 3 });
+    expect(copies.get(20)).toEqual({ first: 10, nth: 2, of: 3 });
+    expect(copies.get(30)).toEqual({ first: 10, nth: 3, of: 3 });
+  });
+
+  test("leaves out a spot with no copies", () => {
+    expect(spotCopies({ "10": SPOT }).size).toBe(0);
+  });
+
+  test("keeps different spots apart", () => {
+    const copies = spotCopies({
+      "10": SPOT,
+      "20": `${SPOT}, extra item 1`,
+      "30": "SV/LL: Shabriri Grape - from LL/LFC to E, inside by ghost",
+    });
+    expect(copies.get(20)).toEqual({ first: 10, nth: 2, of: 2 });
+    expect(copies.has(30)).toBe(false);
   });
 });
 

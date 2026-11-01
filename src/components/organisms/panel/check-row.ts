@@ -3,8 +3,9 @@
  *
  * One check in the panel's lists: its marker, a key check's sack in its
  * three states or a small ring for any other, filled once checked; its place
- * with its encounter dimmed; its region, in search results; the item it holds
- * in the unrandomised game; and once checked, what it held. The row picked carries the olive band.
+ * with its encounter dimmed, and which copy it is of a spot the generator
+ * copied; its region, in search results; the item it holds in the unrandomised
+ * game; and once checked, what it held. The row picked carries the olive band.
  */
 
 import { css, html, nothing } from "lit";
@@ -13,7 +14,7 @@ import { bandRowStyles } from "../../atoms/band.js";
 import { sackStyles } from "../../atoms/sack.js";
 import { PIN_STATE_WORDS } from "../../utils/area-words.js";
 import { iconUrl } from "../../utils/icons.js";
-import { findingLine } from "./row-words.js";
+import { findingLine, spotLine } from "./row-words.js";
 
 const SACK = iconUrl("sack");
 
@@ -92,8 +93,9 @@ export function checkRow(
   onPick: (row: CheckRow) => void,
   region?: string
 ) {
-  const { name, vanilla, isKey, state, finding } = row;
+  const { name, copy, vanilla, isKey, state, finding } = row;
   const found = finding === undefined ? undefined : findingLine(finding);
+  const spot = spotLine(name.encounter, copy);
   return html`<button
     class="row band-row"
     id=${`check-${row.id}`}
@@ -108,7 +110,7 @@ export function checkRow(
     }
     <span class="words">
       <span class="title"
-        >${name.place}${name.encounter === "" ? nothing : html`<span class="spot"> – ${name.encounter}</span>`}</span
+        >${name.place}${spot === "" ? nothing : html`<span class="spot">${spot}</span>`}</span
       >
       ${region === undefined ? nothing : html`<span class="region">${region}</span>`}
       ${

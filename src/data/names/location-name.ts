@@ -82,6 +82,32 @@ export function withoutExtra(name: string): {
     : { base: parts[1] ?? name, extra: Number(parts[2]) };
 }
 
+/** Which of a spot's checks this one is, the spot itself first and the generator's copies after it, and how many there are. */
+export interface SpotCopy {
+  /** The id of the spot's first check, which its copies list after. */
+  readonly first: number;
+  readonly nth: number;
+  readonly of: number;
+}
+
+/** Each check of a spot the generator copied, by id; a spot with no copies isn't here. */
+export function spotCopies(names: Readonly<Record<string, string>>): ReadonlyMap<number, SpotCopy> {
+  const spots = new Map<string, { readonly id: number; readonly extra: number }[]>();
+  for (const [id, name] of Object.entries(names)) {
+    const { base, extra = 0 } = withoutExtra(name);
+    spots.set(base, [...(spots.get(base) ?? []), { id: Number(id), extra }]);
+  }
+  const copies = new Map<number, SpotCopy>();
+  for (const checks of spots.values()) {
+    if (checks.length > 1) {
+      const ordered = [...checks].sort((a, b) => a.extra - b.extra);
+      const first = ordered[0]?.id ?? 0;
+      ordered.forEach(({ id }, i) => copies.set(id, { first, nth: i + 1, of: ordered.length }));
+    }
+  }
+  return copies;
+}
+
 /** Text with its compass points spelled out: "graveyard SW of WS" reads "graveyard south west of WS". */
 export function spellCompass(text: string): string {
   return text.replace(/\b(NE|NW|SE|SW|N|S|E|W)\b/g, (point) => COMPASS.get(point) ?? point);
