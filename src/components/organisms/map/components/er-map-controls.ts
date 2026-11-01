@@ -73,6 +73,16 @@ export class ErMapControls extends LitElement {
       align-items: flex-end;
       gap: 12px;
     }
+    /* The bottom right: the zoom buttons. */
+    .corner {
+      position: absolute;
+      z-index: 3;
+      right: 16px;
+      bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
     /* At a tablet's width and below the controls sit closer to the edges, and the legend goes:
        the goal strip has the map's foot, and a touch points at nothing. */
     @media ${narrow} {
@@ -91,16 +101,6 @@ export class ErMapControls extends LitElement {
         right: 10px;
         bottom: 10px;
       }
-    }
-    /* The bottom right: the zoom buttons. */
-    .corner {
-      position: absolute;
-      z-index: 3;
-      right: 16px;
-      bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
   `;
 
