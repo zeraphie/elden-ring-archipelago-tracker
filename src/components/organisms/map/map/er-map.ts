@@ -16,35 +16,35 @@
  */
 
 import { LitElement, css, html, nothing, svg, type PropertyValues } from "lit";
-import type { MapPin } from "../../../data/checks/map-pins.js";
-import type { Sheet } from "../../../data/checks/map-tiles.js";
-import type { EldenRingData } from "../../../state/setup.js";
-import type { TrackerState, TrackerStore } from "../../../state/store.js";
-import { regionChecksOf } from "../../../state/utils/checks.js";
-import { mapOf, type MapView } from "../../../state/utils/map.js";
-import { narrow, NARROW_MEDIA } from "../../atoms/layout.js";
+import type { MapPin } from "../../../../data/checks/map-pins.js";
+import type { Sheet } from "../../../../data/checks/map-tiles.js";
+import type { EldenRingData } from "../../../../state/setup.js";
+import type { TrackerState, TrackerStore } from "../../../../state/store.js";
+import { regionChecksOf } from "../../../../state/utils/checks.js";
+import { mapOf, type MapView } from "../../../../state/utils/map.js";
+import { narrow, NARROW_MEDIA } from "../../../atoms/layout.js";
 import "./er-map-legend.js";
-import "./er-pin-tip.js";
-import "./er-route-tools.js";
-import "./er-sheet-tabs.js";
-import "./er-zoom-buttons.js";
-import { LostWatch } from "./camera/lost-watch.js";
-import { MapCamera, type ZoomTo } from "./camera/map-camera.js";
-import { pickRing, pinLayer, pinStyles } from "./pin-layer.js";
-import { pinSpots } from "./pin-tip.js";
-import { RoutePen, routeStyles, type RouteAction } from "./route-pen.js";
-import { anyTileIn, boundsOf, edgesPath, tileCentre, tilesPath } from "./map-paths.js";
-import { DRAWING_LINE, pinCount } from "./map-words.js";
-import { AREA_STATE_WORDS } from "../../utils/area-words.js";
-import type { CheckPick } from "../../utils/check-pick.js";
-import { emit } from "../../utils/emit.js";
-import { MediaController } from "../../utils/media.js";
-import { SHEET_NAMES } from "../../utils/sheet-names.js";
-import { StoreController } from "../../utils/store-controller.js";
+import "../er-pin-tip.js";
+import "../er-route-tools.js";
+import "../er-sheet-tabs.js";
+import "../er-zoom-buttons.js";
+import { LostWatch } from "../camera/lost-watch.js";
+import { MapCamera, type ZoomTo } from "../camera/map-camera.js";
+import { pickRing, pinLayer, pinStyles } from "../pin-layer.js";
+import { pinSpots } from "../pin-tip.js";
+import { RoutePen, routeStyles, type RouteAction } from "../route-pen.js";
+import { anyTileIn, boundsOf, edgesPath, tileCentre, tilesPath } from "../map-paths.js";
+import { DRAWING_LINE, pinCount } from "../map-words.js";
+import { AREA_STATE_WORDS } from "../../../utils/area-words.js";
+import type { CheckPick } from "../../../utils/check-pick.js";
+import { emit } from "../../../utils/emit.js";
+import { MediaController } from "../../../utils/media.js";
+import { SHEET_NAMES } from "../../../utils/sheet-names.js";
+import { StoreController } from "../../../utils/store-controller.js";
 
 // The simulate buttons are for a development build only, so a built page never loads them.
 if (import.meta.env.DEV) {
-  void import("./er-simulate.js");
+  void import("../er-simulate.js");
 }
 
 // Screen pixels per 256 m tile: from a whole sheet in a small window to a tile filling much of the view.

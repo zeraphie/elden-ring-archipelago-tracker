@@ -7,12 +7,12 @@
  */
 
 import { LitElement, css, html } from "lit";
-import type { PinState } from "../../../data/checks/map-pins.js";
-import type { AreaState } from "../../../data/rules/area-status.js";
-import { sackStyles } from "../../atoms/sack.js";
-import { swatchStyles } from "../../atoms/swatch.js";
-import { AREA_STATE_WORDS, PIN_STATE_WORDS } from "../../utils/area-words.js";
-import { iconUrl } from "../../utils/icons.js";
+import type { PinState } from "../../../../data/checks/map-pins.js";
+import type { AreaState } from "../../../../data/rules/area-status.js";
+import { sackStyles } from "../../../atoms/sack.js";
+import { swatchStyles } from "../../../atoms/swatch.js";
+import { AREA_STATE_WORDS, PIN_STATE_WORDS } from "../../../utils/area-words.js";
+import { iconUrl } from "../../../utils/icons.js";
 
 const SACK = iconUrl("sack");
 const AREAS: readonly AreaState[] = ["locked", "open", "done"];

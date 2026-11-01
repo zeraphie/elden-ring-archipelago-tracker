@@ -391,12 +391,6 @@ here first, then search the source, then write.
 - `ZOOM_STEP`: A quarter per press of a zoom button, the step Figma's zoom buttons take.
 - `moveTo()`: Take the camera to `to`, gliding, or at once under reduced motion; returns a function that stops the move.
 
-**src/components/organisms/map/er-map-legend.ts**
-- `ErMapLegend`: The map's legend, and the line under it.
-
-**src/components/organisms/map/er-map.ts**
-- `ErMap`: The map of the room's open-world regions, how each stands, and the one selected.
-
 **src/components/organisms/map/er-pin-tip.ts**
 - `ErPinTip`: The tooltip of the pin pointed at.
 
@@ -422,6 +416,12 @@ here first, then search the source, then write.
 **src/components/organisms/map/map-words.ts**
 - `pinCount()`: How many of a pin's checks are checked, as its tooltip's foot says it.
 - `DRAWING_LINE`: What the line under the legend says while the pen is on.
+
+**src/components/organisms/map/map/er-map-legend.ts**
+- `ErMapLegend`: The map's legend, and the line under it.
+
+**src/components/organisms/map/map/er-map.ts**
+- `ErMap`: The map of the room's open-world regions, how each stands, and the one selected.
 
 **src/components/organisms/map/pin-layer.ts**
 - `PinHandlers`: What the map is told of its pins: the pointer coming onto one, given its element, or leaving it, and a click on one.
