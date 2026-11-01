@@ -138,7 +138,8 @@ here first, then search the source, then write.
 - `linkPage()`: A link's own page on archipelago.gg: the room's, or the tracker's.
 - `linkProblemMessage()`: What to tell the person who pasted a link the tracker can't follow.
 
-**src/archipelago/room-socket.ts** (src/state, tools)
+**src/archipelago/room-socket.ts** (src/demo, src/state, tools)
+- `SocketLike`: What the socket needs of a WebSocket: the browser's own, or one a test hands in.
 - `SocketOpener`: How a socket is opened to a room's address, such as "wss://archipelago.gg:61475".
 - `LoginProblem`: Why a login failed: a wrong password or slot, another refusal, or a socket that closed first.
 - `clientVersion()`: The client version a login says, from this tracker's own: its first three numbers, the Archipelago release it's tested against, so "0.6.8+2" says 0.6.8.

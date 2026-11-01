@@ -1,37 +1,22 @@
 // Shared by the websocket tests: a socket a test drives in the server's place,
 // and a room whose sockets answer for themselves.
-import type { SocketLike, SocketOpener } from "../../src/archipelago/room-socket.js";
+import type { SocketOpener } from "../../src/archipelago/room-socket.js";
+import { LocalSocket } from "../../src/demo/socket.js";
 import webApi from "./web-api.json";
 
 /** A socket that keeps what's sent to the server, and lets a test speak for it. */
-export class TestSocket implements SocketLike {
+export class TestSocket extends LocalSocket {
   readonly sent: unknown[] = [];
   /** Whether the tracker has closed it. */
   isClosed = false;
-  private readonly listeners = new Map<string, ((event: { data: unknown }) => void)[]>();
 
-  send(data: string): void {
+  override send(data: string): void {
     this.sent.push(...(JSON.parse(data) as unknown[]));
   }
 
-  close(): void {
+  override close(): void {
     this.isClosed = true;
-    this.emit("close");
-  }
-
-  addEventListener(type: string, listener: (event: { data: unknown }) => void): void {
-    this.listeners.set(type, [...(this.listeners.get(type) ?? []), listener]);
-  }
-
-  /** The server sending these packets in one message. */
-  serve(...packets: unknown[]): void {
-    this.emit("message", JSON.stringify(packets));
-  }
-
-  emit(type: string, data?: unknown): void {
-    for (const listener of this.listeners.get(type) ?? []) {
-      listener({ data });
-    }
+    super.close();
   }
 }
 

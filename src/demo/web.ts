@@ -11,7 +11,7 @@ import { ELDEN_RING } from "../archipelago/look-up.js";
 import type { Fetcher } from "../archipelago/web-api.js";
 import { RULES_APWORLD } from "../data/rules/apworld.js";
 import { SIMULATED_ITEMS } from "../state/utils/simulate.js";
-import { demoLocationNames, demoSlotData, DEMO_SLOT } from "./room.js";
+import { demoLocationNames, demoSlotData, DEMO_PLAYER, DEMO_SLOT } from "./room.js";
 
 /** The web API's routes, by the part of the path that names each. */
 export type Route =
@@ -30,7 +30,6 @@ const ROUTES: readonly Route[] = [
   "tracker",
 ];
 
-const SLOT = { team: 0, player: 1 };
 // The room's tracker and port. Nothing is listening on either: they only have to read as real.
 const TRACKER = "demo";
 const PORT = 38281;
@@ -71,23 +70,23 @@ function answer(route: Route, url: string, now: number): unknown {
       return {
         datapackage: { [ELDEN_RING]: { checksum: RULES_APWORLD.checksum } },
         groups: [],
-        player_game: [{ ...SLOT, game: ELDEN_RING }],
-        player_locations_total: [{ ...SLOT, total_locations: demoLocationNames().size }],
+        player_game: [{ ...DEMO_PLAYER, game: ELDEN_RING }],
+        player_locations_total: [{ ...DEMO_PLAYER, total_locations: demoLocationNames().size }],
       };
     case "datapackage":
       return url.endsWith(`/${RULES_APWORLD.checksum}`) ? dataPackage() : undefined;
     case "slot_data_tracker":
-      return [{ player: SLOT.player, slot_data: demoSlotData() }];
+      return [{ player: DEMO_PLAYER.player, slot_data: demoSlotData() }];
     case "tracker":
       return {
         aliases: [],
         player_items_received: [],
         player_checks_done: [],
-        total_checks_done: [{ team: SLOT.team, checks_done: 0 }],
+        total_checks_done: [{ team: DEMO_PLAYER.team, checks_done: 0 }],
         hints: [],
         activity_timers: [],
         connection_timers: [],
-        player_status: [{ ...SLOT, status: PLAYING }],
+        player_status: [{ ...DEMO_PLAYER, status: PLAYING }],
       };
   }
 }

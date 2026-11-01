@@ -10,8 +10,11 @@
 import { LOCATION_GROUPS } from "../data/checks/location-groups.js";
 import { ROOM_CHECKS, ROOM_GOAL, ROOM_LOCATIONS, ROOM_OPTIONS } from "./room-data.js";
 
-/** The demo's own slot, which the tracker opens on. */
+/** The name of the demo's own slot, which the tracker opens on. */
 export const DEMO_SLOT = "Tarnished";
+
+/** Where the demo's own slot sits in the room. */
+export const DEMO_PLAYER = { team: 0, player: 1 };
 
 // The apworld numbers its locations from here, in the table's order.
 const FIRST_LOCATION = 7_000_000;
