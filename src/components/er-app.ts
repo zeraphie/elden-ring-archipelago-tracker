@@ -60,6 +60,8 @@ export class ErApp extends LitElement {
     version: import.meta.env.TRACKER_VERSION,
     pace: paceWithin(PART_DELAY_MS),
     linked: roomInQuery(location.search),
+    // A file of its own, so a real room's visit loads none of it.
+    demo: () => import("../demo/ways.js").then(({ demoWays }) => demoWays()),
   });
   // The room's store and the Elden Ring data, once the way in is ready.
   private readonly ready = new StoreController(this, this.entry, readyPhase);

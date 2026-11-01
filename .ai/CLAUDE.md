@@ -55,11 +55,11 @@ unprompted.**
   atoms from atoms alone; its utils from utils and those three; an
   organism from its own folder, the shared layers and those three,
   never another organism's parts; the page from every layer, the
-  intro's curtain included;
+  intro's curtain and `src/demo` included;
   `src/state` from `src/archipelago`, `src/data` and `src/storage`;
   `src/archipelago` from `src/data`; `src/demo` from `src/state`,
-  `src/archipelago` and `src/data`; `src/data` and `src/storage` take
-  from nothing else in the app.
+  `src/archipelago`, `src/data` and `src/storage`; `src/data` and
+  `src/storage` take from nothing else in the app.
 
 ## What exists
 

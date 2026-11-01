@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
+  DEMO_LINK,
+  isDemo,
   linkProblemMessage,
   readRoomLink,
   roomInQuery,
@@ -22,6 +24,28 @@ const TURNED_AWAY: [string, LinkProblem][] = [
   [`https://archipelago.gg/room/${ID.slice(0, 21)}`, "not an id"],
   ["https://archipelago.gg/room/q3Xh8sJm2PzK0tLw9RbVc!", "not an id"],
 ];
+
+describe("the demo's link", () => {
+  test("is where the word leads, in any case, with spaces round it", () => {
+    for (const typed of ["demo", "DEMO", "  Demo  "]) {
+      expect(readRoomLink(typed)).toEqual({ link: DEMO_LINK });
+    }
+  });
+
+  test("is told from a real room or tracker", () => {
+    expect(isDemo(DEMO_LINK)).toBe(true);
+    expect(isDemo({ kind: "room", room: ID })).toBe(false);
+    expect(isDemo({ kind: "tracker", tracker: "demo" })).toBe(false);
+  });
+
+  test("isn't reached by a page of that name on archipelago.gg", () => {
+    expect(readRoomLink("https://archipelago.gg/room/demo")).toEqual({ problem: "not an id" });
+  });
+
+  test("comes through the page's address for the form to show", () => {
+    expect(roomInQuery("?room=demo")).toBe("demo");
+  });
+});
 
 describe("roomInQuery", () => {
   test("gives a whole link as it is, its escaping undone", () => {

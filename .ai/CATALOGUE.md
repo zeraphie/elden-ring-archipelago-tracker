@@ -134,6 +134,7 @@ here first, then search the source, then write.
 **src/archipelago/room-link.ts** (src/components, src/components/organisms, src/components/utils, src/state)
 - `RoomLink`: A link the tracker can follow: a room by its id, or a tracker page by its id, with the slot a player's page shows.
 - `LinkProblem`: Why a link can't be followed.
+- `isDemo()`: Whether a link leads to the demo room, rather than to archipelago.gg.
 - `readRoomLink()`: Where a link pasted in leads, taken without its scheme too, or why it can't be followed.
 - `linkPage()`: A link's own page on archipelago.gg: the room's, or the tracker's.
 - `linkProblemMessage()`: What to tell the person who pasted a link the tracker can't follow.
@@ -694,12 +695,13 @@ here first, then search the source, then write.
 
 ## src/state
 
-**src/state/entry.ts** (src/components, src/components/organisms, src/components/utils)
+**src/state/entry.ts** (src/components, src/components/organisms, src/components/utils, src/demo)
 - `EntryProblem`: Why the way in went back to the link: the link itself, or what archipelago.gg said of it.
 - `EntryPhase`: Where the way in stands, as the card shows it.
 - `PartStanding`: One part of setting up, and where it stands.
 - `EntryState`: The way in, and what can be done there.
 - `EntryStore`: The way in's store, subscribed to by selector.
+- `DemoWays`: What the demo goes by: how it asks, connects and keeps, with no room behind them.
 - `createEntryStore()`: A way in, starting from nothing until `start` reads the last visit.
 
 **src/state/setup.ts** (src/components/organisms, src/components/utils)
@@ -778,3 +780,6 @@ here first, then search the source, then write.
 
 **src/storage/db.ts** (src/state)
 - `stateStorage`: What the zustand store persists through: JSON strings by name, in the database's state store.
+
+**src/storage/memory.ts** (src/demo)
+- `memoryStorage()`: Storage in memory, in the database's place, so nothing outlasts the page; what it holds is open to look at.

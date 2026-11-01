@@ -17,7 +17,7 @@ export default {
   sources: ["src", "tools"],
   imports: [
     // The page puts the organisms together, over the layers under them, the protocol, the state and
-    // the domain; it holds the intro's curtain until the way in is ready.
+    // the domain; it holds the intro's curtain until the way in is ready, and loads the demo.
     {
       from: "src/components",
       mayTake: [
@@ -29,6 +29,7 @@ export default {
         "src/archipelago",
         "src/state",
         "src/data",
+        "src/demo",
       ],
     },
     // An organism is a piece of the screen that owns a flow, in a folder with all its own parts. It
@@ -66,8 +67,11 @@ export default {
     // The state takes the protocol's events, the domain and the database; never the UI.
     { from: "src/state", mayTake: ["src/state", "src/archipelago", "src/data", "src/storage"] },
     // The demo is mock data for the page and the tests to take: it speaks the protocol from the
-    // static domain, and takes the state's way of making events.
-    { from: "src/demo", mayTake: ["src/demo", "src/state", "src/archipelago", "src/data"] },
+    // static domain, takes the state's way of making events, and keeps nothing in the database.
+    {
+      from: "src/demo",
+      mayTake: ["src/demo", "src/state", "src/archipelago", "src/data", "src/storage"],
+    },
     // The database stands alone.
     { from: "src/storage", mayTake: ["src/storage"] },
     // The protocol takes from the static domain and from itself; it never reaches back into the UI or the state.

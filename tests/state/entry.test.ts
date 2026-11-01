@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { Fetcher } from "../../src/archipelago/web-api.js";
-import { createEntryStore } from "../../src/state/entry.js";
+import { demoWays } from "../../src/demo/ways.js";
+import { createEntryStore, type EntryOptions } from "../../src/state/entry.js";
 import { lastVisit, rememberVisit, type Visit } from "../../src/state/last-visit.js";
 import { testRoom, TRACKER_VERSION } from "../fixtures/sockets.js";
 import { memory } from "../fixtures/stores.js";
@@ -43,6 +44,88 @@ function entering(
 }
 
 const OLD_RELEASE = "c3ab8b33b4e26448022dd43b79b231082699e63b";
+
+describe("the demo", () => {
+  // A way in that tells of anything asked of archipelago.gg, with this way of loading the demo.
+  const demoEntering = (demo: EntryOptions["demo"] = () => Promise.resolve(demoWays())) => {
+    const web = recordedWeb();
+    const room = testRoom();
+    const storage = memory();
+    const store = createEntryStore({
+      version: TRACKER_VERSION,
+      fetcher: web.fetcher,
+      opener: room.opener,
+      timer: () => undefined,
+      now: () => AWAKE,
+      storage,
+      demo,
+    });
+    const phase = () => store.getState().phase;
+    const inDemo = async () => {
+      store.getState().lookUp("demo");
+      await until(() => phase().phase === "slots");
+      store.getState().connect();
+      await until(() => phase().phase === "ready");
+    };
+    return { store, web, room, storage, phase, inDemo };
+  };
+
+  test("takes the real way in on the word, its slot picked", async () => {
+    const run = demoEntering();
+    run.store.getState().lookUp("demo");
+    await until(() => run.phase().phase === "slots");
+    expect(run.phase()).toMatchObject({ phase: "slots", chosen: { team: 0, player: 1 } });
+  });
+
+  test("opens with nothing asked of archipelago.gg", async () => {
+    const run = demoEntering();
+    await run.inDemo();
+    expect(run.web.asked).toEqual([]);
+    expect(run.room.sockets).toEqual([]);
+  });
+
+  test("keeps nothing on the device", async () => {
+    const run = demoEntering();
+    await run.inDemo();
+    await until(() => run.phase().phase === "ready");
+    expect(run.storage.items.size).toBe(0);
+  });
+
+  test("leaves the real last visit where it was", async () => {
+    const run = demoEntering();
+    await rememberVisit(VISIT, run.storage);
+    await run.store.getState().start();
+    await run.inDemo();
+    expect(await lastVisit(run.storage)).toEqual(VISIT);
+  });
+
+  test("isn't loaded for a real room", async () => {
+    let loads = 0;
+    const run = demoEntering(() => {
+      loads += 1;
+      return Promise.resolve(demoWays());
+    });
+    run.store.getState().lookUp(ROOM_URL);
+    await until(() => run.phase().phase === "slots");
+    expect(loads).toBe(0);
+  });
+
+  test("goes back to archipelago.gg for a real room after it", async () => {
+    const run = demoEntering();
+    await run.inDemo();
+    run.store.getState().anotherRoom();
+    run.store.getState().lookUp(ROOM_URL);
+    await until(() => run.phase().phase === "slots");
+    expect(run.web.asked.length).toBeGreaterThan(0);
+  });
+
+  test("goes back to the link, unreachable, when its file won't load", async () => {
+    const run = demoEntering(() => Promise.reject(new Error("no file")));
+    run.store.getState().lookUp("demo");
+    await until(() => run.phase().phase === "entry");
+    expect(run.phase()).toEqual({ phase: "entry", problem: { kind: "unreachable" } });
+  });
+});
 
 describe("an unsupported room", () => {
   const oldRoom = () => {

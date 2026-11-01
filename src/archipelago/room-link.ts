@@ -4,7 +4,8 @@
  * What a pasted archipelago.gg link leads to: a room, which the live tracker
  * connects to, or a tracker page, which leads only to the web API and so to
  * the reduced tracker. A player's tracker page also names the slot it shows.
- * Anything else is turned away with the reason why.
+ * The word `demo` leads to the demo room, which lives in the page. Anything
+ * else is turned away with the reason why.
  */
 
 /** A link the tracker can follow: a room by its id, or a tracker page by its id, with the slot a player's page shows. */
@@ -31,9 +32,20 @@ const ID = /^[A-Za-z0-9_-]{22}$/;
 const NUMBER = /^\d+$/;
 const SCHEME = /^[a-z][a-z\d+.-]*:\/\//i;
 
+/** The link the word `demo` leads to: a room in the page, its id too short to be archipelago.gg's. */
+export const DEMO_LINK = { kind: "room", room: "demo" } as const satisfies RoomLink;
+
+/** Whether a link leads to the demo room, rather than to archipelago.gg. */
+export function isDemo(link: RoomLink): boolean {
+  return link.kind === "room" && link.room === DEMO_LINK.room;
+}
+
 /** Where a link pasted in leads, taken without its scheme too, or why it can't be followed. */
 export function readRoomLink(text: string): LinkReading {
   const pasted = text.trim();
+  if (pasted.toLowerCase() === "demo") {
+    return { link: DEMO_LINK };
+  }
   const url = urlOf(SCHEME.test(pasted) ? pasted : `https://${pasted}`);
   if (url === undefined || !/^https?:$/.test(url.protocol) || !url.hostname.includes(".")) {
     return { problem: "not a link" };

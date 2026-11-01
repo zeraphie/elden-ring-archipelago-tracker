@@ -8,7 +8,8 @@
  * part, and a returning visit offers the last room and slot again. A link
  * handed in by the page's address fills the form, unless it's the room of the
  * last visit, which is offered as before. The password is held here in memory
- * only, for trying again.
+ * only, for trying again. The demo takes the same way in, on stand-ins for
+ * archipelago.gg loaded only when it's asked for, and keeps nothing.
  */
 
 import type { StateStorage } from "zustand/middleware";
@@ -16,6 +17,7 @@ import { subscribeWithSelector } from "zustand/middleware";
 import { createStore, type Mutate, type StoreApi } from "zustand/vanilla";
 import { lookUp, type Found, type LookUpOptions, type RoomSlot } from "../archipelago/look-up.js";
 import {
+  isDemo,
   linkPage,
   readRoomLink,
   type LinkProblem,
@@ -125,16 +127,23 @@ export interface EntryOptions extends LookUpOptions {
   readonly pace?: () => number;
   /** A link the page's address hands in, such as `?room=` holds. */
   readonly linked?: string;
+  /** Loads what the demo goes by in place of these, once it's asked for. */
+  readonly demo?: () => Promise<DemoWays>;
 }
+
+/** What the demo goes by: how it asks, connects and keeps, with no room behind them. */
+export type DemoWays = Required<Pick<EntryOptions, "fetcher" | "opener" | "storage">>;
 
 // How often a sleeping room's status is asked again.
 const ASLEEP_MS = 60_000;
 
 /** A way in, starting from nothing until `start` reads the last visit. */
 export function createEntryStore(options: EntryOptions): EntryStore {
-  const { timer = setTimeout, storage, linked } = options;
+  const { timer = setTimeout, storage, linked, demo } = options;
   // What's under way, held here rather than in the state: a socket and a password aren't for showing.
   let link: RoomLink | undefined;
+  // The ways the link being followed goes by: these, or the demo's.
+  let ways: EntryOptions = options;
   let visit: Visit | undefined;
   let found: Found | undefined;
   let choice: Choice | undefined;
@@ -183,8 +192,9 @@ export function createEntryStore(options: EntryOptions): EntryStore {
         const states = new Map<Part, PartState>();
         const needsPassword = looked.kind === "room" && looked.needsPassword;
         set({ phase: { phase: "loading" }, parts: [] });
+        const { storage: keeping } = ways;
         setup = new Setup(looked, chosen, {
-          ...options,
+          ...ways,
           onPart: (part, state) => {
             if (token !== attempt) {
               return;
@@ -202,7 +212,7 @@ export function createEntryStore(options: EntryOptions): EntryStore {
               phase: { phase: "ready", store: ready.store, data, say: (text) => ready.say(text) },
             });
             const { team, player, name } = chosen;
-            void rememberVisit({ link: looked.link, team, player, name, needsPassword }, storage);
+            void rememberVisit({ link: looked.link, team, player, name, needsPassword }, keeping);
           },
           onStopped: (failure) => {
             if (token !== attempt) {
@@ -243,6 +253,18 @@ export function createEntryStore(options: EntryOptions): EntryStore {
         setUp(looked, choice);
       };
 
+      // The ways a link goes by; undefined when the demo's wouldn't load.
+      const waysFor = async (following: RoomLink): Promise<EntryOptions | undefined> => {
+        if (!isDemo(following) || demo === undefined) {
+          return options;
+        }
+        try {
+          return { ...options, ...(await demo()) };
+        } catch {
+          return undefined;
+        }
+      };
+
       // Looks the link up, then offers its slots or connects on the slot already chosen.
       const look = async (then: "slots" | "connect"): Promise<void> => {
         if (link === undefined) {
@@ -258,7 +280,16 @@ export function createEntryStore(options: EntryOptions): EntryStore {
                 parts: partsFor(following).map((part) => ({ part, state: "loading" })),
               }
         );
-        const result = await lookUp(following, options);
+        const opened = await waysFor(following);
+        if (token !== attempt) {
+          return;
+        }
+        if (opened === undefined) {
+          back({ kind: "unreachable" }, then);
+          return;
+        }
+        ways = opened;
+        const result = await lookUp(following, ways);
         if (token !== attempt) {
           if (result.kind === "found" && result.found.kind === "room") {
             result.found.socket.close();
