@@ -4,8 +4,6 @@ import { css } from "lit";
  * A native popover floating over the page, under what opens it: `.popover` on
  * an element with `popover`. It's placed by `--top`, and by `--left` or
  * `--right` or both, as `placeUnder` sets them; its size is set where it's used.
- * `data-over` puts it above what opens it instead, by `--bottom`, as `placeOver`
- * sets it.
  */
 export const popoverStyles = css`
   .popover {
@@ -19,9 +17,5 @@ export const popoverStyles = css`
     box-shadow: var(--er-overlay-shadow);
     color: var(--er-ink);
     font: inherit;
-  }
-  .popover[data-over] {
-    top: auto;
-    bottom: var(--bottom, 64px);
   }
 `;

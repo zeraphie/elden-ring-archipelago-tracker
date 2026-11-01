@@ -3,12 +3,12 @@
  *
  * The large timer, with its buttons stacked on its right. It never starts by
  * itself: before the run a long run's time can be typed into it, and timer play
- * starts it. Reset asks first, in a popover, as it ends a run of hours. It
- * follows the look set: Compact on a solid ground, right-aligned, and Comfort
- * on the menu's shade, centred between gold rules.
+ * starts it. Reset takes holding replay for a second, with a ring filling, as
+ * it ends a run of hours. It follows the look set: Compact on a solid ground,
+ * right-aligned, and Comfort on the menu's shade, centred between gold rules.
  */
 
-import { LitElement, css, html, nothing } from "lit";
+import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import { SETTINGS, type SettingsState } from "../../../state/settings.js";
 import { runTimeOf, type Run } from "../../../state/slices/run.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
@@ -16,11 +16,12 @@ import { buttonStyles } from "../../atoms/button.js";
 import { figures } from "../../atoms/figures.js";
 import { focusRing } from "../../atoms/focus.js";
 import { panelTitleStyles } from "../../atoms/heading.js";
-import { popoverStyles } from "../../atoms/popover.js";
 import { replayIcon, timerPauseIcon, timerPlayIcon } from "../../utils/material-icons.js";
-import { placeOver } from "../../utils/popover.js";
 import { StoreController } from "../../utils/store-controller.js";
 import { clockFace, typedTime } from "./run-words.js";
+
+// How long replay is held to end a run: long enough that it can't happen by accident.
+const HOLD_MS = 1000;
 
 /**
  * The run's large timer and its buttons.
@@ -30,6 +31,7 @@ export class ErRunTimer extends LitElement {
     store: { attribute: false },
     draft: { state: true },
     isDraftBad: { state: true },
+    isHolding: { state: true },
   };
 
   static override styles = [
@@ -37,7 +39,6 @@ export class ErRunTimer extends LitElement {
     figures,
     focusRing,
     panelTitleStyles,
-    popoverStyles,
     css`
       :host {
         display: flex;
@@ -120,21 +121,38 @@ export class ErRunTimer extends LitElement {
         border-bottom: none;
         text-align: center;
       }
-      .popover {
-        right: var(--right, 12px);
-        width: 180px;
-        box-sizing: border-box;
-        padding: 10px 12px 12px;
+      /* A press held rather than a click, by mouse, finger or key. */
+      .hold {
+        position: relative;
+        touch-action: none;
+        user-select: none;
+        -webkit-touch-callout: none;
       }
-      p {
-        margin: 0 0 10px;
+      .hold .ring {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: var(--er-gold);
+        stroke-width: 2;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        rotate: -90deg;
       }
-      .answers {
-        display: flex;
-        gap: 6px;
+      .hold[data-holding] .ring {
+        animation: hold-fill ${unsafeCSS(HOLD_MS)}ms linear forwards;
       }
-      .answers .button {
-        flex: 1 1 0;
+      @keyframes hold-fill {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .hold[data-holding] .ring {
+          stroke-dashoffset: 0;
+          animation: none;
+        }
       }
     `,
   ];
@@ -143,6 +161,9 @@ export class ErRunTimer extends LitElement {
   store: TrackerStore | undefined;
   private draft = "";
   private isDraftBad = false;
+  private isHolding = false;
+  // What ends the run once replay has been held long enough.
+  private hold: ReturnType<typeof setTimeout> | undefined;
   private run: StoreController<TrackerState, Run> | undefined;
   private readonly look = new StoreController(
     this,
@@ -154,6 +175,7 @@ export class ErRunTimer extends LitElement {
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
+    clearTimeout(this.hold);
     if (this.frame !== undefined) {
       cancelAnimationFrame(this.frame);
       this.frame = undefined;
@@ -234,32 +256,27 @@ export class ErRunTimer extends LitElement {
 
   private reset() {
     return html`<button
-        id="ask"
-        class="button"
-        data-tone="quiet"
-        data-size="small"
-        data-shape="icon"
-        aria-label="Reset"
-        popovertarget="reset"
-      >
-        ${replayIcon}
-      </button>
-      <div id="reset" class="popover" popover data-over @beforetoggle=${this.placeAsking}>
-        <p>Reset the run?</p>
-        <div class="answers">
-          <button
-            class="button"
-            data-tone="quiet"
-            data-size="small"
-            popovertarget="reset"
-            popovertargetaction="hide"
-            autofocus
-          >
-            Keep
-          </button>
-          <button class="button" data-size="small" @click=${this.resetRun}>Reset</button>
-        </div>
-      </div>`;
+      class="button hold"
+      data-tone="quiet"
+      data-size="small"
+      data-shape="icon"
+      aria-label="Hold to reset"
+      title="Hold to reset"
+      ?data-holding=${this.isHolding}
+      @pointerdown=${this.startHolding}
+      @pointerup=${this.stopHolding}
+      @pointerleave=${this.stopHolding}
+      @pointercancel=${this.stopHolding}
+      @keydown=${this.holdKey}
+      @keyup=${this.stopHolding}
+      @blur=${this.stopHolding}
+      @contextmenu=${(event: Event) => event.preventDefault()}
+    >
+      ${replayIcon}
+      <svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="18" cy="18" r="16" pathLength="1"></circle>
+      </svg>
+    </button>`;
   }
 
   private readonly type = ({ target }: Event): void => {
@@ -291,16 +308,33 @@ export class ErRunTimer extends LitElement {
     this.store?.getState().resumeRun();
   };
 
-  private readonly placeAsking = (event: ToggleEvent): void => {
-    const ask = this.renderRoot.querySelector("#ask");
-    if (event.newState === "open" && ask !== null) {
-      placeOver(event.target as HTMLElement, ask);
+  private readonly startHolding = ({ button }: PointerEvent): void => {
+    if (button === 0) {
+      this.beginHold();
     }
   };
 
-  private readonly resetRun = (): void => {
-    this.renderRoot.querySelector<HTMLElement>("#reset")?.hidePopover();
-    this.store?.getState().resetRun();
+  // Space or Enter held stands in for a pointer, and its repeats change nothing.
+  private readonly holdKey = (event: KeyboardEvent): void => {
+    if (event.key === " " || event.key === "Enter") {
+      event.preventDefault();
+      if (!event.repeat) {
+        this.beginHold();
+      }
+    }
+  };
+
+  private beginHold(): void {
+    this.isHolding = true;
+    this.hold = setTimeout(() => {
+      this.isHolding = false;
+      this.store?.getState().resetRun();
+    }, HOLD_MS);
+  }
+
+  private readonly stopHolding = (): void => {
+    clearTimeout(this.hold);
+    this.isHolding = false;
   };
 }
 

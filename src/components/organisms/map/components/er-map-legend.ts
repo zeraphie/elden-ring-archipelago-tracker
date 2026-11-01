@@ -45,7 +45,9 @@ export class ErMapLegend extends LitElement {
       }
       .popover {
         --width: min(280px, calc(100vw - 32px));
+        top: auto;
         right: min(var(--right, 16px), calc(100vw - 16px - var(--width)));
+        bottom: var(--bottom, 72px);
         width: var(--width);
         box-sizing: border-box;
         padding: 12px 14px;
@@ -99,7 +101,7 @@ export class ErMapLegend extends LitElement {
       >
         ${infoIcon}
       </button>
-      <div id="legend" class="popover" popover data-over @beforetoggle=${this.toggling}>
+      <div id="legend" class="popover" popover @beforetoggle=${this.toggling}>
         <ul aria-label="Regions">
           ${AREAS.map(
             (state) =>
