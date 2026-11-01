@@ -23,6 +23,8 @@ import type { Need } from "./rules.js";
 export interface RegionSummary {
   /** Its checks, by id, in id order. */
   readonly ids: readonly number[];
+  /** Its checks that can't be got yet, by id: an open region can still have parts behind a rule of their own. */
+  readonly outOfReach: ReadonlySet<number>;
   readonly state: AreaState;
   /** What stands between the player and the region; undefined unless it's locked. */
   readonly needs: Need | undefined;
@@ -46,6 +48,7 @@ export interface RegionGroups {
 
 interface Tally {
   readonly ids: number[];
+  readonly outOfReach: Set<number>;
   keyChecks: number;
   keyDone: number;
   checks: number;
@@ -81,6 +84,7 @@ export function regionSummaries(
     const id = Number(key);
     const tally = tallies.get(code) ?? {
       ids: [],
+      outOfReach: new Set<number>(),
       keyChecks: 0,
       keyDone: 0,
       checks: 0,
@@ -103,6 +107,9 @@ export function regionSummaries(
     if (inRules !== undefined) {
       tally.inRules.set(inRules, (tally.inRules.get(inRules) ?? 0) + 1);
       tally.isOpen ||= reach.reached.regions.has(inRules);
+      if (!reach.reached.canGet(base)) {
+        tally.outOfReach.add(id);
+      }
     }
     tallies.set(code, tally);
   }
@@ -111,12 +118,23 @@ export function regionSummaries(
   );
   const summaries = new Map<string, RegionSummary>();
   for (const [code, tally] of ordered) {
-    const { ids, keyChecks: keys, keyDone, checks, done, dlcChecks, isOpen, inRules } = tally;
+    const { ids, outOfReach, keyChecks: keys, keyDone, checks, done } = tally;
+    const { dlcChecks, isOpen, inRules } = tally;
     const state: AreaState = keys > 0 && keyDone === keys ? "done" : isOpen ? "open" : "locked";
     const main = mainOf(inRules);
     const needs = state === "locked" && main !== undefined ? regionNeeds(main, reach) : undefined;
     const isDlc = dlcChecks * 2 > checks;
-    summaries.set(code, { ids, state, needs, keyChecks: keys, keyDone, checks, done, isDlc });
+    summaries.set(code, {
+      ids,
+      outOfReach,
+      state,
+      needs,
+      keyChecks: keys,
+      keyDone,
+      checks,
+      done,
+      isDlc,
+    });
   }
   return summaries;
 }

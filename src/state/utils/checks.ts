@@ -91,7 +91,11 @@ export function roomChecksOf(
           name: names(id).name,
           vanilla: names(id).vanilla,
           isKey,
-          state: isDone ? "collected" : summary.state === "locked" ? "locked" : "todo",
+          state: isDone
+            ? "collected"
+            : summary.state === "locked" || summary.outOfReach.has(id)
+              ? "locked"
+              : "todo",
           finding: isDone ? findings.get(id) : undefined,
         };
         (isKey ? key : other).push(row);

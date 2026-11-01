@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import * as data from "../../../src/data/elden-ring.js";
 import { regionChecksOf, searchChecks } from "../../../src/state/utils/checks.js";
-import { firstCoded, inputs } from "../../fixtures/slots.js";
+import { firstCoded, inputs, received } from "../../fixtures/slots.js";
 
 // The first Limgrave and Liurnia checks the slot_data lists.
 const LIMGRAVE = firstCoded("LG");
@@ -22,6 +22,15 @@ describe("regionChecksOf", () => {
     expect(regionChecksOf(data, before, "LL").key[0]?.state).toBe("locked");
     const after = inputs({ keyChecks, checked: [LIURNIA] });
     expect(regionChecksOf(data, after, "LL").key[0]?.state).toBe("collected");
+  });
+
+  test("a part of an open region behind a rule of its own stays locked until that's met", () => {
+    const states = (held: ReturnType<typeof received>) => {
+      const { key, other } = regionChecksOf(data, inputs({ received: held }), "SV");
+      return new Set([...key, ...other].map(({ state }) => state));
+    };
+    expect(states([])).toEqual(new Set(["todo", "locked"]));
+    expect(states(received(1))).toEqual(new Set(["todo"]));
   });
 
   test("what a check held is given only once it's checked", () => {

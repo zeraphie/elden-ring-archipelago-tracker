@@ -67,6 +67,17 @@ describe("mapPins", () => {
     expect(surfacePin(pinsOf([1, 4], [], locked), 36, 49)?.state).toBe("todo");
   });
 
+  test("a pin in an open region is locked once none of its checks left can be got", () => {
+    const pins = mapPins(
+      PLACED,
+      SHEETS,
+      new Set([1]),
+      new Set(),
+      new Map([["LG", { state: "open" as const, outOfReach: new Set([1]) }]])
+    );
+    expect(pins.get("surface")?.[0]?.state).toBe("locked");
+  });
+
   test("a pin whose checks are all collected stays collected in a locked region", () => {
     expect(surfacePin(pinsOf([1], [1], [["LG", "locked"]]), 40, 38)?.state).toBe("collected");
   });

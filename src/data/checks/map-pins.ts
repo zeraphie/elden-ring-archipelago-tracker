@@ -4,8 +4,8 @@
  * The key checks on the open-world map, one pin per tile. A pin is collected
  * once every key check on its tile is checked, to do while any is left, and
  * locked while the region its tile belongs to is locked, so it dims with the
- * fill under it. Checks that aren't key checks get no pin; they're reached
- * from the panel.
+ * fill under it, or while none of those left can be got yet. Checks that
+ * aren't key checks get no pin; they're reached from the panel.
  */
 
 import type { AreaState } from "../rules/area-status.js";
@@ -30,17 +30,22 @@ export interface MapPin {
 
 /**
  * Each sheet's pins, given where each check sits, the regions each sheet's
- * tiles belong to, the key checks and the checks done, by id, and how each
- * region stands.
+ * tiles belong to, the key checks and the checks done, by id, how each region
+ * stands, and which of its checks can't be got yet.
  */
 export function mapPins(
   placed: ReadonlyMap<number, PlacedLocation>,
   sheets: ReadonlyMap<Sheet, SheetTiles>,
   keyChecks: ReadonlySet<number>,
   checked: ReadonlySet<number>,
-  regions: ReadonlyMap<string, { readonly state: AreaState }>
+  regions: ReadonlyMap<
+    string,
+    { readonly state: AreaState; readonly outOfReach?: ReadonlySet<number> }
+  >
 ): Map<Sheet, MapPin[]> {
   const owners = ownersOf(sheets);
+  const isOutOfReach = (id: number): boolean =>
+    [...regions.values()].some(({ outOfReach }) => outOfReach?.has(id) === true);
   const tiles = new Map<Sheet, Map<string, { x: number; y: number; ids: number[] }>>();
   for (const id of keyChecks) {
     const where = placed.get(id);
@@ -62,10 +67,11 @@ export function mapPins(
       [...onSheet].map(([at, { x, y, ids }]) => {
         const region = owners.get(sheet)?.get(at) ?? "";
         const done = ids.filter((id) => checked.has(id)).length;
+        const left = ids.filter((id) => !checked.has(id));
         const state: PinState =
           done === ids.length
             ? "collected"
-            : regions.get(region)?.state === "locked"
+            : regions.get(region)?.state === "locked" || left.every(isOutOfReach)
               ? "locked"
               : "todo";
         const opens = ids.find((id) => !checked.has(id)) ?? ids[0] ?? 0;
