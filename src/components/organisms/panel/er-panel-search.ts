@@ -36,6 +36,10 @@ export class ErPanelSearch extends LitElement {
     visuallyHidden,
     css`
       :host {
+        display: block;
+      }
+      /* The picker's list opens as wide as what holds the picker, so this row. */
+      .search {
         display: flex;
         gap: 8px;
         padding: 12px 16px 0;
@@ -73,7 +77,8 @@ export class ErPanelSearch extends LitElement {
     if (data === undefined || state === undefined) {
       return nothing;
     }
-    return html`<label class="sr" for="search">Search checks</label>
+    return html`<div class="search">
+      <label class="sr" for="search">Search checks</label>
       <input
         id="search"
         class="field"
@@ -84,7 +89,8 @@ export class ErPanelSearch extends LitElement {
           emit<string>(this, "er-search", (target as HTMLInputElement).value);
         }}
       />
-      <er-region-picker .groups=${pickerGroups(data, state)}></er-region-picker>`;
+      <er-region-picker .groups=${pickerGroups(data, state)}></er-region-picker>
+    </div>`;
   }
 }
 
