@@ -15,9 +15,8 @@ import { DEMO_CHECKSUMS, OTHER_PLAYERS } from "./players.js";
 import { demoLocationNames, demoSlotData, DEMO_PLAYER, DEMO_SLOT } from "./room.js";
 import { demoSnapshot, type Snapshot } from "./snapshot.js";
 
-// The room as a server says it: on the release the tracker is tested against, so no notice shows,
-// with a hint at a tenth of the slot's checks, and a release allowed once the goal is done.
-const ROOM_INFO = {
+/** The room as a server says it: on the release the tracker is tested against, so no notice shows, with a hint at a tenth of the slot's checks, and a release allowed once the goal is done. */
+export const DEMO_ROOM_INFO = {
   cmd: "RoomInfo",
   version: { class: "Version", major: 0, minor: 6, build: 8 },
   password: false,
@@ -52,11 +51,11 @@ export class LocalSocket implements SocketLike {
   }
 }
 
-// The demo room's end of a socket. It waits a moment to speak, as whoever opened it listens next.
-class DemoSocket extends LocalSocket {
-  constructor() {
+/** The demo room's end of a socket, which says this as it opens; it waits a moment to speak, as whoever opened it listens next. */
+export class DemoSocket extends LocalSocket {
+  constructor(info: unknown = DEMO_ROOM_INFO) {
     super();
-    queueMicrotask(() => this.serve(ROOM_INFO));
+    queueMicrotask(() => this.serve(info));
   }
 
   override send(data: string): void {

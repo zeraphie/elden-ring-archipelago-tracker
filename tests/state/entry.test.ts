@@ -7,7 +7,7 @@ import { testRoom, TRACKER_VERSION } from "../fixtures/sockets.js";
 import { memory } from "../fixtures/stores.js";
 import { until } from "../fixtures/waits.js";
 import webApi from "../fixtures/web-api.json";
-import { recordedWeb } from "../fixtures/web.js";
+import { standInWeb } from "../fixtures/web.js";
 
 const ROOM = "q3Xh8sJm2PzK0tLw9RbVcA";
 const ROOM_URL = `https://archipelago.gg/room/${ROOM}`;
@@ -32,7 +32,7 @@ function entering(
   const waits: (() => void)[] = [];
   const store = createEntryStore({
     version: TRACKER_VERSION,
-    fetcher: options.fetcher ?? recordedWeb().fetcher,
+    fetcher: options.fetcher ?? standInWeb().fetcher,
     opener: room.opener,
     timer: (run) => waits.push(run),
     now: options.now ?? (() => AWAKE),
@@ -48,7 +48,7 @@ const OLD_RELEASE = "c3ab8b33b4e26448022dd43b79b231082699e63b";
 describe("the demo", () => {
   // A way in that tells of anything asked of archipelago.gg, with this way of loading the demo.
   const demoEntering = (demo: EntryOptions["demo"] = () => Promise.resolve(demoWays())) => {
-    const web = recordedWeb();
+    const web = standInWeb();
     const room = testRoom();
     const storage = memory();
     const store = createEntryStore({
@@ -133,7 +133,7 @@ describe("an unsupported room", () => {
     const storage = memory();
     const store = createEntryStore({
       version: TRACKER_VERSION,
-      fetcher: recordedWeb().fetcher,
+      fetcher: standInWeb().fetcher,
       opener: room.opener,
       timer: () => undefined,
       now: () => AWAKE,
@@ -207,7 +207,7 @@ describe("the way in", () => {
   });
 
   test("a link the tracker can't follow says why, and asks archipelago.gg nothing", () => {
-    const web = recordedWeb();
+    const web = standInWeb();
     const run = entering({ fetcher: web.fetcher });
     run.store.getState().lookUp("https://example.com/room/abc");
     expect(run.phase()).toEqual({
@@ -225,7 +225,7 @@ describe("the way in", () => {
         ["Sam", "Ocarina of Time"],
       ],
     };
-    const run = entering({ fetcher: recordedWeb({ room_status: { body: two } }).fetcher });
+    const run = entering({ fetcher: standInWeb({ room_status: { body: two } }).fetcher });
     run.store.getState().lookUp(ROOM_URL);
     expect(run.phase().phase).toBe("looking");
     await until(() => run.phase().phase === "slots");
@@ -264,7 +264,7 @@ describe("the way in", () => {
 
   test("a sleeping room waits with its page, checked again each minute and on asking", async () => {
     let now = ASLEEP;
-    const web = recordedWeb();
+    const web = standInWeb();
     const run = entering({ fetcher: web.fetcher, now: () => now });
     run.store.getState().lookUp(ROOM_URL);
     await until(() => run.phase().phase === "asleep");
@@ -280,7 +280,7 @@ describe("the way in", () => {
   });
 
   test("a room that's gone goes back to the link, and what was kept for it is cleared", async () => {
-    const run = entering({ fetcher: recordedWeb({ room_status: { status: 404 } }).fetcher });
+    const run = entering({ fetcher: standInWeb({ room_status: { status: 404 } }).fetcher });
     run.storage.items.set(`room:${ROOM}`, "{}");
     run.store.getState().lookUp(ROOM_URL);
     await until(() => run.phase().phase === "entry");
@@ -306,7 +306,7 @@ describe("the way in", () => {
 
   test("a data package that didn't arrive can be tried again", async () => {
     let isDown = true;
-    const { fetcher } = recordedWeb();
+    const { fetcher } = standInWeb();
     const failing: Fetcher = (url) =>
       isDown && url.includes("/datapackage/")
         ? Promise.resolve(new Response("", { status: 503 }))

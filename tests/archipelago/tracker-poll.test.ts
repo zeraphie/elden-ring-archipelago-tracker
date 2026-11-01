@@ -8,8 +8,10 @@ import {
 } from "../../src/archipelago/tracker-poll.js";
 import type { Fetcher } from "../../src/archipelago/web-api.js";
 import { readSlotData, readStaticTracker } from "../../src/archipelago/web-responses.js";
+import { OTHER_PLAYERS } from "../../src/demo/players.js";
+import { demoSnapshot } from "../../src/demo/snapshot.js";
 import webApi from "../fixtures/web-api.json";
-import { recordedWeb } from "../fixtures/web.js";
+import { standInWeb } from "../fixtures/web.js";
 import { settle } from "../fixtures/waits.js";
 
 const TRACKER = "q3Xh8sJm2PzK0tLw9RbVcA";
@@ -32,7 +34,7 @@ function polling(fetcher: Fetcher, names?: ReadonlyMap<number, string>) {
 
 describe("TrackerPoll", () => {
   test("asks the static tracker and slot_data once, the tracker every minute", async () => {
-    const api = recordedWeb();
+    const api = standInWeb();
     const run = polling(api.fetcher);
     run.poll.start();
     await settle();
@@ -49,7 +51,7 @@ describe("TrackerPoll", () => {
   });
 
   test("the static tracker and slot_data handed in aren't asked again", async () => {
-    const api = recordedWeb();
+    const api = standInWeb();
     const histories: History[] = [];
     const poll = new TrackerPoll({
       tracker: TRACKER,
@@ -66,23 +68,26 @@ describe("TrackerPoll", () => {
   });
 
   test("names each Elden Ring slot from its slot_data, and says what a tracker link can't give", async () => {
-    const run = polling(recordedWeb().fetcher);
+    const run = polling(standInWeb().fetcher);
     run.poll.start();
     await settle();
     expect([...(run.histories[0]?.names ?? [])]).toEqual([[1, "Tarnished"]]);
-    expect(run.histories[0]?.tracker.totalChecksDone).toEqual([{ team: 0, checksDone: 185 }]);
+    const others = OTHER_PLAYERS.reduce((all, { checksDone }) => all + checksDone, 0);
+    expect(run.histories[0]?.tracker.totalChecksDone).toEqual([
+      { team: 0, checksDone: demoSnapshot().checked.length + others },
+    ]);
     expect(run.phases).toEqual([{ phase: "web only", unavailable: WEB_ONLY_UNAVAILABLE }]);
   });
 
   test("room_status's names, when the room is known, stand over slot_data's", async () => {
-    const run = polling(recordedWeb().fetcher, new Map([[1, "Room name"]]));
+    const run = polling(standInWeb().fetcher, new Map([[1, "Room name"]]));
     run.poll.start();
     await settle();
     expect(run.histories[0]?.names.get(1)).toBe("Room name");
   });
 
   test("a tracker archipelago.gg no longer has is gone, and nothing more is asked", async () => {
-    const run = polling(recordedWeb({ static_tracker: { status: 404 } }).fetcher);
+    const run = polling(standInWeb({ static_tracker: { status: 404 } }).fetcher);
     run.poll.start();
     await settle();
     expect(run.phases).toEqual([{ phase: "gone" }]);
@@ -98,7 +103,7 @@ describe("TrackerPoll", () => {
   });
 
   test("once stopped, it hands on nothing more", async () => {
-    const run = polling(recordedWeb().fetcher);
+    const run = polling(standInWeb().fetcher);
     run.poll.start();
     run.poll.stop();
     await settle();

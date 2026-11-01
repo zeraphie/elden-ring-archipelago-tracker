@@ -3,7 +3,7 @@ import type { Fetcher } from "../../src/archipelago/web-api.js";
 import { follow, followHistory } from "../../src/state/follow.js";
 import { loaded, memory } from "../fixtures/stores.js";
 import webApi from "../fixtures/web-api.json";
-import { recordedWeb } from "../fixtures/web.js";
+import { standInWeb } from "../fixtures/web.js";
 import { settle } from "../fixtures/waits.js";
 import { TRACKER_VERSION } from "../fixtures/sockets.js";
 
@@ -55,7 +55,7 @@ describe("followHistory, as the reduced tracker", () => {
 
   // The recorded web API, its tracker answering with this slot's items received as they are now.
   const web = (received: () => unknown[]) =>
-    recordedWeb({
+    standInWeb({
       tracker: {
         fresh: () => ({
           ...webApi.tracker,

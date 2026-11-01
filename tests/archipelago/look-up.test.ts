@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { lookUp } from "../../src/archipelago/look-up.js";
+import { OTHER_PLAYERS } from "../../src/demo/players.js";
 import { TestSocket, testRoom } from "../fixtures/sockets.js";
 import webApi from "../fixtures/web-api.json";
-import { recordedWeb } from "../fixtures/web.js";
+import { standInWeb } from "../fixtures/web.js";
 
 const ROOM = { kind: "room", room: "q3Xh8sJm2PzK0tLw9RbVcA" } as const;
 const TRACKER = { kind: "tracker", tracker: "q3Xh8sJm2PzK0tLw9RbVcA" } as const;
@@ -29,7 +30,7 @@ describe("lookUp", () => {
   test("a room on a past release goes no further, its socket let go", async () => {
     const room = testRoom(undefined, OLD_RELEASE);
     const result = await lookUp(ROOM, {
-      fetcher: recordedWeb().fetcher,
+      fetcher: standInWeb().fetcher,
       opener: room.opener,
       now: NOW,
     });
@@ -42,7 +43,7 @@ describe("lookUp", () => {
 
   test("a tracker link on a release it doesn't know goes no further", async () => {
     const result = await lookUp(TRACKER, {
-      fetcher: recordedWeb({ static_tracker: { body: oldTracker("a release to come") } }).fetcher,
+      fetcher: standInWeb({ static_tracker: { body: oldTracker("a release to come") } }).fetcher,
     });
     expect(result).toEqual({
       kind: "unsupported",
@@ -53,7 +54,7 @@ describe("lookUp", () => {
   test("an awake room offers its slots in order, Elden Ring's marked, on a socket left open", async () => {
     const room = testRoom();
     const result = await lookUp(ROOM, {
-      fetcher: recordedWeb({ room_status: { body: THREE } }).fetcher,
+      fetcher: standInWeb({ room_status: { body: THREE } }).fetcher,
       opener: room.opener,
       now: NOW,
     });
@@ -73,7 +74,7 @@ describe("lookUp", () => {
 
   test("RoomInfo says whether the room needs a password", async () => {
     const result = await lookUp(ROOM, {
-      fetcher: recordedWeb().fetcher,
+      fetcher: standInWeb().fetcher,
       opener: testRoom("secret").opener,
       now: NOW,
     });
@@ -85,7 +86,7 @@ describe("lookUp", () => {
   test("a sleeping room is left asleep, with its page, and no socket is opened", async () => {
     const room = testRoom();
     const result = await lookUp(ROOM, {
-      fetcher: recordedWeb().fetcher,
+      fetcher: standInWeb().fetcher,
       opener: room.opener,
       now: () => Date.parse("Fri, 23 Oct 2026 12:00:00 GMT"),
     });
@@ -99,7 +100,7 @@ describe("lookUp", () => {
 
   test("a room archipelago.gg doesn't have is gone", async () => {
     const result = await lookUp(ROOM, {
-      fetcher: recordedWeb({ room_status: { status: 404 } }).fetcher,
+      fetcher: standInWeb({ room_status: { status: 404 } }).fetcher,
       now: NOW,
     });
     expect(result).toEqual({ kind: "gone" });
@@ -109,7 +110,7 @@ describe("lookUp", () => {
     const offline = await lookUp(ROOM, { fetcher: () => Promise.reject(new TypeError("offline")) });
     expect(offline).toEqual({ kind: "unreachable" });
     const closing = await lookUp(ROOM, {
-      fetcher: recordedWeb().fetcher,
+      fetcher: standInWeb().fetcher,
       opener: () => {
         const socket = new TestSocket();
         queueMicrotask(() => socket.close());
@@ -122,7 +123,7 @@ describe("lookUp", () => {
 
   test("an answer in a shape the tracker doesn't read names the field", async () => {
     const result = await lookUp(ROOM, {
-      fetcher: recordedWeb({ room_status: { body: { ...webApi.room_status, last_port: "x" } } })
+      fetcher: standInWeb({ room_status: { body: { ...webApi.room_status, last_port: "x" } } })
         .fetcher,
       now: NOW,
     });
@@ -130,11 +131,18 @@ describe("lookUp", () => {
   });
 
   test("a tracker link names its slots from slot_data, and opens no socket", async () => {
-    const web = recordedWeb();
+    const web = standInWeb();
     const room = testRoom();
     const result = await lookUp(TRACKER, { fetcher: web.fetcher, opener: room.opener });
     expect(result.kind === "found" && result.found.slots).toEqual([
       { team: 0, player: 1, name: "Tarnished", game: "EldenRing", isEldenRing: true },
+      ...OTHER_PLAYERS.map(({ player, game }) => ({
+        team: 0,
+        player,
+        name: undefined,
+        game,
+        isEldenRing: false,
+      })),
     ]);
     expect(web.asked.map((url) => url.split("/api/")[1]?.split("/")[0])).toEqual([
       "static_tracker",

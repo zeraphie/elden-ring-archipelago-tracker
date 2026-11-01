@@ -11,11 +11,13 @@ import {
   type SetupFailure,
 } from "../../src/state/setup.js";
 import { keyChecks } from "../../src/data/checks/key-checks.js";
+import { DEMO_CHECKSUMS } from "../../src/demo/players.js";
+import { demoSnapshot } from "../../src/demo/snapshot.js";
 import { arrivingSlot, LOCATION_NAMES, seed, slotOf } from "../fixtures/seeds.js";
 import { testRoom, TRACKER_VERSION } from "../fixtures/sockets.js";
 import { memory } from "../fixtures/stores.js";
 import { settle, until } from "../fixtures/waits.js";
-import { recordedWeb } from "../fixtures/web.js";
+import { standInWeb } from "../fixtures/web.js";
 import webApi from "../fixtures/web-api.json";
 
 const ROOM = "q3Xh8sJm2PzK0tLw9RbVcA";
@@ -27,7 +29,7 @@ async function found(kind: "room" | "tracker", password?: string) {
   const room = testRoom(password);
   const link = kind === "room" ? { kind, room: ROOM } : { kind, tracker: ROOM };
   const result = await lookUp(link, {
-    fetcher: recordedWeb().fetcher,
+    fetcher: standInWeb().fetcher,
     opener: room.opener,
     now: NOW,
   });
@@ -60,7 +62,7 @@ function settingUp(
     onStopped: (failure) => {
       ended.failure = failure;
     },
-    fetcher: options.fetcher ?? recordedWeb().fetcher,
+    fetcher: options.fetcher ?? standInWeb().fetcher,
     opener: looked.room.opener,
     timer: options.timer ?? (() => undefined),
     now: NOW,
@@ -89,7 +91,7 @@ describe("Setup", () => {
     await until(() => run.ended.isReady);
     expect(Object.values(run.latest())).toEqual(Array(7).fill("in"));
     const state = run.setup.store.getState();
-    expect([...state.packages.keys()].sort()).toEqual(["Archipelago", "EldenRing"]);
+    expect([...state.packages.keys()].sort()).toEqual(Object.keys(DEMO_CHECKSUMS).sort());
     expect(state.slotData?.slot).toBe("Tarnished");
     expect([state.team, state.slot]).toEqual([0, 1]);
     expect(state.connection.phase).toBe("connected");
@@ -114,7 +116,7 @@ describe("Setup", () => {
   test("a data package that doesn't arrive stops it, naming the part, and closes the socket", async () => {
     const looked = await found("room");
     const run = settingUp(looked, {
-      fetcher: recordedWeb({ datapackage: { status: 503 } }).fetcher,
+      fetcher: standInWeb({ datapackage: { status: 503 } }).fetcher,
     });
     await until(() => run.ended.failure !== undefined);
     expect(run.ended).toEqual({
@@ -163,7 +165,7 @@ describe("Setup", () => {
     const slot = slotOf(preset);
     const names = Object.fromEntries([...LOCATION_NAMES].map(([id, name]) => [name, id]));
     const run = settingUp(await found("room"), {
-      fetcher: recordedWeb({
+      fetcher: standInWeb({
         datapackage: { body: { ...webApi.datapackage, location_name_to_id: names } },
         slot_data_tracker: {
           body: [{ player: 1, slot_data: { ...arrivingSlot(preset), slot: "Tarnished" } }],
@@ -203,7 +205,9 @@ describe("Setup", () => {
 
   test("nothing is written over what this device kept, while it's still loading", async () => {
     const kept = memory();
-    const earlier = { value: { item: 72080, location: -1, player: 0, flags: 0 } };
+    // The first item the room's login gives, kept with the time it was seen.
+    const [first = { item: 0, location: 0, player: 0, flags: 0 }] = demoSnapshot().received;
+    const earlier = { value: first, at: 1000 };
     kept.items.set(
       `room:${ROOM}`,
       JSON.stringify({ state: { received: [earlier], sent: [], log: [] }, version: 1 })

@@ -1,9 +1,8 @@
-// Shared by the tests that ask the web API: archipelago.gg in its place,
-// answering each route with its recorded answer unless a test gives its own,
-// and keeping what it was asked.
+// Shared by the tests that ask the web API: the demo room's stand-in for
+// archipelago.gg, with what only a test wants of it: a route that answers as
+// the test says, and what was asked.
 import type { Fetcher } from "../../src/archipelago/web-api.js";
-import { routeOf, type Route } from "../../src/demo/web.js";
-import webApi from "./web-api.json";
+import { demoFetcher, routeOf, type Route } from "../../src/demo/web.js";
 
 /** What a route answers in a test: a body, a body made afresh each time it's asked, or a status with no body. */
 export type Answer =
@@ -11,19 +10,23 @@ export type Answer =
   | { readonly fresh: () => unknown }
   | { readonly status: number };
 
-/** The recorded web API, with these routes answering as the test says, and every URL asked kept in order. */
-export function recordedWeb(answers: Partial<Record<Route, Answer>> = {}): {
+/** When the room in a test was last active, as the recorded room was, so a test's clock can put it awake or asleep. */
+export const LAST_ACTIVE = Date.parse("Thu, 22 Oct 2026 20:39:03 GMT");
+
+/** The demo room's web API, with these routes answering as the test says, and every URL asked kept in order. */
+export function standInWeb(answers: Partial<Record<Route, Answer>> = {}): {
   readonly fetcher: Fetcher;
   readonly asked: string[];
 } {
   const asked: string[] = [];
+  const room = demoFetcher(() => LAST_ACTIVE);
   const fetcher: Fetcher = (url) => {
     asked.push(url);
     const route = routeOf(url);
-    if (route === undefined) {
-      return Promise.resolve(new Response("", { status: 404 }));
+    const answer = route === undefined ? undefined : answers[route];
+    if (answer === undefined) {
+      return room(url);
     }
-    const answer = answers[route] ?? { body: webApi[route] };
     if ("status" in answer) {
       return Promise.resolve(new Response("", { status: answer.status }));
     }
