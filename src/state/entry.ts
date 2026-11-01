@@ -5,15 +5,22 @@
  * up. A room asleep waits, checked again every minute, until the player wakes
  * it. The slots are offered, only Elden Ring's pickable, with a password asked
  * for only when the room wants one. Connecting sets the tracker up part by
- * part, and a returning visit offers the last room and slot again. The
- * password is held here in memory only, for trying again.
+ * part, and a returning visit offers the last room and slot again. A link
+ * handed in by the page's address fills the form, unless it's the room of the
+ * last visit, which is offered as before. The password is held here in memory
+ * only, for trying again.
  */
 
 import type { StateStorage } from "zustand/middleware";
 import { subscribeWithSelector } from "zustand/middleware";
 import { createStore, type Mutate, type StoreApi } from "zustand/vanilla";
 import { lookUp, type Found, type LookUpOptions, type RoomSlot } from "../archipelago/look-up.js";
-import { readRoomLink, type LinkProblem, type RoomLink } from "../archipelago/room-link.js";
+import {
+  linkPage,
+  readRoomLink,
+  type LinkProblem,
+  type RoomLink,
+} from "../archipelago/room-link.js";
 import { forgetVisit, lastVisit, rememberVisit, type Visit } from "./last-visit.js";
 import {
   PARTS,
@@ -83,7 +90,9 @@ export interface EntryState {
   readonly phase: EntryPhase;
   /** The parts being set up, in the loader's order; empty until connecting. */
   readonly parts: readonly PartStanding[];
-  /** Reads the last visit, and offers it when there is one. */
+  /** The link the page's address handed in, for the form to start with. */
+  readonly linked: string | undefined;
+  /** Reads the last visit, and offers it when there is one and no link leads elsewhere. */
   start(): Promise<void>;
   /** Looks up a pasted link. */
   lookUp(text: string): void;
@@ -114,6 +123,8 @@ export interface EntryOptions extends LookUpOptions {
   readonly storage?: StateStorage;
   /** How long, in ms, each part is held back once it's in, so a person can watch them arrive; none when left out. */
   readonly pace?: () => number;
+  /** A link the page's address hands in, such as `?room=` holds. */
+  readonly linked?: string;
 }
 
 // How often a sleeping room's status is asked again.
@@ -121,7 +132,7 @@ const ASLEEP_MS = 60_000;
 
 /** A way in, starting from nothing until `start` reads the last visit. */
 export function createEntryStore(options: EntryOptions): EntryStore {
-  const { timer = setTimeout, storage } = options;
+  const { timer = setTimeout, storage, linked } = options;
   // What's under way, held here rather than in the state: a socket and a password aren't for showing.
   let link: RoomLink | undefined;
   let visit: Visit | undefined;
@@ -305,6 +316,15 @@ export function createEntryStore(options: EntryOptions): EntryStore {
         set({ phase: { phase: "failed", failure }, parts: standing(part, "failed") });
       };
 
+      // Whether the page's address leads somewhere other than the last visit's room.
+      const leadsElsewhere = (kept: Visit): boolean => {
+        const reading = linked === undefined ? undefined : readRoomLink(linked);
+        return (
+          reading !== undefined &&
+          (!("link" in reading) || linkPage(reading.link) !== linkPage(kept.link))
+        );
+      };
+
       // A room archipelago.gg no longer has: what this device kept of it goes, and the visit with it.
       const forget = (gone: RoomLink): void => {
         void forgetKept(gone, storage);
@@ -317,6 +337,7 @@ export function createEntryStore(options: EntryOptions): EntryStore {
       return {
         phase: { phase: "starting" },
         parts: [],
+        linked,
         start: async () => {
           const kept = await lastVisit(storage);
           if (get().phase.phase !== "starting") {
@@ -325,7 +346,7 @@ export function createEntryStore(options: EntryOptions): EntryStore {
           visit = kept;
           set({
             phase:
-              kept === undefined
+              kept === undefined || leadsElsewhere(kept)
                 ? { phase: "entry" }
                 : { phase: "returning", visit: kept, needsPassword: kept.needsPassword },
           });

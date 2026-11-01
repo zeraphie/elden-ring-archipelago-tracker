@@ -14,6 +14,7 @@
 
 import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import { styleMap } from "lit/directives/style-map.js";
+import { roomInQuery } from "../archipelago/room-link.js";
 import { createEntryStore, type EntryPhase, type EntryState } from "../state/entry.js";
 import type { TrackerState, TrackerStore } from "../state/store.js";
 import { goalMenuOf, isGoalReached } from "../state/utils/goal.js";
@@ -172,6 +173,7 @@ export class ErApp extends LitElement {
   private readonly entry = createEntryStore({
     version: import.meta.env.TRACKER_VERSION,
     pace: paceWithin(PART_DELAY_MS),
+    linked: roomInQuery(location.search),
   });
   // The room's store and the Elden Ring data, once the way in is ready.
   private readonly ready = new StoreController(this, this.entry, readyPhase);

@@ -72,6 +72,15 @@ export function linkPage(link: RoomLink): string {
     : `https://archipelago.gg/tracker/${link.tracker}`;
 }
 
+/** The link a page's address hands in as `?room=`, a whole link or a room's bare id; undefined without one. */
+export function roomInQuery(search: string): string | undefined {
+  const room = new URLSearchParams(search).get("room")?.trim();
+  if (room === undefined || room === "") {
+    return undefined;
+  }
+  return ID.test(room) ? roomPage(room) : room;
+}
+
 /** What to tell the person who pasted a link the tracker can't follow. */
 export function linkProblemMessage(reading: {
   readonly problem: LinkProblem;

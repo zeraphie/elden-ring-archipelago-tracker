@@ -121,10 +121,11 @@ here first, then search the source, then write.
 - `ReleaseState`: What becomes of a slot's items left after its goal: sent already, the slot's to send, the admin's alone, or not known.
 - `releaseAfterGoal()`: What becomes of the slot's items left, its goal done, by the room's release permission (undefined when no login has said it) and whether the room has announced their release.
 
-**src/archipelago/room-link.ts** (src/components/organisms, src/components/utils, src/state)
+**src/archipelago/room-link.ts** (src/components, src/components/organisms, src/components/utils, src/state)
 - `RoomLink`: A link the tracker can follow: a room by its id, or a tracker page by its id, with the slot a player's page shows.
 - `LinkProblem`: Why a link can't be followed.
 - `readRoomLink()`: Where a link pasted in leads, taken without its scheme too, or why it can't be followed.
+- `linkPage()`: A link's own page on archipelago.gg: the room's, or the tracker's.
 - `linkProblemMessage()`: What to tell the person who pasted a link the tracker can't follow.
 
 **src/archipelago/room-socket.ts** (src/state, tools)
@@ -648,6 +649,7 @@ here first, then search the source, then write.
 - `PartStanding`: One part of setting up, and where it stands.
 - `EntryState`: The way in, and what can be done there.
 - `EntryStore`: The way in's store, subscribed to by selector.
+- `createEntryStore()`: A way in, starting from nothing until `start` reads the last visit.
 
 **src/state/setup.ts** (src/components/organisms, src/components/utils)
 - `Part`: A part of setting up, as the loader names it.

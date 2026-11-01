@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   linkProblemMessage,
   readRoomLink,
+  roomInQuery,
   type LinkProblem,
 } from "../../src/archipelago/room-link.js";
 
@@ -21,6 +22,28 @@ const TURNED_AWAY: [string, LinkProblem][] = [
   [`https://archipelago.gg/room/${ID.slice(0, 21)}`, "not an id"],
   ["https://archipelago.gg/room/q3Xh8sJm2PzK0tLw9RbVc!", "not an id"],
 ];
+
+describe("roomInQuery", () => {
+  test("gives a whole link as it is, its escaping undone", () => {
+    const link = `https://archipelago.gg/room/${ID}`;
+    expect(roomInQuery(`?room=${encodeURIComponent(link)}`)).toBe(link);
+    expect(roomInQuery(`?room=${link}`)).toBe(link);
+  });
+
+  test("gives a bare id as that room's page", () => {
+    expect(roomInQuery(`?room=${ID}`)).toBe(`https://archipelago.gg/room/${ID}`);
+  });
+
+  test("hands on what it can't read, for the form to show it", () => {
+    expect(roomInQuery("?room=my-room")).toBe("my-room");
+  });
+
+  test("gives nothing without a room in the address", () => {
+    expect(roomInQuery("")).toBeUndefined();
+    expect(roomInQuery("?room=")).toBeUndefined();
+    expect(roomInQuery("?other=1")).toBeUndefined();
+  });
+});
 
 describe("readRoomLink", () => {
   test.each([

@@ -193,6 +193,7 @@ export class ErRoomCard extends LitElement {
   protected override willUpdate(): void {
     if (this.entry !== undefined && this.way === undefined) {
       this.way = new StoreController(this, this.entry, (state) => state);
+      this.url = this.way.value.linked ?? "";
     }
   }
 

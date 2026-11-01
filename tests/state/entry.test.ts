@@ -23,7 +23,9 @@ const VISIT: Visit = {
 };
 
 // A way in on the recorded web API and a test room with this password, with its waits open to run.
-function entering(options: { fetcher?: Fetcher; password?: string; now?: () => number } = {}) {
+function entering(
+  options: { fetcher?: Fetcher; password?: string; now?: () => number; linked?: string } = {}
+) {
   const room = testRoom(options.password);
   const storage = memory();
   const waits: (() => void)[] = [];
@@ -34,6 +36,7 @@ function entering(options: { fetcher?: Fetcher; password?: string; now?: () => n
     timer: (run) => waits.push(run),
     now: options.now ?? (() => AWAKE),
     storage,
+    linked: options.linked,
   });
   const phase = () => store.getState().phase;
   return { store, room, storage, waits, phase };
@@ -90,6 +93,34 @@ describe("the way in", () => {
     await rememberVisit(VISIT, run.storage);
     await run.store.getState().start();
     expect(run.phase()).toEqual({ phase: "returning", visit: VISIT, needsPassword: false });
+  });
+
+  test("a link from the page's address starts at the form, and holds the link for it", async () => {
+    const run = entering({ linked: ROOM_URL });
+    await run.store.getState().start();
+    expect(run.phase()).toEqual({ phase: "entry" });
+    expect(run.store.getState().linked).toBe(ROOM_URL);
+  });
+
+  test("a link to another room starts at the form, over a visit kept", async () => {
+    const run = entering({ linked: "https://archipelago.gg/room/AAAAAAAAAAAAAAAAAAAAAA" });
+    await rememberVisit(VISIT, run.storage);
+    await run.store.getState().start();
+    expect(run.phase()).toEqual({ phase: "entry" });
+  });
+
+  test("a link to the room of the visit kept offers the visit, as that room's been logged into", async () => {
+    const run = entering({ linked: ROOM_URL });
+    await rememberVisit(VISIT, run.storage);
+    await run.store.getState().start();
+    expect(run.phase()).toEqual({ phase: "returning", visit: VISIT, needsPassword: false });
+  });
+
+  test("a link that leads nowhere starts at the form too, for the person to see it", async () => {
+    const run = entering({ linked: "not a link" });
+    await rememberVisit(VISIT, run.storage);
+    await run.store.getState().start();
+    expect(run.phase()).toEqual({ phase: "entry" });
   });
 
   test("a link the tracker can't follow says why, and asks archipelago.gg nothing", () => {
