@@ -16,7 +16,7 @@ import { runTimeOf, type Run } from "../../../state/slices/run.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
 import { replayIcon, timerPauseIcon, timerPlayIcon } from "../../utils/material-icons.js";
 import { StoreController } from "../../utils/store-controller.js";
-import { fullHeight } from "./column-height.js";
+import { fullHeight } from "../../utils/column-height.js";
 import { HOLD_MS, runTimerStyles } from "./run-timer-styles.js";
 import { clockFace, typedTime } from "./run-words.js";
 

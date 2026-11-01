@@ -13,8 +13,9 @@
  * than rows read well at a glance goes by region: on the desktop its tally and
  * bar, the main path's rows, then one region's bosses at a time; at a tablet's
  * width and below, the main path's icons in the strip, with region chips under
- * them. With Done open on a desktop, the rows to do and all that's under them
- * scroll apart, and dragging the Done heading moves the line between them.
+ * them. With Done open on a desktop and more than fits, the rows to do and all
+ * that's under them scroll apart, and dragging the Done heading moves the line
+ * between them.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -43,6 +44,7 @@ import type { RegionBossRow } from "./er-region-bosses.js";
 import "./er-goal-row.js";
 import { bossesByRegion, bossTally, goalPickerGroups, isByRegion } from "./goal-regions.js";
 import { StripScroll } from "./strip-scroll.js";
+import { fullHeight } from "../../utils/column-height.js";
 import { figure, percentDone } from "../../utils/figure.js";
 import {
   LEAVE_MS,
@@ -69,6 +71,11 @@ import { StoreController } from "../../utils/store-controller.js";
 // The least the rows to do can be, a row of them; and the least of what's under them, its heading and a row.
 const ROWS_LEAST_PX = 76;
 const UNDER_LEAST_PX = 120;
+// What takes the menu's height when the rows to do and all under them are at their full height, and
+// the room the menu keeps between them.
+const FULL_PARTS =
+  ":scope > h2, :scope > .tally, :scope > ul, summary, details ul, er-goal-regions";
+const PART_GAP_PX = 16;
 
 // A long goal by region, as the menu shows it: its tally, the regions holding a goal boss, and the
 // region picked on the page, with its bosses.
@@ -101,6 +108,7 @@ export class ErGoalMenu extends LitElement {
     region: { attribute: false },
     isDoneOpen: { state: true },
     toDoHeight: { state: true },
+    isLong: { state: true },
   };
 
   static override styles = [
@@ -289,6 +297,9 @@ export class ErGoalMenu extends LitElement {
   // Whether the Done fold is open, and the height the rows to do were dragged to, for the visit.
   private isDoneOpen = false;
   private toDoHeight: number | undefined;
+  // Whether there's more in the menu than fits, so its two lists scroll apart.
+  private isLong = false;
+  private readonly sized = new ResizeObserver(() => this.checkFit());
   private menu: StoreController<TrackerState, GoalMenu | undefined> | undefined;
   private release: StoreController<TrackerState, ReleaseState> | undefined;
   private live: StoreController<TrackerState, boolean> | undefined;
@@ -311,11 +322,30 @@ export class ErGoalMenu extends LitElement {
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
   private readonly strip = new StripScroll(() => this.isNarrow.matches);
 
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.sized.observe(this);
+  }
+
   override disconnectedCallback(): void {
     super.disconnectedCallback();
+    this.sized.disconnect();
     this.timers.forEach((timer) => clearTimeout(timer));
     this.timers.clear();
   }
+
+  // On the next frame, so what this finds can change what's drawn.
+  protected override updated(): void {
+    requestAnimationFrame(this.checkFit);
+  }
+
+  private readonly checkFit = (): void => {
+    const nav = this.renderRoot.querySelector("nav");
+    if (nav !== null) {
+      const parts = [...nav.querySelectorAll(FULL_PARTS)];
+      this.isLong = fullHeight(parts) + parts.length * PART_GAP_PX > nav.clientHeight;
+    }
+  };
 
   protected override willUpdate(): void {
     const { store, data } = this;
@@ -390,6 +420,7 @@ export class ErGoalMenu extends LitElement {
       !isNarrow &&
       !this.achieved &&
       this.isDoneOpen &&
+      this.isLong &&
       rows.toDo.length > 0 &&
       rows.obtained.length > 0;
     const done = this.achieved ? [...rows.obtained, ...rows.toDo] : rows.obtained;

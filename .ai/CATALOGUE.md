@@ -522,9 +522,6 @@ here first, then search the source, then write.
 **src/components/organisms/settings/er-settings.ts**
 - `ErSettings`: The settings panel, over the right-hand panel.
 
-**src/components/organisms/timer/column-height.ts**
-- `fullHeight()`: How high the parts of a column would be with nothing cut: each list by its rows, the rest as they stand.
-
 **src/components/organisms/timer/er-run-splits.ts**
 - `ErRunSplits`: The run's splits: the goal's rows, in the timer's column.
 
@@ -589,6 +586,9 @@ here first, then search the source, then write.
 
 **src/components/utils/close-icon.ts** (src/components/organisms)
 - `closeIcon`: A close button's cross, drawn in the button's own colour, 12 pixels square.
+
+**src/components/utils/column-height.ts** (src/components/organisms)
+- `fullHeight()`: How high the parts of a column would be with nothing cut: each list by its rows, the rest as they stand.
 
 **src/components/utils/emit.ts** (src/components/molecules, src/components/organisms)
 - `emit()`: Sends an event from an element that bubbles and crosses shadow roots, so whatever holds the element hears it.
