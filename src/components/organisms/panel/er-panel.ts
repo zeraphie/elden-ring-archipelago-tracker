@@ -6,7 +6,7 @@
  * and Home and End go to the first and the last. At a tablet's width and
  * below, the region picked is a line over every tab, and the tabs are a rail
  * on the right edge: the one chosen stands out with its icon and name, and the others
- * peek in, dimmed, as icons.
+ * peek in, dimmed, as icons. What's laid over it goes in its `over` slot.
  */
 
 import { LitElement, css, html, type TemplateResult } from "lit";
@@ -45,6 +45,8 @@ const ICONS: Readonly<Record<View, TemplateResult>> = {
 
 /**
  * The panel beside the map, its tabs and the view chosen.
+ *
+ * @slot over - What's laid over the panel at its size, placed by itself.
  */
 export class ErPanel extends LitElement {
   static override properties = {
@@ -65,6 +67,7 @@ export class ErPanel extends LitElement {
     visuallyHidden,
     css`
       :host {
+        position: relative;
         display: flex;
         flex-direction: column;
         min-height: 0;
@@ -224,12 +227,14 @@ export class ErPanel extends LitElement {
             )}
           </div>
           ${this.tabPanel()}
-        </div>`;
+        </div>
+        <slot name="over"></slot>`;
     }
     return html`<div role="tablist" class="tabs" aria-label="Panel" @keydown=${this.onTabKey}>
         ${VIEWS.map(([view, name]) => this.tab(view, "segment", name))}
       </div>
-      ${this.tabPanel()}`;
+      ${this.tabPanel()}
+      <slot name="over"></slot>`;
   }
 
   // A tab: joined to the others as a segment, or a plate on the rail.

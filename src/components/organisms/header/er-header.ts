@@ -45,7 +45,10 @@ interface Room {
  * @fires er-settings - The cog was pressed; `detail` is undefined.
  */
 export class ErHeader extends LitElement {
-  static override properties = { store: { attribute: false } };
+  static override properties = {
+    store: { attribute: false },
+    isSettingsOpen: { attribute: false },
+  };
 
   static override styles = [
     buttonStyles,
@@ -116,6 +119,10 @@ export class ErHeader extends LitElement {
         .short {
           display: inline;
         }
+      }
+      .cog[aria-expanded="true"] {
+        border-color: var(--er-gold-edge);
+        color: var(--er-gold-bright);
       }
       .live {
         gap: 6px;
@@ -218,6 +225,8 @@ export class ErHeader extends LitElement {
 
   /** The room's store, once it's open; the name stands alone until then. */
   store: TrackerStore | undefined;
+  /** Whether the settings panel is open, which the cog shows. */
+  isSettingsOpen = false;
   private connection: StoreController<TrackerState, ConnectionPhase> | undefined;
   private progress: StoreController<TrackerState, Progress> | undefined;
   private room: StoreController<TrackerState, Room> | undefined;
@@ -253,6 +262,8 @@ export class ErHeader extends LitElement {
                 data-size="small"
                 data-shape="icon"
                 aria-label="Settings"
+                aria-expanded=${String(this.isSettingsOpen)}
+                data-opens-settings
                 @click=${() => emit(this, "er-settings", undefined)}
               >
                 ${settingsIcon}
@@ -286,6 +297,11 @@ export class ErHeader extends LitElement {
         }
       </div>
     </header>`;
+  }
+
+  /** Puts the keyboard's focus on the cog, as the settings close. */
+  focusCog(): void {
+    this.renderRoot.querySelector<HTMLElement>(".cog")?.focus();
   }
 
   private live(phase: ConnectionPhase, link: RoomLink) {

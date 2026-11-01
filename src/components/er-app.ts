@@ -9,7 +9,7 @@
  * done while the page watches is marked over the map until dismissed, then
  * the goal menu's band keeps it; one done before the page opened goes
  * straight to the band. A handle between the map and the panel resizes them,
- * as the page splits.
+ * as the page splits, and the settings lie over the panel while they're open.
  */
 
 import { LitElement, css, html, nothing, unsafeCSS } from "lit";
@@ -27,6 +27,7 @@ import "./organisms/header/er-header.js";
 import "./organisms/map/components/er-map.js";
 import "./organisms/intro/er-room-card.js";
 import "./organisms/panel/er-panel.js";
+import "./organisms/settings/er-settings.js";
 import "./organisms/toasts/er-toasts.js";
 import "./organisms/version-notice/er-version-notice.js";
 import { curtain } from "./organisms/intro/curtain.js";
@@ -34,6 +35,7 @@ import { holdCurtainFor } from "./organisms/intro/entry-curtain.js";
 import { NARROW_MEDIA, narrow } from "./atoms/layout.js";
 import "./molecules/er-resize-handle.js";
 import { MAP_MIN_PX, PANEL_MIN_HEIGHT_PX, PanelSplit } from "./panel-split.js";
+import { SettingsOpen } from "./settings-open.js";
 import { MediaController } from "./utils/media.js";
 import { StoreController } from "./utils/store-controller.js";
 
@@ -181,6 +183,10 @@ export class ErApp extends LitElement {
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
   // How the page splits between the map and the panel, as dragged.
   private readonly split = new PanelSplit(this);
+  // Whether the settings panel is open, and the cog to go back to as it closes.
+  private readonly settings = new SettingsOpen(this, () =>
+    this.renderRoot.querySelector("er-header")?.focusCog()
+  );
   // Whether the curtain has opened, which takes the room's card away with it.
   private isOpen = false;
   private hasConnected = false;
@@ -270,7 +276,10 @@ export class ErApp extends LitElement {
 
   override render() {
     const ready = this.ready.value;
-    return html`<er-header .store=${ready?.store}></er-header>
+    return html`<er-header
+        .store=${ready?.store}
+        .isSettingsOpen=${this.settings.isOpen}
+      ></er-header>
       <main class="stage" style=${styleMap(this.split.styles)}>
         ${
           ready === undefined
@@ -312,7 +321,9 @@ export class ErApp extends LitElement {
                   .say=${ready.say}
                   @er-region=${this.selectRegion}
                   @er-check=${this.pick}
-                ></er-panel>`
+                >
+                  <er-settings slot="over" .open=${this.settings.isOpen}></er-settings>
+                </er-panel>`
         }
       </main>
       ${

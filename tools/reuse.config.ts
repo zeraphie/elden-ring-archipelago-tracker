@@ -248,6 +248,12 @@ export default {
       instead: "`keyChecksFrom(data, slotData)`",
     },
     {
+      what: "a panel's title written by hand",
+      pattern: /font-size: 1\.9em;\s+line-height: 1\.1/,
+      home: "src/components/atoms/heading.ts",
+      instead: "`panelTitleStyles`, with `.panel-title` and a `.rule`",
+    },
+    {
       what: "a button with no edge or fill written by hand",
       pattern: /background: transparent;\s+border-color: transparent/,
       home: "src/components/atoms/button.ts",

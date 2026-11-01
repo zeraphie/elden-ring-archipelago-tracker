@@ -13,6 +13,7 @@ import { LitElement, css, html, nothing } from "lit";
 import type { RegionSummary } from "../../../data/rules/region-summary.js";
 import { barStyles } from "../../atoms/bar.js";
 import { figures } from "../../atoms/figures.js";
+import { panelTitleStyles } from "../../atoms/heading.js";
 import { AREA_STATE_WORDS } from "../../utils/area-words.js";
 import { figure, percentDone } from "../../utils/figure.js";
 
@@ -31,24 +32,13 @@ export class ErRegionHeading extends LitElement {
   static override styles = [
     barStyles,
     figures,
+    panelTitleStyles,
     css`
       :host {
         display: block;
         padding: 18px 16px 14px;
         border-bottom: 1px solid var(--er-panel-divider);
         text-align: center;
-      }
-      .rule {
-        height: 1px;
-        margin: 0 8% 12px;
-        background: var(--er-gold-rule);
-      }
-      h2 {
-        margin: 0 0 12px;
-        font-weight: 600;
-        font-size: 1.9em;
-        line-height: 1.1;
-        color: var(--er-ink-bright);
       }
       .standing {
         display: flex;
@@ -143,7 +133,7 @@ export class ErRegionHeading extends LitElement {
     const { state, keyChecks, keyDone, checks, done } = summary;
     if (this.hasAttribute("compact")) {
       return html`<div class="line">
-          <h2><slot name="name"></slot></h2>
+          <h2 class="panel-title"><slot name="name"></slot></h2>
           <span class="badge" data-state=${state}>${AREA_STATE_WORDS[state]}</span>
           <span class="counts">
             <span
@@ -159,7 +149,7 @@ export class ErRegionHeading extends LitElement {
         ${this.needs === undefined ? nothing : html`<p class="needs">${this.needs}</p>`}`;
     }
     return html`<div class="rule" aria-hidden="true"></div>
-      <h2>${this.name}</h2>
+      <h2 class="panel-title">${this.name}</h2>
       <div class="rule" aria-hidden="true"></div>
       <div class="standing">
         <span class="badge" data-state=${state}>${AREA_STATE_WORDS[state]}</span>

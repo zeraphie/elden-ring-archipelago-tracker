@@ -193,6 +193,7 @@ here first, then search the source, then write.
 - `frameStyles`: An icon in the game's frame, as the goal menu shows it: `.frame` holding an `img`, edged with a fine line, the ground, then the frame's own inner line, which `--er-frame-edges` holds for a glow to add to.
 
 **src/components/atoms/heading.ts** (src/components/molecules, src/components/organisms)
+- `panelTitleStyles`: A panel's title between gold rules, as the region picked is headed: an `h2.panel-title` with a `.rule` over and under it.
 - `bandHeadingStyles`: A section heading on a band that fades out to the right, as the game's "Purchase Item": `.band-heading`, its size and room set where it's used.
 
 **src/components/atoms/layout.ts** (src/components, src/components/molecules, src/components/organisms)
@@ -502,6 +503,9 @@ here first, then search the source, then write.
 - `FILTERS`: Each filter, as its button names it, in order.
 - `NO_KEY_CHECKS`: What the key checks' list says when its filter leaves none.
 - `matchesLine()`: How many checks a search found: "3 matches", or "The first 60 matches" when there were more.
+
+**src/components/organisms/settings/er-settings.ts**
+- `ErSettings`: The settings panel, over the right-hand panel.
 
 **src/components/organisms/toasts/er-toasts.ts**
 - `ErToasts`: The items others send, and the slot's own finds that matter, as toasts.
