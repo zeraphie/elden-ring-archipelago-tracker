@@ -7,13 +7,7 @@
  */
 
 import type { CheckRow } from "../../../../state/utils/checks.js";
-import type { Finding } from "../../../../state/utils/findings.js";
-
-/** One spot on a pin: the row to show for it, with no copy number, and what its checks have held. */
-export interface PinSpot {
-  readonly row: CheckRow;
-  readonly findings: readonly Finding[];
-}
+import type { TipSpot } from "../../../molecules/check-row.js";
 
 /** A box on the screen, by its edges, in pixels. */
 export interface TipBox {
@@ -31,8 +25,8 @@ export interface TipSize {
 // How far from its pin the tooltip sits, and how close it comes to the view's edges.
 const GAP_PX = 10;
 
-/** A pin's spots, each once, in the order they first come. */
-export function pinSpots(rows: readonly CheckRow[]): PinSpot[] {
+/** A pin's spots, each once and with no copy number, in the order they first come. */
+export function pinSpots(rows: readonly CheckRow[]): TipSpot[] {
   const spots = new Map<number, CheckRow[]>();
   for (const row of rows) {
     const spot = row.copy?.first ?? row.id;

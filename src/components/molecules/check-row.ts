@@ -7,14 +7,18 @@
  * spot the generator copied; its region, in search results; the item it holds
  * in the unrandomised game; and once checked, what it held. In a list it's a
  * button, and the row picked carries the olive band. To read rather than click,
- * it can also sit under a heading band, with its place on the band.
+ * it can also sit under a heading band, with its place on the band, which is
+ * the Comfort look of a tooltip: a popover's look that stays where it's put,
+ * for the map to place beside a pin, or the settings to show as a sample.
  */
 
 import { css, html, nothing } from "lit";
+import type { CheckLook } from "../../state/settings.js";
 import type { CheckRow } from "../../state/utils/checks.js";
 import type { Finding } from "../../state/utils/findings.js";
 import { bandRowStyles } from "../atoms/band.js";
 import { bandHeadingStyles } from "../atoms/heading.js";
+import { popoverStyles } from "../atoms/popover.js";
 import { sackStyles } from "../atoms/sack.js";
 import { PIN_STATE_WORDS } from "../utils/area-words.js";
 import { findingLine, spotLine } from "../utils/check-words.js";
@@ -112,6 +116,33 @@ export const checkRowStyles = [
   `,
 ];
 
+/** One spot in a tooltip: the row to show for it, and what its checks have held. */
+export interface TipSpot {
+  readonly row: CheckRow;
+  readonly findings: readonly Finding[];
+}
+
+/** A tooltip's look: a popover's, where it's put, with a line at its foot. */
+export const checkTipStyles = [
+  checkRowStyles,
+  popoverStyles,
+  css`
+    .popover.tip {
+      position: static;
+    }
+    .tip .row:last-of-type {
+      border-bottom: none;
+    }
+    .tip p {
+      margin: 0;
+      padding: 6px 16px 8px;
+      border-top: 1px solid var(--er-panel-divider);
+      font-size: 0.8em;
+      color: var(--er-ink-muted);
+    }
+  `,
+];
+
 /** A check's row, picked or not, with its region under its name when it's given, telling `onPick` when it's clicked. */
 export function checkRow(
   row: CheckRow,
@@ -143,6 +174,15 @@ export function checkBand(row: CheckRow, findings: readonly Finding[]) {
       ${name.encounter === "" ? nothing : html`<span>${name.encounter}</span>`}
       ${lines(vanilla, findings)}
     </div>`;
+}
+
+/** Spots as a tooltip shows them, in `look`, with `foot` under them where it's given. */
+export function checkTip(spots: readonly TipSpot[], look: CheckLook, foot?: string) {
+  const spot = look === "comfort" ? checkBand : checkBlock;
+  return html`<div class="popover tip">
+    ${spots.map(({ row, findings }) => spot(row, findings))}
+    ${foot === undefined ? nothing : html`<p>${foot}</p>`}
+  </div>`;
 }
 
 // A row's marker and words, what it held by its own finding unless it's told otherwise.

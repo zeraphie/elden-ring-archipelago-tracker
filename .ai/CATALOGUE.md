@@ -222,9 +222,12 @@ here first, then search the source, then write.
 
 **src/components/molecules/check-row.ts** (src/components/organisms)
 - `checkRowStyles`: The rows' look: a two-column grid of marker and words, banded when hovered or picked.
+- `TipSpot`: One spot in a tooltip: the row to show for it, and what its checks have held.
+- `checkTipStyles`: A tooltip's look: a popover's, where it's put, with a line at its foot.
 - `checkRow()`: A check's row, picked or not, with its region under its name when it's given, telling `onPick` when it's clicked.
 - `checkBlock()`: A check to read rather than click, with what each of its copies held.
 - `checkBand()`: A check to read under a heading band: its marker and place on the band, its encounter and the rest beneath.
+- `checkTip()`: Spots as a tooltip shows them, in `look`, with `foot` under them where it's given.
 
 **src/components/molecules/er-ago.ts**
 - `ErAgo`: How long ago a moment was, as a `<time>`, current to the second.
@@ -445,10 +448,9 @@ here first, then search the source, then write.
 - `DRAWING_LINE`: What the line under the legend says while the pen is on.
 
 **src/components/organisms/map/utils/pin-tip.ts**
-- `PinSpot`: One spot on a pin: the row to show for it, with no copy number, and what its checks have held.
 - `TipBox`: A box on the screen, by its edges, in pixels.
 - `TipSize`: A width and a height, in pixels.
-- `pinSpots()`: A pin's spots, each once, in the order they first come.
+- `pinSpots()`: A pin's spots, each once and with no copy number, in the order they first come.
 - `tipPlace()`: Where a tooltip goes, in the view: beside the pin, past it on the left where the right has no room, kept inside the view.
 
 **src/components/organisms/map/utils/route.ts**

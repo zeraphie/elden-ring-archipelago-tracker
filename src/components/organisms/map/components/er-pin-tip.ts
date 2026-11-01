@@ -7,12 +7,11 @@
  * touch points at nothing, so it never shows there.
  */
 
-import { LitElement, css, html, nothing } from "lit";
+import { LitElement, css } from "lit";
 import { SETTINGS, type SettingsState } from "../../../../state/settings.js";
-import { popoverStyles } from "../../../atoms/popover.js";
-import { checkBand, checkBlock, checkRowStyles } from "../../../molecules/check-row.js";
+import { checkTip, checkTipStyles, type TipSpot } from "../../../molecules/check-row.js";
 import { StoreController } from "../../../utils/store-controller.js";
-import { tipPlace, type PinSpot } from "../utils/pin-tip.js";
+import { tipPlace } from "../utils/pin-tip.js";
 
 /**
  * The tooltip of the pin pointed at.
@@ -26,8 +25,7 @@ export class ErPinTip extends LitElement {
   };
 
   static override styles = [
-    checkRowStyles,
-    popoverStyles,
+    checkTipStyles,
     css`
       :host {
         position: absolute;
@@ -36,30 +34,16 @@ export class ErPinTip extends LitElement {
         width: 300px;
         pointer-events: none;
       }
-      /* The popover's look, placed by the map rather than by a popover's own place on the page. */
-      .popover {
-        position: static;
-      }
       @media (hover: none) {
         :host {
           display: none;
         }
       }
-      .row:last-of-type {
-        border-bottom: none;
-      }
-      p {
-        margin: 0;
-        padding: 6px 16px 8px;
-        border-top: 1px solid var(--er-panel-divider);
-        font-size: 0.8em;
-        color: var(--er-ink-muted);
-      }
     `,
   ];
 
   /** The spots on the pin. */
-  spots: readonly PinSpot[] = [];
+  spots: readonly TipSpot[] = [];
   /** How many of its checks are checked, said at the foot; undefined for a pin of one check. */
   count: string | undefined;
   /** The pin it sits beside. */
@@ -97,11 +81,7 @@ export class ErPinTip extends LitElement {
   }
 
   override render() {
-    const spot = this.look.value === "comfort" ? checkBand : checkBlock;
-    return html`<div class="popover">
-      ${this.spots.map(({ row, findings }) => spot(row, findings))}
-      ${this.count === undefined ? nothing : html`<p>${this.count}</p>`}
-    </div>`;
+    return checkTip(this.spots, this.look.value, this.count);
   }
 }
 

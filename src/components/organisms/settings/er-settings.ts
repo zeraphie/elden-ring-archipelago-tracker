@@ -2,19 +2,44 @@
  * ─ Settings ─
  *
  * Everything that can be set, in a panel laid over the right-hand panel at its
- * size, its title between gold rules and a cross to close it. It stays in the
- * page while it's closed, so it can fade in and out. At a tablet's width and
- * below the title's smaller and to the left, and the rules go.
+ * size, its title between gold rules and a cross to close it. For now that's
+ * how checks look in the map's tooltip: a row for each look, showing it on a
+ * sample check, the one chosen banded. The panel stays in the page while it's
+ * closed, so it can fade in and out. At a tablet's width and below the title's
+ * smaller and to the left, the rules go, and the rows sit side by side.
  */
 
 import { LitElement, css, html, type PropertyValues } from "lit";
+import { SETTINGS, type CheckLook, type SettingsState } from "../../../state/settings.js";
 import { buttonStyles } from "../../atoms/button.js";
 import { focusRing } from "../../atoms/focus.js";
 import { panelTitleStyles } from "../../atoms/heading.js";
 import { narrow } from "../../atoms/layout.js";
 import { scrollerStyles } from "../../atoms/scroller.js";
+import { checkTip, checkTipStyles, type TipSpot } from "../../molecules/check-row.js";
 import { closeIcon } from "../../utils/close-icon.js";
 import { emit } from "../../utils/emit.js";
+import { StoreController } from "../../utils/store-controller.js";
+
+// Each look, as its row names it.
+const LOOKS: readonly (readonly [CheckLook, string])[] = [
+  ["compact", "Compact"],
+  ["comfort", "Comfort"],
+];
+
+// What each look is shown on: made up here, so it's no room's and gives nothing away.
+const SAMPLE: TipSpot = {
+  row: {
+    id: 0,
+    name: { place: "By the Church of Elleh", encounter: "Tree Sentinel" },
+    copy: undefined,
+    vanilla: "Golden Halberd",
+    isKey: true,
+    state: "collected",
+    finding: undefined,
+  },
+  findings: [{ item: "Margit's Shackle", to: undefined }],
+};
 
 /**
  * The settings panel, over the right-hand panel.
@@ -26,6 +51,7 @@ export class ErSettings extends LitElement {
 
   static override styles = [
     buttonStyles,
+    checkTipStyles,
     focusRing,
     panelTitleStyles,
     scrollerStyles,
@@ -73,6 +99,33 @@ export class ErSettings extends LitElement {
         flex-grow: 1;
         min-height: 0;
       }
+      h3 {
+        margin: 0;
+        padding: 7px 16px;
+        font-size: 1.15em;
+      }
+      .look {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+        padding: 10px 16px 14px;
+        border-bottom: 1px solid var(--er-panel-divider);
+        cursor: pointer;
+      }
+      .choice {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+      }
+      input {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        accent-color: var(--er-gold);
+      }
       @media ${narrow} {
         .head {
           padding: 12px 16px;
@@ -88,12 +141,21 @@ export class ErSettings extends LitElement {
         .close {
           top: 4px;
         }
+        .looks {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
       }
     `,
   ];
 
   /** Whether the panel shows. */
   open = false;
+  private readonly look = new StoreController(
+    this,
+    SETTINGS,
+    ({ checkLook }: SettingsState) => checkLook
+  );
 
   protected override updated(changed: PropertyValues<this>): void {
     if (changed.has("open") && this.open) {
@@ -117,7 +179,26 @@ export class ErSettings extends LitElement {
           ${closeIcon}
         </button>
       </div>
-      <div class="scroller"></div>`;
+      <div class="scroller">
+        <h3 id="checks" class="band-heading">Checks on the map</h3>
+        <div class="looks" role="radiogroup" aria-labelledby="checks">
+          ${LOOKS.map(
+            ([look, name]) =>
+              html`<label class="look band-row ring-within">
+                <span class="choice">
+                  <input
+                    type="radio"
+                    name="check-look"
+                    .checked=${look === this.look.value}
+                    @change=${() => SETTINGS.getState().setCheckLook(look)}
+                  />
+                  ${name}
+                </span>
+                ${checkTip([SAMPLE], look)}
+              </label>`
+          )}
+        </div>
+      </div>`;
   }
 }
 
