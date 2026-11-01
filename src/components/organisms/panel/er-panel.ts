@@ -187,6 +187,19 @@ export class ErPanel extends LitElement {
   private itemFilter: FeedFilter = "received";
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
 
+  /** Shows the Checks tab, for a check picked from outside the panel. */
+  showChecks(): void {
+    this.view = "checks";
+  }
+
+  /** Shows the Items tab, on a filter that holds what's been received. */
+  showItems(): void {
+    this.view = "items";
+    if (this.itemFilter === "sent") {
+      this.itemFilter = "received";
+    }
+  }
+
   override render() {
     if (this.isNarrow.matches) {
       return html`<er-region-line

@@ -5,7 +5,8 @@
  * out from the room as the rules read it. It's worked out again only when the
  * room's view changes, as working out how far the player reaches walks the
  * whole region graph. Beside it, whether the slot's goal is done, as the room
- * or the web API says, and what has become of the items left in its world.
+ * or the web API says, what has become of the items left in its world, and
+ * where a goal row's check is.
  */
 
 import { releaseAfterGoal, type ReleaseState } from "../../archipelago/release.js";
@@ -13,6 +14,7 @@ import type { GoalMenu } from "../../data/bosses/goal-menu.js";
 import { GOAL_STATUS } from "../slices/roster.js";
 import type { EldenRingData } from "../setup.js";
 import type { TrackerState } from "../store.js";
+import { regionsById, regionsOf, type RegionInputs } from "./regions.js";
 import { roomViewOf, type RoomInputs, type RoomView } from "./room.js";
 
 // The last menu worked out, and the data and view it was worked out from.
@@ -29,6 +31,33 @@ export function goalMenuOf(data: EldenRingData, inputs: RoomInputs): GoalMenu | 
   const menu = view && data.goalMenu(view.room, view.items, view.checked);
   last = { data, view, menu };
   return menu;
+}
+
+/** A check with the region it's in, by code. */
+export interface PlacedCheck {
+  readonly region: string;
+  readonly id: number;
+}
+
+/** The check of this id, with its region; undefined where the room has no such check. */
+export function checkOf(
+  data: EldenRingData,
+  inputs: RegionInputs,
+  id: number
+): PlacedCheck | undefined {
+  const region = regionsById(regionsOf(data, inputs)).get(id);
+  return region === undefined ? undefined : { region, id };
+}
+
+/** The check of this location's name, with its region; undefined where the room has no such check. */
+export function checkNamed(
+  data: EldenRingData,
+  inputs: RegionInputs,
+  location: string
+): PlacedCheck | undefined {
+  const names = Object.entries(roomViewOf(inputs)?.names ?? {});
+  const found = names.find(([, name]) => name === location)?.[0];
+  return found === undefined ? undefined : checkOf(data, inputs, Number(found));
 }
 
 /** What telling whether the slot's goal is done reads, in the store. */

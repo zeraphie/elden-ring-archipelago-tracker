@@ -293,6 +293,8 @@ export class ErApp extends LitElement {
                     .say=${this.isGoalSimulated ? undefined : ready.say}
                     .region=${this.region}
                     @er-region=${this.selectRegion}
+                    @er-check=${this.pickFromGoal}
+                    @er-items=${this.showItems}
                   ></er-goal-menu>
                   <er-toasts .store=${ready.store} .data=${ready.data}></er-toasts>
                   <er-version-notice
@@ -361,6 +363,16 @@ export class ErApp extends LitElement {
   private readonly pick = ({ detail }: CustomEvent<CheckPick>): void => {
     this.region = detail.region;
     this.picked = detail.id;
+  };
+
+  // A finished goal row's check, shown in the panel's Checks whichever tab was up.
+  private readonly pickFromGoal = (event: CustomEvent<CheckPick>): void => {
+    this.pick(event);
+    this.renderRoot.querySelector("er-panel")?.showChecks();
+  };
+
+  private readonly showItems = (): void => {
+    this.renderRoot.querySelector("er-panel")?.showItems();
   };
 }
 

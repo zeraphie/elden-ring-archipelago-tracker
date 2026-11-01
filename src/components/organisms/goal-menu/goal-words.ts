@@ -51,7 +51,7 @@ export function needName(need: Need, data: EldenRingData): string {
 export function needLine(
   need: Need,
   isMet: boolean,
-  ownFinds: ReadonlySet<string | undefined>
+  ownFinds: ReadonlyMap<string | undefined, number>
 ): string {
   switch (need.kind) {
     case "count":

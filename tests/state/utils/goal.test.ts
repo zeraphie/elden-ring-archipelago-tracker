@@ -1,9 +1,42 @@
 import { describe, expect, test } from "bun:test";
 import * as data from "../../../src/data/elden-ring.js";
 import type { RosterEntry } from "../../../src/state/slices/roster.js";
-import { goalMenuOf, isGoalDone, isGoalReached, releaseOf } from "../../../src/state/utils/goal.js";
+import {
+  checkNamed,
+  checkOf,
+  goalMenuOf,
+  isGoalDone,
+  isGoalReached,
+  releaseOf,
+} from "../../../src/state/utils/goal.js";
 import { item } from "../../fixtures/rooms.js";
-import { GODFREY, idOf, inputs, MORGOTT, received } from "../../fixtures/slots.js";
+import { firstCoded, GODFREY, idOf, inputs, MORGOTT, received } from "../../fixtures/slots.js";
+
+describe("checkOf", () => {
+  test("places a check by its id, in its region", () => {
+    expect(checkOf(data, inputs(), firstCoded("LG"))).toEqual({
+      region: "LG",
+      id: firstCoded("LG"),
+    });
+  });
+
+  test("gives nothing for an id the room hasn't", () => {
+    expect(checkOf(data, inputs(), -1)).toBeUndefined();
+  });
+});
+
+describe("checkNamed", () => {
+  const SEEDS = "Liurnia check";
+
+  test("gives nothing for a name the room hasn't", () => {
+    expect(checkNamed(data, inputs(), SEEDS)).toBeUndefined();
+  });
+
+  test("places a boss's drop, as a goal row asks for it", () => {
+    const drop = goalMenuOf(data, inputs())?.bosses[0]?.drop ?? "";
+    expect(checkNamed(data, inputs(), drop)?.id).toBe(idOf(drop));
+  });
+});
 
 describe("goalMenuOf", () => {
   test("names the items received by the data package, and what they meet", () => {

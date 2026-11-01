@@ -54,3 +54,16 @@ export function regionsOf(
   last = { data, view, keyChecks, regions };
   return regions;
 }
+
+/** Each check's region, by its id. */
+export function regionsById(
+  regions: ReadonlyMap<string, RegionSummary> | undefined
+): Map<number, string> {
+  const regionOf = new Map<number, string>();
+  for (const [region, { ids }] of regions ?? []) {
+    for (const id of ids) {
+      regionOf.set(id, region);
+    }
+  }
+  return regionOf;
+}

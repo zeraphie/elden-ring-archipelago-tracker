@@ -2,27 +2,31 @@
  * ─ Region bosses ─
  *
  * One region's goal bosses, as a long goal lists them: those still to defeat,
- * each with its place, then those defeated, folded. The desktop's goal column
- * and the phone's sheet show them alike.
+ * each with its place, then those defeated, folded, each opening its drop's
+ * check. The desktop's goal column and the phone's sheet show them alike.
  */
 
 import { LitElement, css, html, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { dotStyles } from "../../atoms/dot.js";
 import { figures } from "../../atoms/figures.js";
+import { focusRing } from "../../atoms/focus.js";
 import { foldStyles } from "../../atoms/fold.js";
 import { bandHeadingStyles } from "../../atoms/heading.js";
+import { emit } from "../../utils/emit.js";
 
-/** A goal boss as a region's lists show it: its key, its name, and where it is. */
+/** A goal boss as a region's lists show it: its key, its name, where it is, and its drop's location. */
 export interface RegionBossRow {
   readonly key: string;
   readonly name: string;
   readonly place: string;
+  readonly drop: string | undefined;
 }
 
 /**
  * A region's goal bosses to defeat, and those defeated folded beneath.
  *
+ * @fires er-drop - A boss defeated was clicked; `detail` is its drop's location.
  * @cssproperty --er-region-bosses-inset - How far the lists sit in from the left, to line up with what's around them; 22px by default.
  */
 export class ErRegionBosses extends LitElement {
@@ -35,6 +39,7 @@ export class ErRegionBosses extends LitElement {
     bandHeadingStyles,
     dotStyles,
     figures,
+    focusRing,
     foldStyles,
     css`
       :host {
@@ -63,10 +68,26 @@ export class ErRegionBosses extends LitElement {
       details ul {
         padding-top: 10px;
       }
-      li {
+      li,
+      .open {
         display: flex;
         align-items: baseline;
         gap: 10px;
+      }
+      /* A boss defeated is a button, glowing as the others do under the pointer. */
+      .open {
+        width: 100%;
+        padding: 4px 8px 4px 0;
+        background: none;
+        border: none;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+      .open:hover {
+        background: var(--er-glow-fill);
+        box-shadow: var(--er-glow);
       }
       .text {
         display: flex;
@@ -131,11 +152,27 @@ export class ErRegionBosses extends LitElement {
               ${repeat(
                 defeated,
                 ({ key }) => key,
-                ({ name }) =>
-                  html`<li>
-                    <span class="dot" data-state="in" role="img" aria-label="Defeated"></span>
-                    <span class="name">${name}</span>
-                  </li>`
+                ({ name, drop }) => {
+                  const row = html`<span
+                      class="dot"
+                      data-state="in"
+                      role="img"
+                      aria-label="Defeated"
+                    ></span>
+                    <span class="name">${name}</span>`;
+                  return html`<li>
+                    ${
+                      drop === undefined
+                        ? row
+                        : html`<button
+                            class="open"
+                            @click=${() => emit<string>(this, "er-drop", drop)}
+                          >
+                            ${row}
+                          </button>`
+                    }
+                  </li>`;
+                }
               )}
             </ul>
           </details>`

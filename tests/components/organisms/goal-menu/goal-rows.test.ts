@@ -2,7 +2,9 @@ import { describe, expect, test } from "bun:test";
 import {
   placeRows,
   rowLeft,
+  rowTarget,
   rowViewsOf,
+  type RowView,
 } from "../../../../src/components/organisms/goal-menu/goal-rows.js";
 import type { GoalMenu } from "../../../../src/data/bosses/goal-menu.js";
 import type { Need } from "../../../../src/data/rules/rules.js";
@@ -55,6 +57,50 @@ describe("rowLeft", () => {
   test("a row that isn't leaving stays as it is", () => {
     const { rows } = placeRows(undefined, ["a"], []);
     expect(rowLeft(rows, "a")).toBe(rows);
+  });
+});
+
+describe("rowTarget", () => {
+  const OWN = new Map([["Rusty Key", 42]]);
+  const need = (each: Need): RowView => ({ key: "k", isGotten: true, kind: "need", need: each });
+  const boss = (drop: string | undefined): RowView => ({
+    key: "k",
+    isGotten: true,
+    kind: "boss",
+    boss: { flag: 1, name: "Godfrey", where: undefined, drop, state: "defeated" },
+  });
+
+  test("a boss leads to its drop's check", () => {
+    expect(rowTarget(boss("LRC: Drop"), OWN)).toEqual({ kind: "named", name: "LRC: Drop" });
+  });
+
+  test("a boss with no drop in the room leads nowhere", () => {
+    expect(rowTarget(boss(undefined), OWN)).toBeUndefined();
+  });
+
+  test("a main-path boss's need leads to its drop's check", () => {
+    expect(rowTarget(need({ kind: "location", location: "LRC: Drop" }), OWN)).toEqual({
+      kind: "named",
+      name: "LRC: Drop",
+    });
+  });
+
+  test("an item the slot found itself leads to the check it was in", () => {
+    expect(rowTarget(need({ kind: "item", item: "Rusty Key" }), OWN)).toEqual({
+      kind: "check",
+      id: 42,
+    });
+  });
+
+  test("an item from elsewhere leads to the items, having no check here", () => {
+    expect(rowTarget(need({ kind: "item", item: "Rold Medallion" }), OWN)).toEqual({
+      kind: "items",
+    });
+  });
+
+  test("a count leads to the items, being made of several", () => {
+    const count: Need = { kind: "count", label: "Great Runes", have: 2, needs: 2, items: [] };
+    expect(rowTarget(need(count), OWN)).toEqual({ kind: "items" });
   });
 });
 

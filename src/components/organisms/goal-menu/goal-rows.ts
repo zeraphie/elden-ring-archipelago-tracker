@@ -80,6 +80,32 @@ export type RowView = { readonly key: string; readonly isGotten: boolean } & (
   | { readonly kind: "boss"; readonly boss: GoalBoss }
 );
 
+/** Where a finished row leads: a check, by its name or its id, or the items, for what came from elsewhere. */
+export type RowTarget =
+  | { readonly kind: "named"; readonly name: string }
+  | { readonly kind: "check"; readonly id: number }
+  | { readonly kind: "items" };
+
+/**
+ * Where a finished row leads, given the check each of the slot's own finds was
+ * in, by the item's name; undefined for a boss with no drop in the room.
+ */
+export function rowTarget(
+  view: RowView,
+  ownFinds: ReadonlyMap<string | undefined, number>
+): RowTarget | undefined {
+  if (view.kind === "boss") {
+    const { drop } = view.boss;
+    return drop === undefined ? undefined : { kind: "named", name: drop };
+  }
+  const { need } = view;
+  if (need.kind === "location") {
+    return { kind: "named", name: need.location };
+  }
+  const id = need.kind === "item" ? ownFinds.get(need.item) : undefined;
+  return id === undefined ? { kind: "items" } : { kind: "check", id };
+}
+
 /**
  * The menu's rows to do and done, needs before bosses. With `isAllDone`, as
  * once the goal's achieved, every need counts as met, a count made up in

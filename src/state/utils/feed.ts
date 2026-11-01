@@ -14,7 +14,7 @@ import type { KeySpot } from "../../data/names/key-spots.js";
 import type { RegionSummary } from "../../data/rules/region-summary.js";
 import type { EldenRingData } from "../setup.js";
 import { findingsOf, type Finding, type FindingInputs } from "./findings.js";
-import { regionsOf, type RegionInputs } from "./regions.js";
+import { regionsById, regionsOf, type RegionInputs } from "./regions.js";
 import { roomViewOf } from "./room.js";
 
 /** A player in the feed, by slot, with their name as the roster has it; slot 0 is the server. */
@@ -54,6 +54,8 @@ export interface OwnFind {
   readonly isProgression: boolean;
   /** Whether it was in one of the slot's key checks. */
   readonly isKeyCheck: boolean;
+  /** The id of the check it was in. */
+  readonly location: number;
   /** The check it was in, once the room's names are in. */
   readonly check: KeySpot | undefined;
 }
@@ -146,19 +148,9 @@ export function ownFindsOf(data: EldenRingData, inputs: FeedInputs): OwnFind[] {
         item: itemNames?.get(value.item),
         isProgression: (value.flags & PROGRESSION) !== 0,
         isKeyCheck: keyChecks?.has(value.location) === true,
+        location: value.location,
         check: name === undefined ? undefined : data.checkName(name),
       } as const,
     ];
   });
-}
-
-// Each check's region, by its id.
-function regionsById(regions: ReadonlyMap<string, RegionSummary> | undefined): Map<number, string> {
-  const regionOf = new Map<number, string>();
-  for (const [region, { ids }] of regions ?? []) {
-    for (const id of ids) {
-      regionOf.set(id, region);
-    }
-  }
-  return regionOf;
 }

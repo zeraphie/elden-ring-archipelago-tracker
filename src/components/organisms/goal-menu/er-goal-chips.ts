@@ -205,9 +205,18 @@ export class ErGoalChips extends LitElement {
             ${closeIcon}
           </button>
         </div>
-        <er-region-bosses .toDo=${this.toDo} .defeated=${this.defeated}></er-region-bosses>
+        <er-region-bosses
+          .toDo=${this.toDo}
+          .defeated=${this.defeated}
+          @er-drop=${this.closeSheet}
+        ></er-region-bosses>
       </div>`;
   }
+
+  // A boss opened goes to the panel the sheet lies over, so the sheet gets out of its way.
+  private readonly closeSheet = (): void => {
+    this.renderRoot.querySelector<HTMLElement>("#sheet")?.hidePopover();
+  };
 
   // A chip picks its region on the page, and opens the sheet on it, at the top of its list.
   private open(code: string): void {

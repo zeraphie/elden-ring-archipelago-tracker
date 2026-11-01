@@ -7,7 +7,8 @@
  * store and the Elden Ring data, and moves as items arrive and checks are
  * done. A boss or a need with no icon yet keeps its frame, empty. A row
  * achieved while the menu watches plays its way out before it joins the end
- * of what's obtained, so nothing slides. Once the goal's achieved, its band
+ * of what's obtained, so nothing slides. A finished row opens its check, or
+ * the items for what came from elsewhere. Once the goal's achieved, its band
  * takes the top, and every row is among what's obtained. A goal of more bosses
  * than rows read well at a glance goes by region: on the desktop its tally and
  * bar, the main path's rows, then one region's bosses at a time; at a tablet's
@@ -24,7 +25,7 @@ import type { RegionSummary } from "../../../data/rules/region-summary.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
 import { ownFindsOf } from "../../../state/utils/feed.js";
-import { goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
+import { checkNamed, checkOf, goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
 import { regionsOf } from "../../../state/utils/regions.js";
 import { barStyles } from "../../atoms/bar.js";
 import { figures } from "../../atoms/figures.js";
@@ -44,13 +45,17 @@ import {
   LEAVE_MS,
   placeRows,
   rowLeft,
+  rowTarget,
   rowViewsOf,
   STAGGER_MS,
   type GoalRows,
+  type RowTarget,
   type RowView,
 } from "./goal-rows.js";
 import { bossLine, bossName, needLine, needName } from "./goal-words.js";
 import { StripScroll } from "./strip-scroll.js";
+import type { CheckPick } from "../../utils/check-pick.js";
+import { emit } from "../../utils/emit.js";
 import { figure, percentDone } from "../../utils/figure.js";
 import { isMotionReduced } from "../../utils/motion.js";
 import { iconUrl } from "../../utils/icons.js";
@@ -75,6 +80,8 @@ interface RegionView {
  * The goal menu: what's needed, the goal's bosses, and what's been obtained.
  *
  * @fires er-region - A region was picked in a long goal's select; `detail` is its code.
+ * @fires er-check - A finished row was clicked; `detail` is a `CheckPick`, the check it opens.
+ * @fires er-items - A finished row was clicked whose item has no check here, as it came from elsewhere.
  * @cssproperty --er-goal-menu-foot - Room kept clear under the menu's list, for whatever lies over the menu's foot; none by default.
  */
 export class ErGoalMenu extends LitElement {
@@ -147,6 +154,22 @@ export class ErGoalMenu extends LitElement {
       }
       .tally .track {
         margin: 6px 60px 0 22px;
+      }
+      /* A finished row is a button, glowing as the others do under the pointer. */
+      .open {
+        display: block;
+        width: 100%;
+        padding: 0;
+        background: none;
+        border: none;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+      .open:hover er-goal-row {
+        background: var(--er-glow-fill);
+        box-shadow: var(--er-glow);
       }
       /* The gap under the fold's heading is part of its contents, so it eases too. */
       details ul {
@@ -226,8 +249,8 @@ export class ErGoalMenu extends LitElement {
   // Where the rows stand, each row as it now reads by its key, and what they were placed from.
   private rows: GoalRows | undefined;
   private views = new Map<string, RowView>();
-  // The items the slot found in its own world, by name, as the rows were placed.
-  private ownFinds: ReadonlySet<string | undefined> = new Set();
+  // The check each item the slot found in its own world was in, by the item's name, as the rows were placed.
+  private ownFinds: ReadonlyMap<string | undefined, number> = new Map();
   private placedFrom:
     | { readonly menu: GoalMenu; readonly isAllDone: boolean; readonly byRegion: boolean }
     | undefined;
@@ -279,7 +302,9 @@ export class ErGoalMenu extends LitElement {
     const done = views.done.filter(isShown);
     this.views = new Map([...toDo, ...done].map((view) => [view.key, view]));
     const state = this.store?.getState();
-    this.ownFinds = new Set(state && ownFindsOf(data, state).map(({ item }) => item));
+    this.ownFinds = new Map(
+      state && ownFindsOf(data, state).map(({ item, location }) => [item, location])
+    );
     const { rows, started } = placeRows(
       this.rows,
       toDo.map(({ key }) => key),
@@ -343,6 +368,7 @@ export class ErGoalMenu extends LitElement {
       key: `boss:${boss.flag}`,
       name: bossName(boss),
       place: boss.drop === undefined ? "" : data.checkName(boss.drop).place,
+      drop: boss.drop,
     });
     return {
       data,
@@ -382,6 +408,7 @@ export class ErGoalMenu extends LitElement {
       .count=${view.count}
       .toDo=${view.toDo}
       .defeated=${view.defeated}
+      @er-drop=${this.openDrop}
     ></er-goal-regions>`;
   }
 
@@ -405,6 +432,7 @@ export class ErGoalMenu extends LitElement {
       .defeated=${view.defeated}
       .defeatedOf=${view.tally}
       .sheetUnder=${this.parentElement ?? undefined}
+      @er-drop=${this.openDrop}
     ></er-goal-chips>`;
   }
 
@@ -459,16 +487,53 @@ export class ErGoalMenu extends LitElement {
             needLine(view.need, view.isGotten, this.ownFinds),
           ]
         : [data.bossIcon(view.boss.flag), bossName(view.boss), bossLine(view.boss)];
+    const row = html`<er-goal-row
+      ?data-gotten=${view.isGotten}
+      ?data-leaving=${isLeaving}
+      style=${delay > 0 ? `--er-goal-row-delay: ${delay}ms` : nothing}
+      .icon=${iconUrl(icon)}
+      .label=${label}
+      .line=${line}
+    ></er-goal-row>`;
+    const target = view.isGotten && !isLeaving ? rowTarget(view, this.ownFinds) : undefined;
     return html`<li>
-      <er-goal-row
-        ?data-gotten=${view.isGotten}
-        ?data-leaving=${isLeaving}
-        style=${delay > 0 ? `--er-goal-row-delay: ${delay}ms` : nothing}
-        .icon=${iconUrl(icon)}
-        .label=${label}
-        .line=${line}
-      ></er-goal-row>
+      ${
+        target === undefined
+          ? row
+          : html`<button
+              class="open"
+              aria-label=${`${label}: ${line}`}
+              @click=${() => this.open(target)}
+            >
+              ${row}
+            </button>`
+      }
     </li>`;
+  }
+
+  private readonly openDrop = ({ detail }: CustomEvent<string>): void => {
+    this.open({ kind: "named", name: detail });
+  };
+
+  // A finished row opens its check, as a click on the map does, or the items for what came from
+  // elsewhere, which has no check here.
+  private open(target: RowTarget): void {
+    const { store, data } = this;
+    if (store === undefined || data === undefined) {
+      return;
+    }
+    if (target.kind === "items") {
+      emit<undefined>(this, "er-items", undefined);
+      return;
+    }
+    const state = store.getState();
+    const check =
+      target.kind === "check"
+        ? checkOf(data, state, target.id)
+        : checkNamed(data, state, target.name);
+    if (check !== undefined) {
+      emit<CheckPick>(this, "er-check", check);
+    }
   }
 }
 

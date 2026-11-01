@@ -266,7 +266,7 @@ here first, then search the source, then write.
 - `ErGoalRow`: A row of the goal menu: its icon in a frame, its name and how it stands.
 
 **src/components/organisms/goal-menu/er-region-bosses.ts**
-- `RegionBossRow`: A goal boss as a region's lists show it: its key, its name, and where it is.
+- `RegionBossRow`: A goal boss as a region's lists show it: its key, its name, where it is, and its drop's location.
 - `ErRegionBosses`: A region's goal bosses to defeat, and those defeated folded beneath.
 
 **src/components/organisms/goal-menu/goal-regions.ts**
@@ -287,6 +287,8 @@ here first, then search the source, then write.
 - `placeRows()`: Where the rows stand once the menu has the rows to do and done: a row done that was to do starts leaving, and stays in its place until it's left.
 - `rowLeft()`: The rows once `key` has left: gone from the list, and last in Done; as they were when it isn't leaving.
 - `RowView`: A goal row as the menu shows it: a need or a boss, by its key, and whether it's gotten.
+- `RowTarget`: Where a finished row leads: a check, by its name or its id, or the items, for what came from elsewhere.
+- `rowTarget()`: Where a finished row leads, given the check each of the slot's own finds was in, by the item's name; undefined for a boss with no drop in the room.
 - `rowViewsOf()`: The menu's rows to do and done, needs before bosses.
 
 **src/components/organisms/goal-menu/goal-words.ts**
@@ -690,6 +692,8 @@ here first, then search the source, then write.
 
 **src/state/utils/goal.ts** (src/components, src/components/organisms)
 - `goalMenuOf()`: The goal menu for the store's room; undefined until slot_data is in, or when it can't be read.
+- `checkOf()`: The check of this id, with its region; undefined where the room has no such check.
+- `checkNamed()`: The check of this location's name, with its region; undefined where the room has no such check.
 - `isGoalReached()`: Whether the goal is reached: done as the room says, or every goal boss defeated, which a release can show before the game does.
 - `releaseOf()`: What becomes of the items left in the slot's world, its goal done: by the room's permission, or a release it announced.
 
