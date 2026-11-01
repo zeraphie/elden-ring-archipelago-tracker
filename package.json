@@ -20,6 +20,7 @@
     "bosses": "bun run tools/write-bosses.ts",
     "location-groups": "bun run tools/write-location-groups.ts",
     "region-graph": "bun run tools/write-region-graph.ts",
+    "demo-room": "bun run tools/write-demo-room.ts",
     "check": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run reuse:check && bun run catalogue:check"
   },
   "dependencies": {

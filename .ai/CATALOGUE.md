@@ -81,6 +81,16 @@ here first, then search the source, then write.
 - `RYKARD_ID`: The game's id for Rykard, Lord of Blasphemy, before enemy rando moves him.
 - `SERPENT_ID`: The game's id for the God-Devouring Serpent, before enemy rando moves it.
 
+**tools/write-demo-room.ts**
+- `CheckRun`: A run of checks: the first id, how many ids follow on from it, and their tile, or "" off the map.
+- `DemoRoom`: What the demo keeps of a seed's Elden Ring slot.
+- `demoRoomFrom()`: What the demo keeps of the Elden Ring slot in a decoded multidata, by the location table's order.
+- `demoRoomModule()`: The source of src/demo/room-data.ts for this room.
+- `ROOM_OPTIONS`: The room's options, as slot_data gives them, but for those that list locations.
+- `ROOM_LOCATIONS`: The options that list locations, as indices into the location table.
+- `ROOM_GOAL`: The room's goal bosses, by the flag the game sets when each is defeated.
+- `ROOM_CHECKS`: Every check in the room, in order of id.
+
 **tools/write-location-groups.ts**
 - `EXCLUDABLE_GROUPS`: The groups a host can exclude locations by, in the apworld's own words.
 - `LocationFacts`: What the key-check rebuild and the rules need to know of one location.
@@ -114,7 +124,7 @@ here first, then search the source, then write.
 - `MessagePart`: One part of a message's text: plain, or an id to name, with what's known of it.
 - `LiveEvent`: Something the room said, as the tracker reads it.
 
-**src/archipelago/look-up.ts** (src/components/organisms, src/components/utils, src/state)
+**src/archipelago/look-up.ts** (src/components/organisms, src/components/utils, src/state, tools)
 - `ELDEN_RING`: Elden Ring's name as Archipelago gives a slot's game.
 
 **src/archipelago/release.ts** (src/components/organisms, src/state)
@@ -625,15 +635,19 @@ here first, then search the source, then write.
 **src/data/checks/key-checks.ts** (src/archipelago)
 - `KeyCheckSlotData`: What rebuilding a room's key checks reads from its Elden Ring slot_data, with its checks' names from the data package.
 
+**src/data/checks/location-groups.ts** (src/demo, tools)
+- `LOCATION_GROUPS`: Each location's groups and region, by its Archipelago name.
+
 **src/data/checks/map-pins.ts** (src/components/organisms, src/components/utils, src/state)
 - `PinState`: How a pin stands: every key check on its tile checked, some left, or some left in a locked region.
 - `MapPin`: The key checks on one map tile: where it is, the region it belongs to, the checks by id, and how many are checked.
 
-**src/data/checks/map-tiles.ts** (src/components/organisms, src/components/utils, src/state)
+**src/data/checks/map-tiles.ts** (src/components/organisms, src/components/utils, src/state, tools)
 - `Sheet`: One of the game's two open-world map sheets: the Lands Between, and the Realm of Shadow.
 - `PlacedLocation`: A location placed on a map: its region, its sheet, and its tile's column and row.
 - `Edge`: A tile side on a border, as its two corners in tile units: [x1, y1, x2, y2].
 - `SheetTiles`: A sheet's regions, and its coastline: the sides of its tiles with no tile beyond.
+- `tileOf()`: The sheet and tile a static-randomizer key places a location on; undefined off the open-world map.
 
 **src/data/names/key-spots.ts** (src/components/utils, src/state, tools)
 - `KeySpot`: A key spot's full name: where it is, and the encounter or object there.

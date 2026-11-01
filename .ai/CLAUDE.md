@@ -47,6 +47,8 @@ unprompted.**
   and what's kept for the person on this device through localStorage.
 - `src/data/` holds the Elden Ring static domain data: areas, their
   checks, the item name map, the goal list.
+- `src/demo/` holds what typing `demo` opens: a room with no server,
+  the mock data the tests and demos run on.
 - Import rules, as `tools/reuse.config.ts` holds them: `src/components`
   may take from its own layers, `src/archipelago`, `src/state` and
   `src/data`; its molecules from atoms, utils and those three; its
@@ -55,8 +57,8 @@ unprompted.**
   never another organism's parts; the page from every layer, the
   intro's curtain included;
   `src/state` from `src/archipelago`, `src/data` and `src/storage`;
-  `src/archipelago` from `src/data`; `src/data` and `src/storage` take
-  from nothing else in the app.
+  `src/archipelago` from `src/data`; `src/demo` from `src/data`;
+  `src/data` and `src/storage` take from nothing else in the app.
 
 ## What exists
 
@@ -73,4 +75,5 @@ unprompted.**
 - `src/state/`: the tracker's store and its slices
 - `src/storage/`: the IndexedDB database and the device's own storage
 - `src/data/`: static Elden Ring domain data
+- `src/demo/`: the demo room, the mock data the tests and demos run on
 - `src/components/`: the Lit elements the page is made of
