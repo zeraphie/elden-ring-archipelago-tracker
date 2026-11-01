@@ -10,21 +10,27 @@ import {
 } from "../../src/archipelago/web-api.js";
 import { isAsleep } from "../../src/archipelago/web-responses.js";
 import { isApworldSupported, RULES_APWORLD } from "../../src/data/rules/apworld.js";
-import { demoLocationNames, DEMO_SLOT } from "../../src/demo/room.js";
+import { OTHER_PLAYERS } from "../../src/demo/players.js";
+import { demoItemNames, demoLocationNames, DEMO_SLOT } from "../../src/demo/room.js";
+import { demoSnapshot } from "../../src/demo/snapshot.js";
 import { demoFetcher, routeOf } from "../../src/demo/web.js";
 import { SIMULATED_ITEMS } from "../../src/state/utils/simulate.js";
 
 const NOW = Date.UTC(2026, 10, 1, 12);
 const fetcher = demoFetcher(() => NOW);
+const SNAPSHOT = demoSnapshot();
 
 describe("demoFetcher", () => {
   test("says the room is awake at whatever time it's asked", async () => {
     expect(isAsleep(await getRoomStatus("demo", fetcher), NOW)).toBe(false);
   });
 
-  test("has the demo's slot playing Elden Ring", async () => {
+  test("has the demo's slot playing Elden Ring, then the others in slot order", async () => {
     const { players } = await getRoomStatus("demo", fetcher);
-    expect(players).toEqual([{ name: DEMO_SLOT, game: ELDEN_RING }]);
+    expect(players).toEqual([
+      { name: DEMO_SLOT, game: ELDEN_RING },
+      ...OTHER_PLAYERS.map(({ name, game }) => ({ name, game })),
+    ]);
   });
 
   test("gives a data package checksum the tracker can read", async () => {
@@ -32,15 +38,30 @@ describe("demoFetcher", () => {
     expect(isApworldSupported(checksums.get(ELDEN_RING))).toBe(true);
   });
 
-  test("counts every check in the slot's total", async () => {
-    const { totals } = await getStaticTracker("demo", fetcher);
-    expect(totals[0]?.total).toBe(demoLocationNames().size);
+  test("gives every player's game and total", async () => {
+    const { games, totals } = await getStaticTracker("demo", fetcher);
+    expect(games.map(({ game }) => game)).toEqual([
+      ELDEN_RING,
+      ...OTHER_PLAYERS.map(({ game }) => game),
+    ]);
+    expect(totals.map(({ total }) => total)).toEqual([
+      demoLocationNames().size,
+      ...OTHER_PLAYERS.map(({ total }) => total),
+    ]);
   });
 
   test("names the room's checks and every item Simulate gives", async () => {
     const { itemNames, locationNames } = await getDataPackage(RULES_APWORLD.checksum, fetcher);
     expect(locationNames).toEqual(new Map(demoLocationNames()));
-    expect(new Set(itemNames.values())).toEqual(new Set(SIMULATED_ITEMS));
+    expect(itemNames).toEqual(new Map(demoItemNames()));
+    expect(SIMULATED_ITEMS.every((name) => [...itemNames.values()].includes(name))).toBe(true);
+  });
+
+  test("gives each other player's game a package of its own", async () => {
+    const [sam] = OTHER_PLAYERS;
+    const { itemNames, locationNames } = await getDataPackage(sam?.checksum ?? "", fetcher);
+    expect([...itemNames.values()]).toEqual([...(sam?.items ?? [])]);
+    expect([...locationNames.values()]).toEqual([...(sam?.locations ?? [])]);
   });
 
   test("gives slot_data the rules can read", async () => {
@@ -49,13 +70,38 @@ describe("demoFetcher", () => {
     expect(readRulesSlotData(slot?.slotData ?? {})?.goal).toHaveLength(2);
   });
 
-  test("has the slot playing, with nothing done", async () => {
+  test("has everyone playing", async () => {
     const tracker = await getTracker("demo", fetcher);
-    expect(tracker.status).toEqual([{ team: 0, player: 1, status: 20 }]);
-    expect(tracker.checksDone).toEqual([]);
+    expect(tracker.status).toHaveLength(1 + OTHER_PLAYERS.length);
+    expect(tracker.status.every(({ status }) => status === 20)).toBe(true);
   });
 
-  test("has no data package for another checksum", async () => {
+  test("tells the slot's checks and items as the snapshot has them", async () => {
+    const tracker = await getTracker("demo", fetcher);
+    const mine = tracker.checksDone.find(({ player }) => player === 1);
+    expect(mine?.locations).toEqual([...SNAPSHOT.checked]);
+    const items = tracker.itemsReceived.find(({ player }) => player === 1);
+    expect(items?.items).toEqual([...SNAPSHOT.received]);
+  });
+
+  test("tells what the slot found for the others among their items", async () => {
+    const tracker = await getTracker("demo", fetcher);
+    const theirs = tracker.itemsReceived
+      .filter(({ player }) => player !== 1)
+      .flatMap(({ items }) => items);
+    expect(theirs).toHaveLength(SNAPSHOT.sent.length);
+    expect(theirs.every(({ player }) => player === 1)).toBe(true);
+  });
+
+  test("counts the others' checks as they stand", async () => {
+    const tracker = await getTracker("demo", fetcher);
+    for (const { player, checksDone } of OTHER_PLAYERS) {
+      const theirs = tracker.checksDone.find((each) => each.player === player);
+      expect(theirs?.locations).toHaveLength(checksDone);
+    }
+  });
+
+  test("has no data package for a game nobody here plays", async () => {
     await expect(getDataPackage("another", fetcher)).rejects.toMatchObject({
       problem: "not found",
     });

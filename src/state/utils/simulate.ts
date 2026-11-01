@@ -36,10 +36,23 @@ export type SimulateInputs = Pick<
 // The items a check made, or an item sent, holds in turn, by name; a key item is flagged progression.
 const FOUND = [
   "Dectus Medallion (Right)",
-  "Caelid Lock",
+  "Weeping Lock",
   "Rune Arc",
+  "Liurnia Lock",
   "Golden Seed",
+  "Caelid Lock",
   "Smithing Stone [5]",
+  "Siofra Lock",
+  "Ainsel Lock",
+  "Deeproot Lock",
+  "Mt. Gelmir Lock",
+  "Volcano Lock",
+  "Sewer Lock",
+  "Mohgwyn Lock",
+  "Farum Azula Lock",
+  "Ashen Lock",
+  "Haligtree Lock",
+  "Dectus Medallion (Left)",
 ];
 const SENT = [
   "Rusty Key",
@@ -114,9 +127,14 @@ export function withAllBosses(
 }
 
 /** The websocket's events for making check `id`, its item the `step`th of the list; none without a slot. */
-export function checkMade(inputs: SimulateInputs, id: number, step: number): LiveEvent[] {
+export function checkMade(
+  inputs: SimulateInputs,
+  id: number,
+  step: number,
+  names: readonly string[] = FOUND
+): LiveEvent[] {
   const { slot } = inputs;
-  const item = itemFor(inputs, FOUND, step, id, slot ?? 0);
+  const item = itemFor(inputs, names, step, id, slot ?? 0);
   return [
     // A RoomUpdate carries only what changed, as the server sends it and the live room reads it.
     {

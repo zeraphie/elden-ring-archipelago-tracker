@@ -6,11 +6,15 @@ import { ELDEN_RING, lookUp } from "../../src/archipelago/look-up.js";
 import { roomAddress, RoomSocket } from "../../src/archipelago/room-socket.js";
 import { isNewer, serverVersionOf } from "../../src/archipelago/versions.js";
 import { isApworldSupported } from "../../src/data/rules/apworld.js";
+import { OTHER_PLAYERS } from "../../src/demo/players.js";
 import { demoLocationNames, DEMO_PLAYER, DEMO_SLOT } from "../../src/demo/room.js";
+import { demoSnapshot } from "../../src/demo/snapshot.js";
 import { demoOpener } from "../../src/demo/socket.js";
 import { demoFetcher } from "../../src/demo/web.js";
 import { TRACKER_VERSION } from "../fixtures/sockets.js";
+import { until } from "../fixtures/waits.js";
 
+const SNAPSHOT = demoSnapshot();
 const open = () => RoomSocket.open(roomAddress(38281), demoOpener());
 
 // The packets as the live room reads them, through a login.
@@ -39,13 +43,23 @@ describe("demoOpener", () => {
     expect(version && isNewer(version, TRACKER_VERSION)).toBe(false);
   });
 
-  test("logs the slot in, with every check still missing", async () => {
+  test("logs the slot in with the run as the snapshot has it", async () => {
     const socket = await open();
     const connected = await socket.logIn(DEMO_SLOT, TRACKER_VERSION);
     expect(connected.slot).toBe(DEMO_PLAYER.player);
     expect(connected.team).toBe(DEMO_PLAYER.team);
-    expect(connected.missing_locations).toHaveLength(demoLocationNames().size);
-    expect(connected.checked_locations).toEqual([]);
+    expect(connected.checked_locations).toEqual([...SNAPSHOT.checked]);
+    expect(connected.missing_locations).toHaveLength(
+      demoLocationNames().size - SNAPSHOT.checked.length
+    );
+  });
+
+  test("lists every player with the login", async () => {
+    const { players } = await (await open()).logIn(DEMO_SLOT, TRACKER_VERSION);
+    expect(players.map(({ name }) => name)).toEqual([
+      DEMO_SLOT,
+      ...OTHER_PLAYERS.map(({ name }) => name),
+    ]);
   });
 
   test("gives slot_data the rules can read with the login", async () => {
@@ -53,10 +67,27 @@ describe("demoOpener", () => {
     expect(readRulesSlotData(slotData as Record<string, unknown>)?.goal).toHaveLength(2);
   });
 
-  test("hands over the whole list of items with the login", async () => {
+  test("hands over the whole list of items with the login, so none of it toasts", async () => {
     const { events } = await loggedIn();
-    expect(events.map(({ kind }) => kind)).toEqual(["connected", "items received"]);
-    expect(events[1]).toMatchObject({ isWholeList: true, items: [] });
+    expect(events.slice(0, 2).map(({ kind }) => kind)).toEqual(["connected", "items received"]);
+    expect(events[1]).toMatchObject({ isWholeList: true, items: [...SNAPSHOT.received] });
+  });
+
+  test("says what the room has to say after the login", async () => {
+    const { events } = await loggedIn();
+    await until(() => events.some(({ kind }) => kind === "hint"));
+    const kinds = new Set(events.map(({ kind }) => kind));
+    expect(kinds).toEqual(new Set(["connected", "items received", "join", "chat", "hint"]));
+  });
+
+  test("hints in the shape a real hint comes in", async () => {
+    const { events } = await loggedIn();
+    await until(() => events.some(({ kind }) => kind === "hint"));
+    expect(events.find(({ kind }) => kind === "hint")).toMatchObject({
+      item: SNAPSHOT.hint,
+      receiving: DEMO_PLAYER.player,
+      found: false,
+    });
   });
 
   test("tells whoever's listening when it's closed", async () => {
@@ -79,7 +110,16 @@ describe("demoOpener", () => {
       found: {
         kind: "room",
         needsPassword: false,
-        slots: [{ team: 0, player: 1, name: DEMO_SLOT, game: ELDEN_RING, isEldenRing: true }],
+        slots: [
+          { team: 0, player: 1, name: DEMO_SLOT, game: ELDEN_RING, isEldenRing: true },
+          ...OTHER_PLAYERS.map(({ player, name, game }) => ({
+            team: 0,
+            player,
+            name,
+            game,
+            isEldenRing: false,
+          })),
+        ],
       },
     });
   });

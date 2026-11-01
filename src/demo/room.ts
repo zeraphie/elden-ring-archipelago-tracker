@@ -8,6 +8,8 @@
  */
 
 import { LOCATION_GROUPS } from "../data/checks/location-groups.js";
+import { readLocationName } from "../data/names/location-name.js";
+import { SIMULATED_ITEMS } from "../state/utils/simulate.js";
 import { ROOM_CHECKS, ROOM_GOAL, ROOM_LOCATIONS, ROOM_OPTIONS } from "./room-data.js";
 
 /** The name of the demo's own slot, which the tracker opens on. */
@@ -20,8 +22,20 @@ export const DEMO_PLAYER = { team: 0, player: 1 };
 const FIRST_LOCATION = 7_000_000;
 // And the generator's copies from here, a whole table further on for each extra item.
 const FIRST_COPY = 8_000_000;
+// The apworld numbers its items from here; the room's are counted from it, though not in its order.
+const FIRST_ITEM = 69_000;
 
 const LOCATIONS = [...LOCATION_GROUPS.keys()];
+
+/** Every item the room can hold, by id, as the Elden Ring data package gives them: what Simulate gives, and each check's own item in the unrandomised game. */
+export function demoItemNames(): ReadonlyMap<number, string> {
+  const own = [...demoLocationNames().values()].flatMap(
+    (name) => readLocationName(name)?.vanilla ?? []
+  );
+  return new Map(
+    [...new Set([...SIMULATED_ITEMS, ...own])].map((name, i) => [FIRST_ITEM + i, name] as const)
+  );
+}
 
 /** Every check in the room's name, by id, as the Elden Ring data package gives them. */
 export function demoLocationNames(): ReadonlyMap<number, string> {

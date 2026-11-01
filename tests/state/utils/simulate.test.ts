@@ -106,8 +106,14 @@ describe("checkMade", () => {
     });
   });
 
+  test("takes its item from the list it's given, in place of its own", () => {
+    const events = checkMade(inputs({ packages: WITH_FOUND }), LIMGRAVE, 0, ["Rusty Key"]);
+    expect(events[1]).toMatchObject({ added: [{ item: 1, location: LIMGRAVE, player: 1 }] });
+  });
+
   test("with no item the package names, only checks the location", () => {
-    expect(checkMade(inputs(), LIMGRAVE, 0).map(({ kind }) => kind)).toEqual(["room update"]);
+    const events = checkMade(inputs({ packages: new Map() }), LIMGRAVE, 0);
+    expect(events.map(({ kind }) => kind)).toEqual(["room update"]);
   });
 });
 

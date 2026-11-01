@@ -3,15 +3,18 @@
  *
  * archipelago.gg's web API as the demo room answers it, handed in where the
  * browser's fetch would go, so nothing leaves the page. Each route answers in
- * the real one's shape, and the real readers read it. Any other address, or
- * another game's data package, is a 404, as the real site gives.
+ * the real one's shape, and the real readers read it, with the run as the
+ * snapshot has it. Any other address, or a game's data package no player here
+ * has, is a 404, as the real site gives.
  */
 
 import { ELDEN_RING } from "../archipelago/look-up.js";
 import type { Fetcher } from "../archipelago/web-api.js";
+import type { NetworkItem } from "../archipelago/web-responses.js";
 import { RULES_APWORLD } from "../data/rules/apworld.js";
-import { SIMULATED_ITEMS } from "../state/utils/simulate.js";
-import { demoLocationNames, demoSlotData, DEMO_PLAYER, DEMO_SLOT } from "./room.js";
+import { DEMO_CHECKSUMS, OTHER_PLAYERS } from "./players.js";
+import { demoItemNames, demoLocationNames, demoSlotData, DEMO_PLAYER, DEMO_SLOT } from "./room.js";
+import { demoSnapshot } from "./snapshot.js";
 
 /** The web API's routes, by the part of the path that names each. */
 export type Route =
@@ -37,8 +40,8 @@ const PORT = 38281;
 const TIMEOUT = 7200;
 // A slot's client status once it's playing.
 const PLAYING = 20;
-// The apworld numbers its items from here; the demo's own are numbered from it in the same way.
-const FIRST_ITEM = 69_000;
+// How long ago each player after the first was last active, a few minutes further back each.
+const IDLE_MS = 7 * 60_000;
 
 /** The route a web API address asks for; undefined for any other address. */
 export function routeOf(url: string): Route | undefined {
@@ -61,45 +64,112 @@ function answer(route: Route, url: string, now: number): unknown {
     case "room_status":
       return {
         tracker: TRACKER,
-        players: [[DEMO_SLOT, ELDEN_RING]],
+        players: [[DEMO_SLOT, ELDEN_RING], ...OTHER_PLAYERS.map(({ name, game }) => [name, game])],
         last_port: PORT,
         last_activity: new Date(now).toUTCString(),
         timeout: TIMEOUT,
       };
     case "static_tracker":
-      return {
-        datapackage: { [ELDEN_RING]: { checksum: RULES_APWORLD.checksum } },
-        groups: [],
-        player_game: [{ ...DEMO_PLAYER, game: ELDEN_RING }],
-        player_locations_total: [{ ...DEMO_PLAYER, total_locations: demoLocationNames().size }],
-      };
+      return staticTracker();
     case "datapackage":
-      return url.endsWith(`/${RULES_APWORLD.checksum}`) ? dataPackage() : undefined;
+      return dataPackage(url);
     case "slot_data_tracker":
-      return [{ player: DEMO_PLAYER.player, slot_data: demoSlotData() }];
+      return [
+        { player: DEMO_PLAYER.player, slot_data: demoSlotData() },
+        ...OTHER_PLAYERS.map(({ player }) => ({ player, slot_data: {} })),
+      ];
     case "tracker":
-      return {
-        aliases: [],
-        player_items_received: [],
-        player_checks_done: [],
-        total_checks_done: [{ team: DEMO_PLAYER.team, checks_done: 0 }],
-        hints: [],
-        activity_timers: [],
-        connection_timers: [],
-        player_status: [{ ...DEMO_PLAYER, status: PLAYING }],
-      };
+      return tracker(now);
   }
 }
 
-// Elden Ring's names: the room's checks, and the items Simulate gives.
-function dataPackage(): unknown {
+function staticTracker(): unknown {
   return {
-    checksum: RULES_APWORLD.checksum,
-    item_name_to_id: Object.fromEntries(
-      SIMULATED_ITEMS.map((name, i) => [name, FIRST_ITEM + i] as const)
+    datapackage: Object.fromEntries(
+      Object.entries(DEMO_CHECKSUMS).map(([game, checksum]) => [game, { checksum }])
     ),
-    location_name_to_id: Object.fromEntries(
-      [...demoLocationNames()].map(([id, name]) => [name, id] as const)
-    ),
+    groups: [],
+    player_game: [
+      { ...DEMO_PLAYER, game: ELDEN_RING },
+      ...OTHER_PLAYERS.map(({ team, player, game }) => ({ team, player, game })),
+    ],
+    player_locations_total: [
+      { ...DEMO_PLAYER, total_locations: demoLocationNames().size },
+      ...OTHER_PLAYERS.map(({ team, player, total }) => ({
+        team,
+        player,
+        total_locations: total,
+      })),
+    ],
   };
+}
+
+// A game's names, by the checksum the address ends on.
+function dataPackage(url: string): unknown {
+  const checksum = url.slice(url.lastIndexOf("/") + 1);
+  if (checksum === RULES_APWORLD.checksum) {
+    return {
+      checksum,
+      item_name_to_id: idsByName(demoItemNames()),
+      location_name_to_id: idsByName(demoLocationNames()),
+    };
+  }
+  const other = OTHER_PLAYERS.find((each) => each.checksum === checksum);
+  return (
+    other && {
+      checksum,
+      item_name_to_id: Object.fromEntries(other.items.map((name, i) => [name, i + 1])),
+      location_name_to_id: Object.fromEntries(other.locations.map((name, i) => [name, i + 1])),
+    }
+  );
+}
+
+// How the run stands: the demo's slot as the snapshot has it, and the others by their counts.
+function tracker(now: number): unknown {
+  const { checked, received, sent } = demoSnapshot();
+  const others = OTHER_PLAYERS.map(({ team, player }) => ({ team, player }));
+  const everyone = [DEMO_PLAYER, ...others];
+  const times = everyone.map((slot, i) => ({
+    ...slot,
+    time: new Date(now - i * IDLE_MS).toUTCString(),
+  }));
+  return {
+    aliases: [],
+    player_items_received: [
+      { ...DEMO_PLAYER, items: received.map(itemRow) },
+      ...others.map((slot) => ({
+        ...slot,
+        items: sent
+          .filter(({ receiving }) => receiving === slot.player)
+          .map(({ item }) => itemRow(item)),
+      })),
+    ],
+    player_checks_done: [
+      { ...DEMO_PLAYER, locations: checked },
+      ...OTHER_PLAYERS.map(({ team, player, checksDone }) => ({
+        team,
+        player,
+        locations: Array.from({ length: checksDone }, (_, i) => i + 1),
+      })),
+    ],
+    total_checks_done: [
+      {
+        team: DEMO_PLAYER.team,
+        checks_done: OTHER_PLAYERS.reduce((all, each) => all + each.checksDone, checked.length),
+      },
+    ],
+    hints: [],
+    activity_timers: times,
+    connection_timers: times,
+    player_status: everyone.map((slot) => ({ ...slot, status: PLAYING })),
+  };
+}
+
+function idsByName(names: ReadonlyMap<number, string>): Readonly<Record<string, number>> {
+  return Object.fromEntries([...names].map(([id, name]) => [name, id]));
+}
+
+// An item as the web API lists one.
+function itemRow({ item, location, player, flags }: NetworkItem): readonly number[] {
+  return [item, location, player, flags];
 }

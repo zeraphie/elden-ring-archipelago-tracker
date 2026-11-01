@@ -120,7 +120,7 @@ here first, then search the source, then write.
 - `hintsAvailable()`: How many hints these points buy, at a cost above nothing.
 - `pointsToNextHint()`: How many more points the next hint takes, at a cost above nothing.
 
-**src/archipelago/live-events.ts** (src/components/organisms, src/state)
+**src/archipelago/live-events.ts** (src/components/organisms, src/demo, src/state)
 - `MessagePart`: One part of a message's text: plain, or an id to name, with what's known of it.
 - `LiveEvent`: Something the room said, as the tracker reads it.
 
@@ -167,7 +167,7 @@ here first, then search the source, then write.
 - `getDataPackage()`: A game's data package, by its checksum: the game's item and location names.
 - `getSlotData()`: Each slot's slot_data, by tracker id.
 
-**src/archipelago/web-responses.ts** (src/state, tools)
+**src/archipelago/web-responses.ts** (src/demo, src/state, tools)
 - `WebApiProblem`: Why a web API request failed: no such room or tracker, no answer, or an answer in a shape it shouldn't have.
 - `WebApiError`: A web API request that failed, with what was asked for, or the field that was wrong.
 - `DataPackage`: A game's data package: its item and location names, by Archipelago id.
@@ -654,7 +654,7 @@ here first, then search the source, then write.
 **src/data/names/key-spots.ts** (src/components/utils, src/state, tools)
 - `KeySpot`: A key spot's full name: where it is, and the encounter or object there.
 
-**src/data/names/location-name.ts** (src/components/utils, src/state, tools)
+**src/data/names/location-name.ts** (src/components/utils, src/demo, src/state, tools)
 - `readLocationName()`: An Elden Ring location's name in its parts, or undefined for a name not in that form.
 - `withoutExtra()`: A location name apart from the generator's ", extra item N", and that N, so a copy reads as the spot it copies.
 - `SpotCopy`: Which of a spot's checks this one is, the spot itself first and the generator's copies after it, and how many there are.
@@ -747,7 +747,7 @@ here first, then search the source, then write.
 - `isGoalReached()`: Whether the goal is reached: done as the room says, or every goal boss defeated, which a release can show before the game does.
 - `releaseOf()`: What becomes of the items left in the slot's world, its goal done: by the room's permission, or a release it announced.
 
-**src/state/utils/key-checks.ts** (src/components/organisms)
+**src/state/utils/key-checks.ts** (src/components/organisms, src/demo)
 - `keyChecksFrom()`: A slot's key checks, by location id, worked out from its slot_data and the names of its game's data package; undefined in a shape they can't be.
 
 **src/state/utils/map.ts** (src/components/organisms, src/components/utils)
@@ -758,10 +758,11 @@ here first, then search the source, then write.
 - `Progress`: How far the slot has got; a total is undefined until it's known.
 - `progressOf()`: How far the slot has got, from what the store holds.
 
-**src/state/utils/regions.ts** (src/components, src/components/organisms, src/components/utils)
+**src/state/utils/regions.ts** (src/components, src/components/organisms, src/components/utils, src/demo)
 - `regionsOf()`: Each region of the store's room, by its code; undefined until slot_data and the data package are in, or when they can't be read.
 
 **src/state/utils/simulate.ts** (src/components/organisms, src/demo)
+- `SimulateInputs`: What simulating reads, in the store.
 - `SIMULATED_ITEMS`: Every item the lists can give, by name, for a data package to name.
 - `nextCheck()`: The next key check left in an open region, the region given first; undefined when none is left.
 - `nextBossDefeat()`: The next goal boss still to defeat, the region given first, as its drop's check and that check's region; undefined when none is left.
