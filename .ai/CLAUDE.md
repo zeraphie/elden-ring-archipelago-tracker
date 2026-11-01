@@ -67,6 +67,7 @@ unprompted.**
 - `.ai/CATALOGUE.md`: what's shared, written by `bun run catalogue`
 - `tools/reuse.config.ts`: the reuse table and the import rules
 - `.plan/`: local-only research, ADRs and plans (gitignored)
+- `.claude/threads/`: saved Claude conversations kept for the claude.ai Project (gitignored)
 - `src/archipelago/`: the live protocol client and the web API
 - `src/state/`: the tracker's store and its slices
 - `src/storage/`: the IndexedDB database

@@ -3,4 +3,5 @@ dist/
 .vite/
 .plan/
 .claude/rules/ai-usage/
+.claude/threads/
 *.local
