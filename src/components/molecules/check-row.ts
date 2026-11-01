@@ -13,7 +13,7 @@
  */
 
 import { css, html, nothing } from "lit";
-import type { CheckLook } from "../../state/settings.js";
+import type { Look } from "../../state/settings.js";
 import type { CheckRow } from "../../state/utils/checks.js";
 import type { Finding } from "../../state/utils/findings.js";
 import { bandRowStyles } from "../atoms/band.js";
@@ -177,7 +177,7 @@ export function checkBand(row: CheckRow, findings: readonly Finding[]) {
 }
 
 /** Spots as a tooltip shows them, in `look`, with `foot` under them where it's given. */
-export function checkTip(spots: readonly TipSpot[], look: CheckLook, foot?: string) {
+export function checkTip(spots: readonly TipSpot[], look: Look, foot?: string) {
   const spot = look === "comfort" ? checkBand : checkBlock;
   return html`<div class="popover tip">
     ${spots.map(({ row, findings }) => spot(row, findings))}

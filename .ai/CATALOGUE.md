@@ -806,5 +806,8 @@ here first, then search the source, then write.
 **src/storage/db.ts** (src/state)
 - `stateStorage`: What the zustand store persists through: JSON strings by name, in the database's state store.
 
+**src/storage/device.ts** (src/state)
+- `deviceStorage`: What the settings persist through: strings by name, in localStorage where it's allowed.
+
 **src/storage/memory.ts** (src/demo)
 - `memoryStorage()`: Storage in memory, in the database's place, so nothing outlasts the page; what it holds is open to look at.

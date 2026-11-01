@@ -14,6 +14,7 @@ function storageOf(kept?: string) {
 }
 
 const keptAs = (checkLook: unknown): string => JSON.stringify({ state: { checkLook }, version: 0 });
+const keptWith = (state: Record<string, unknown>): string => JSON.stringify({ state, version: 0 });
 
 describe("settings", () => {
   test("a new visitor starts on compact", () => {
@@ -44,6 +45,53 @@ describe("settings", () => {
   test("the store's actions aren't what's kept", () => {
     const { items, storage } = storageOf();
     createSettingsStore(storage).getState().setCheckLook("comfort");
-    expect(Object.keys(JSON.parse(items.get("er-settings") ?? "{}").state)).toEqual(["checkLook"]);
+    expect(Object.keys(JSON.parse(items.get("er-settings") ?? "{}").state).sort()).toEqual([
+      "checkLook",
+      "hasSplits",
+      "isTimerOn",
+      "timerLook",
+    ]);
+  });
+
+  test("a new visitor has the timer off, with splits on and the comfort look", () => {
+    const { isTimerOn, hasSplits, timerLook } = createSettingsStore(storageOf().storage).getState();
+    expect({ isTimerOn, hasSplits, timerLook }).toEqual({
+      isTimerOn: false,
+      hasSplits: true,
+      timerLook: "comfort",
+    });
+  });
+
+  test("the timer's settings are kept for the next visit", () => {
+    const { storage } = storageOf();
+    const settings = createSettingsStore(storage).getState();
+    settings.setTimerOn(true);
+    settings.setHasSplits(false);
+    settings.setTimerLook("compact");
+    const { isTimerOn, hasSplits, timerLook } = createSettingsStore(storage).getState();
+    expect({ isTimerOn, hasSplits, timerLook }).toEqual({
+      isTimerOn: true,
+      hasSplits: false,
+      timerLook: "compact",
+    });
+  });
+
+  test("a kept value it can't read leaves the settings it can", () => {
+    const { storage } = storageOf(
+      keptWith({ checkLook: "comfort", isTimerOn: "yes", hasSplits: false, timerLook: "spacious" })
+    );
+    const { checkLook, isTimerOn, hasSplits, timerLook } = createSettingsStore(storage).getState();
+    expect({ checkLook, isTimerOn, hasSplits, timerLook }).toEqual({
+      checkLook: "comfort",
+      isTimerOn: false,
+      hasSplits: false,
+      timerLook: "comfort",
+    });
+  });
+
+  test("settings kept before the timer came start its own as a new visitor's do", () => {
+    const { storage } = storageOf(keptAs("comfort"));
+    const { isTimerOn, hasSplits } = createSettingsStore(storage).getState();
+    expect({ isTimerOn, hasSplits }).toEqual({ isTimerOn: false, hasSplits: true });
   });
 });

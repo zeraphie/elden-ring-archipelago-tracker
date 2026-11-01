@@ -3,15 +3,17 @@
  *
  * Everything that can be set, in a panel laid over the right-hand panel at its
  * size, its title between gold rules and a cross to close it. Each section has
- * a band heading and a gold rule under it. For now there's one, how checks look
- * in the map's tooltip: a row for each look, showing it on a sample check, the
- * one chosen banded. The panel stays in the page while it's closed, so it can
- * fade in and out. At a tablet's width and below the title's smaller and to the
- * left, its rules go, and the rows sit side by side.
+ * a band heading and a gold rule under it, and nothing folds. Map checks is how
+ * checks look in the map's tooltip: a row for each look, showing it on a sample
+ * check, the one chosen banded. Timer is a checkbox on its heading, and its
+ * options show once it's ticked. The panel stays in the page while it's closed,
+ * so it can fade in and out. At a tablet's width and below the title's smaller
+ * and to the left, its rules go, and the rows sit side by side.
  */
 
-import { LitElement, css, html, type PropertyValues } from "lit";
-import { SETTINGS, type CheckLook, type SettingsState } from "../../../state/settings.js";
+import { LitElement, css, html, nothing, type PropertyValues } from "lit";
+import { shallow } from "zustand/vanilla/shallow";
+import { SETTINGS, type Look, type SettingsState } from "../../../state/settings.js";
 import { buttonStyles } from "../../atoms/button.js";
 import { diamondStyles } from "../../atoms/diamond.js";
 import { focusRing } from "../../atoms/focus.js";
@@ -24,7 +26,7 @@ import { emit } from "../../utils/emit.js";
 import { StoreController } from "../../utils/store-controller.js";
 
 // Each look, as its row names it.
-const LOOKS: readonly (readonly [CheckLook, string])[] = [
+const LOOKS: readonly (readonly [Look, string])[] = [
   ["compact", "Compact"],
   ["comfort", "Comfort"],
 ];
@@ -125,6 +127,27 @@ export class ErSettings extends LitElement {
         gap: 8px;
         font-weight: 600;
       }
+      /* The section's own checkbox, on its heading's right. */
+      .on-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        cursor: pointer;
+      }
+      .splits {
+        min-height: 44px;
+        box-sizing: border-box;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--er-panel-divider);
+        cursor: pointer;
+      }
+      .local {
+        margin: 0;
+        padding: 10px 16px 0;
+        font-size: 0.92em;
+        color: var(--er-ink-soft);
+      }
       @media ${narrow} {
         .head {
           padding: 12px 16px;
@@ -155,6 +178,7 @@ export class ErSettings extends LitElement {
     SETTINGS,
     ({ checkLook }: SettingsState) => checkLook
   );
+  private readonly timer = new StoreController(this, SETTINGS, timerOf, shallow);
 
   protected override updated(changed: PropertyValues<this>): void {
     if (changed.has("open") && this.open) {
@@ -199,8 +223,65 @@ export class ErSettings extends LitElement {
           )}
         </div>
         <div class="rule" aria-hidden="true"></div>
+        ${this.timerSection()}
+        <div class="rule" aria-hidden="true"></div>
       </div>`;
   }
+
+  private timerSection() {
+    const { isTimerOn, hasSplits, timerLook } = this.timer.value;
+    const { setTimerOn, setHasSplits, setTimerLook } = SETTINGS.getState();
+    return html`<h3 class="band-heading">
+        <label class="on-heading ring-within">
+          <span id="timer">Timer</span>
+          <input
+            class="diamond"
+            type="checkbox"
+            .checked=${isTimerOn}
+            @change=${(event: Event) => setTimerOn(isTicked(event))}
+          />
+        </label>
+      </h3>
+      ${
+        isTimerOn
+          ? html`<label class="choice splits ring-within">
+                <input
+                  class="diamond"
+                  type="checkbox"
+                  .checked=${hasSplits}
+                  @change=${(event: Event) => setHasSplits(isTicked(event))}
+                />
+                Enable splits
+              </label>
+              <div class="looks" role="radiogroup" aria-labelledby="timer">
+                ${LOOKS.map(
+                  ([look, name]) =>
+                    html`<label class="look band-row ring-within">
+                      <span class="choice">
+                        <input
+                          class="diamond"
+                          type="radio"
+                          name="timer-look"
+                          .checked=${look === timerLook}
+                          @change=${() => setTimerLook(look)}
+                        />
+                        ${name}
+                      </span>
+                    </label>`
+                )}
+              </div>
+              <p class="local">Times are local only</p>`
+          : nothing
+      }`;
+  }
+}
+
+function timerOf({ isTimerOn, hasSplits, timerLook }: SettingsState) {
+  return { isTimerOn, hasSplits, timerLook };
+}
+
+function isTicked({ target }: Event): boolean {
+  return (target as HTMLInputElement).checked;
 }
 
 customElements.define("er-settings", ErSettings);
