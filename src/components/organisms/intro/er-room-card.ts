@@ -351,10 +351,10 @@ export class ErRoomCard extends LitElement {
 
   private asleep({ since, page }: Extract<EntryPhase, { phase: "asleep" }>) {
     return html`<div class="tight" role="status">
-        <span class="title">The room is asleep</span>
+        <span class="title">The room is inactive</span>
         <span class="soft"
-          >It was last active ${ago(since, Date.now())}, so archipelago.gg has put it to sleep.
-          Opening its page wakes it; the tracker never does that itself.</span
+          >It was last active ${ago(since, Date.now())}, so archipelago.gg has made it inactive.
+          Opening its page reopens it; the tracker never does that itself.</span
         >
       </div>
       <div class="buttons">

@@ -43,10 +43,10 @@ export function liveState(phase: ConnectionPhase): LiveState {
     case "asleep":
       return {
         kind: "asleep",
-        text: "Asleep",
+        text: "Inactive",
         page: phase.page,
         detail:
-          "Nobody has played for a while, so archipelago.gg has put the room to sleep. Opening its page wakes it, and the tracker reconnects once it's up.",
+          "Nobody has played for a while, so archipelago.gg has made the room inactive. Opening its page reopens it, and the tracker reconnects once it's up.",
       };
     case "unreachable":
       return {

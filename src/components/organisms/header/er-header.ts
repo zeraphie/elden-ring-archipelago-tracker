@@ -243,11 +243,14 @@ export class ErHeader extends LitElement {
     const { kind, text, detail, page } = liveState(phase);
     return html`<span class="small live" data-kind=${kind} title=${detail ?? nothing}>
       <span class="light" aria-hidden="true"></span>
-      <span class="sr-phone">${text}</span>${
-        page === undefined
-          ? nothing
-          : html`, <a href=${page} target="_blank" rel="noopener noreferrer">open its page</a>`
-      }
+      <span>
+        <span class="sr-phone">${text}${page === undefined ? nothing : ","}</span>
+        ${
+          page === undefined
+            ? nothing
+            : html`<a href=${page} target="_blank" rel="noopener noreferrer">reopen the room</a>`
+        }
+      </span>
       ${detail === undefined ? nothing : html`<span class="sr">${detail}</span>`}
     </span>`;
   }

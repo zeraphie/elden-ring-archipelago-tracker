@@ -99,7 +99,7 @@ export function failureText(failure: SetupFailure): string {
     case "closed":
       return "The room closed the connection before letting the tracker in. Try again.";
     case "asleep":
-      return "The room went to sleep while the tracker was connecting.";
+      return "The room went inactive while the tracker was connecting.";
   }
 }
 
