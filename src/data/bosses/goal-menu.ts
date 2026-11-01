@@ -113,6 +113,25 @@ export function goalNeedOf(menu: GoalMenu, item: string): Need | undefined {
   return undefined;
 }
 
+/** The items the goal still waits on, nearest first: each need's item, and what each count counts. */
+export function goalItems({ needed }: GoalMenu): readonly string[] {
+  return needed.flatMap(itemsOf);
+}
+
+function itemsOf(need: Need): readonly string[] {
+  switch (need.kind) {
+    case "item":
+      return [need.item];
+    case "count":
+      return need.items;
+    case "all":
+    case "any":
+      return need.needs.flatMap(itemsOf);
+    default:
+      return [];
+  }
+}
+
 // The part of a need that `item` is, or counts for, looking into each part of a choice.
 function servedBy(need: Need, item: string): Need | undefined {
   switch (need.kind) {

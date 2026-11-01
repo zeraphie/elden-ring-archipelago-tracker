@@ -36,7 +36,9 @@ const ROOMS: [string, Options][] = [
 
 function allNames(options: Options) {
   const rules = rulesOf(options);
-  const names = [...rules.entrances.values(), ...rules.locations.values()].map(namesIn);
+  const names = [...rules.entrances.values(), ...rules.locations.values()].map((rule) =>
+    namesIn(rule)
+  );
   return {
     rules,
     areas: names.flatMap((name) => name.areas),

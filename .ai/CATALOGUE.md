@@ -755,6 +755,9 @@ here first, then search the source, then write.
 - `isGoalReached()`: Whether the goal is reached: done as the room says, or every goal boss defeated, which a release can show before the game does.
 - `releaseOf()`: What becomes of the items left in the slot's world, its goal done: by the room's permission, or a release it announced.
 
+**src/state/utils/hint-items.ts** (src/components/organisms)
+- `hintItemsOf()`: The items the hint box suggests, by name; none until the room can be read.
+
 **src/state/utils/key-checks.ts** (src/components/organisms, src/demo)
 - `keyChecksFrom()`: A slot's key checks, by location id, worked out from its slot_data and the names of its game's data package; undefined in a shape they can't be.
 

@@ -12,6 +12,7 @@ import type { RoomReach } from "./area-status.js";
 import type { ForcedBosses } from "./gates/boss-gates.js";
 import { reach } from "./reachability.js";
 import { regionGraph } from "./regions/region-graph.js";
+import { namesIn } from "./rules.js";
 import { worldRules, type WorldRuleOptions } from "./world-rules.js";
 
 /** A room as its rules read it: its options, the bosses forced into arenas, its goal, and every check it has, by name. */
@@ -41,6 +42,15 @@ export function startOf(room: Room): RoomReach {
     BUILT.set(room, found);
   }
   return found.start;
+}
+
+/** The room's key items, by name, in order: every item its rules can ask for, given its options. */
+export function keyItems(room: Room): readonly string[] {
+  const { entrances, locations } = startOf(room).rules;
+  const named = [...entrances.values(), ...locations.values()].flatMap(
+    (rule) => namesIn(rule, room.options).items
+  );
+  return [...new Set(named)].sort();
 }
 
 /** What the room reaches with these items received; the same items give the same reach back. */

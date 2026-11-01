@@ -10,7 +10,7 @@
 export { bossIcon, needIcon } from "./bosses/boss-icons.js";
 export { BOSSES } from "./bosses/bosses.js";
 export { bossDropping } from "./bosses/goal.js";
-export { goalMenu, goalNeedOf, needKey } from "./bosses/goal-menu.js";
+export { goalItems, goalMenu, goalNeedOf, needKey } from "./bosses/goal-menu.js";
 export { keyChecks } from "./checks/key-checks.js";
 export { mapPins } from "./checks/map-pins.js";
 export { placedLocations, sheetTiles } from "./checks/map-tiles.js";
@@ -18,4 +18,5 @@ export { checkName } from "./names/check-name.js";
 export { readLocationName, spotCopies } from "./names/location-name.js";
 export { regionName, shortRegionName } from "./names/regions.js";
 export { firstToDo, regionGroups, regionSummaries } from "./rules/region-summary.js";
+export { keyItems } from "./rules/room-reach.js";
 export { describeNeed } from "./rules/rules.js";

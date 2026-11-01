@@ -3,6 +3,7 @@ import {
   decide,
   describe,
   describeNeed,
+  namesIn,
   needs,
   type Rule,
   type RuleState,
@@ -190,5 +191,39 @@ group("describeNeed", () => {
     const state = stateOf({ "Godrick's Great Rune": 1 });
     const need = needs(GREAT_RUNES, state);
     expect(need === undefined ? undefined : describeNeed(need)).toBe(describe(GREAT_RUNES, state));
+  });
+});
+
+group("namesIn", () => {
+  const LOCKED: Rule = {
+    kind: "when",
+    test: { option: "world_logic", is: 0 },
+    rule: { kind: "item", item: "Caelid Lock" },
+    otherwise: { kind: "item", item: "Rusty Key" },
+  };
+
+  test("reads every branch with no options given", () => {
+    expect(namesIn(LOCKED).items).toEqual(["Caelid Lock", "Rusty Key"]);
+  });
+
+  test("reads the branch that applies, given a room's options", () => {
+    expect(namesIn(LOCKED, { world_logic: 0 }).items).toEqual(["Caelid Lock"]);
+    expect(namesIn(LOCKED, { world_logic: 1 }).items).toEqual(["Rusty Key"]);
+  });
+
+  test("reads inside all, any and counts", () => {
+    const rule: Rule = {
+      kind: "all",
+      rules: [
+        { kind: "any", rules: [{ kind: "item", item: "Rold Medallion" }] },
+        { kind: "count", label: "Runes", items: [{ item: "Rune Arc", weight: 1 }], needs: 2 },
+        { kind: "area", area: "Caelid" },
+      ],
+    };
+    expect(namesIn(rule)).toEqual({
+      items: ["Rold Medallion", "Rune Arc"],
+      areas: ["Caelid"],
+      locations: [],
+    });
   });
 });

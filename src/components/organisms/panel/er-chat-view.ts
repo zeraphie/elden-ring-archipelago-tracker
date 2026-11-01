@@ -6,8 +6,9 @@
  * bottom, each with how long ago the tracker saw it. The list stays at the
  * bottom as lines come, unless it's been scrolled up to read, when a button
  * takes it back. Under it, the input sends a chat line or a command such as
- * !hint, with the hints available over it; from a tracker link, which has no
- * websocket, a note says where to open the tracker to send.
+ * !hint, with the hints available over it, and suggests items once a command
+ * is begun; from a tracker link, which has no websocket, a note says where to
+ * open the tracker to send.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -15,6 +16,7 @@ import { shallow } from "zustand/vanilla/shallow";
 import { ELDEN_RING } from "../../../archipelago/look-up.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
+import { hintItemsOf } from "../../../state/utils/hint-items.js";
 import { buttonStyles } from "../../atoms/button.js";
 import { fieldStyles } from "../../atoms/field.js";
 import { focusRing } from "../../atoms/focus.js";
@@ -172,6 +174,8 @@ export class ErChatView extends LitElement {
           state.hintPoints,
           state.hintCost,
           state.connection,
+          state.received,
+          state.checked,
         ],
         shallow
       );
@@ -212,6 +216,9 @@ export class ErChatView extends LitElement {
   private input(state: TrackerState) {
     const isLive = state.connection.phase === "connected";
     const points = hintLine(state.hintPoints, state.hintCost);
+    // Chat stays clear of suggestions: they come once a command is begun.
+    const isCommand = this.draft.startsWith("!");
+    const items = isCommand && this.data !== undefined ? hintItemsOf(this.data, state) : [];
     return html`<form @submit=${this.send}>
       <label class="sr" for="say">Chat, or a command such as !hint</label>
       ${points === undefined ? nothing : html`<span class="label">${points}</span>`}
@@ -221,12 +228,16 @@ export class ErChatView extends LitElement {
           class="field"
           type="text"
           autocomplete="off"
+          list=${isCommand ? "hint-items" : nothing}
           placeholder="!hint Dectus Medallion (Right)"
           .value=${this.draft}
           @input=${(event: Event) => {
             this.draft = (event.target as HTMLInputElement).value;
           }}
         />
+        <datalist id="hint-items">
+          ${items.map((item) => html`<option value=${`!hint ${item}`}></option>`)}
+        </datalist>
         <button class="button" type="submit" ?disabled=${!isLive}>Send</button>
       </div>
       ${isLive ? nothing : html`<span class="label">Sending waits for the room to connect.</span>`}

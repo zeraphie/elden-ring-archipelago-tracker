@@ -7,8 +7,10 @@ import type { RoomReach } from "../../src/data/rules/area-status.js";
 import type { ForcedBosses } from "../../src/data/rules/gates/boss-gates.js";
 import { reach, type WorldRules } from "../../src/data/rules/reachability.js";
 import { regionGraph } from "../../src/data/rules/regions/region-graph.js";
-import { needs, type Need, type Rule } from "../../src/data/rules/rules.js";
+import { namesIn, needs, type Need } from "../../src/data/rules/rules.js";
 import { worldRules, type WorldRuleOptions } from "../../src/data/rules/world-rules.js";
+
+export { namesIn };
 
 /** A room's options, with slot_data's forceBosses when a test moves Rykard or the serpent. */
 export type Options = WorldRuleOptions &
@@ -69,31 +71,3 @@ export const count = (label: string, have: number, needed: number): Need =>
   expect.objectContaining({ kind: "count", label, have, needs: needed });
 export const all = (...parts: Need[]): Need => ({ kind: "all", needs: parts });
 export const any = (...parts: Need[]): Need => ({ kind: "any", needs: parts });
-
-/** Every item, area and location a rule names, on any branch. */
-export function namesIn(rule: Rule): { items: string[]; areas: string[]; locations: string[] } {
-  switch (rule.kind) {
-    case "item":
-      return { items: [rule.item], areas: [], locations: [] };
-    case "count":
-      return { items: rule.items.map((weighted) => weighted.item), areas: [], locations: [] };
-    case "area":
-      return { items: [], areas: [rule.area], locations: [] };
-    case "location":
-      return { items: [], areas: [], locations: [rule.location] };
-    case "all":
-    case "any":
-    case "when": {
-      const parts =
-        rule.kind === "when"
-          ? [rule.rule, ...(rule.otherwise ? [rule.otherwise] : [])]
-          : rule.rules;
-      const names = parts.map(namesIn);
-      return {
-        items: names.flatMap((name) => name.items),
-        areas: names.flatMap((name) => name.areas),
-        locations: names.flatMap((name) => name.locations),
-      };
-    }
-  }
-}

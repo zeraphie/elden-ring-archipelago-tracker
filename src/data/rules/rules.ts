@@ -149,6 +149,42 @@ export function needs(rule: Rule, state: RuleState): Need | undefined {
   }
 }
 
+/** Every item, area and location a rule names: on any branch, or given a room's options, on those that apply to it. */
+export function namesIn(
+  rule: Rule,
+  options?: Readonly<Record<string, unknown>>
+): { items: string[]; areas: string[]; locations: string[] } {
+  const inAll = (parts: readonly Rule[]) => {
+    const names = parts.map((part) => namesIn(part, options));
+    return {
+      items: names.flatMap(({ items }) => items),
+      areas: names.flatMap(({ areas }) => areas),
+      locations: names.flatMap(({ locations }) => locations),
+    };
+  };
+  switch (rule.kind) {
+    case "item":
+      return { items: [rule.item], areas: [], locations: [] };
+    case "count":
+      return { items: rule.items.map(({ item }) => item), areas: [], locations: [] };
+    case "area":
+      return { items: [], areas: [rule.area], locations: [] };
+    case "location":
+      return { items: [], areas: [], locations: [rule.location] };
+    case "all":
+    case "any":
+      return inAll(rule.rules);
+    case "when": {
+      const applies = options === undefined || passes(rule.test, options);
+      const isOtherwise = options === undefined || !passes(rule.test, options);
+      return inAll([
+        ...(applies ? [rule.rule] : []),
+        ...(isOtherwise && rule.otherwise !== undefined ? [rule.otherwise] : []),
+      ]);
+    }
+  }
+}
+
 /** A rule's still-needed parts in English, "Needs Liurnia Lock and Rusty Key"; undefined when it's met. */
 export function describe(rule: Rule, state: RuleState, words: RuleWords = {}): string | undefined {
   const need = needs(rule, state);
