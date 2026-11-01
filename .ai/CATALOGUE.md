@@ -473,7 +473,7 @@ here first, then search the source, then write.
 - `matchesLine()`: How many checks a search found: "3 matches", or "The first 60 matches" when there were more.
 
 **src/components/organisms/toasts/er-toasts.ts**
-- `ErToasts`: The items others send, as toasts.
+- `ErToasts`: The items others send, and the slot's own finds that matter, as toasts.
 
 **src/components/organisms/toasts/toast-queue.ts**
 - `QueueClock`: How the queue reads the time and waits: the browser's, or a test's.
@@ -664,7 +664,9 @@ here first, then search the source, then write.
 **src/state/utils/feed.ts** (src/components/organisms, src/components/utils)
 - `FeedPlayer`: A player in the feed, by slot, with their name as the roster has it; slot 0 is the server.
 - `FeedEntry`: An item that moved: received from another player, or sent to one.
+- `OwnFind`: An item the slot found in its own world: what it was, how it counts, and the check it was in.
 - `feedOf()`: The items received from the others and sent to them, newest first.
+- `ownFindsOf()`: The items the slot found for itself, in the order they came; the feed leaves these out, as they're its checks' own.
 
 **src/state/utils/findings.ts** (src/components/organisms)
 - `Finding`: What a check held: the item, and who it went to when that's another player.

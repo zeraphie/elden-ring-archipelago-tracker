@@ -3,13 +3,15 @@
  *
  * A toast for each item another player sends this slot as it arrives, "Jo
  * sent you", the item, and where in their world it was, stacked newest on
- * top. A goal item, one a row of the goal menu counts or waits on, is
+ * top, and for each item it finds for itself that matters: in a key check, or
+ * a key item or a goal item from anywhere, "You found". A goal item, one a row of the goal menu counts or waits on, is
  * larger, glows gold, and shows that row's icon in its frame; a key item, one
  * Archipelago flags as progression, says so; every other is compact. Key and
  * other items carry the sack in the gold of a check made, as they're
  * obtained. Each can be closed, or swiped away either way. Only items that
- * arrive live toast: not those the room had already sent, and nothing from a
- * tracker link, which has no websocket.
+ * arrive live toast: not those the room had already sent, nothing from a
+ * tracker link, which has no websocket, and none of the slot's own once its
+ * goal is done, when a release brings everything left at once.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -18,20 +20,22 @@ import { shallow } from "zustand/vanilla/shallow";
 import type { Need } from "../../../data/rules/rules.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
-import { feedOf, type FeedEntry } from "../../../state/utils/feed.js";
-import { goalMenuOf } from "../../../state/utils/goal.js";
+import { feedOf, ownFindsOf, type FeedEntry, type OwnFind } from "../../../state/utils/feed.js";
+import { goalMenuOf, isGoalDone } from "../../../state/utils/goal.js";
 import { buttonStyles } from "../../atoms/button.js";
 import { narrow } from "../../atoms/layout.js";
 import { focusRing } from "../../atoms/focus.js";
 import { frameStyles } from "../../atoms/frame.js";
 import { sackStyles } from "../../atoms/sack.js";
 import { closeIcon } from "../../utils/close-icon.js";
+import { checkLine } from "../../utils/check-words.js";
 import { iconUrl } from "../../utils/icons.js";
 import { foundIn, playerName, UNNAMED_ITEM } from "../../utils/item-words.js";
 import { StoreController } from "../../utils/store-controller.js";
 import { ToastQueue, type QueuedToast } from "./toast-queue.js";
 
 type Received = Extract<FeedEntry, { kind: "received" }>;
+type Toast = Received | OwnFind;
 
 // How much a toast stands out: an item the goal waits on, a key item, or any other.
 type Tier = "goal" | "key" | "other";
@@ -49,7 +53,7 @@ const SWIPE_PX = 70;
 const FADE_PX = 280;
 
 /**
- * The items others send, as toasts.
+ * The items others send, and the slot's own finds that matter, as toasts.
  */
 export class ErToasts extends LitElement {
   static override properties = {
@@ -177,7 +181,7 @@ export class ErToasts extends LitElement {
   store: TrackerStore | undefined;
   /** The Elden Ring data, loaded with the room. */
   data: EldenRingData | undefined;
-  private readonly queue = new ToastQueue<Received>(() => this.requestUpdate());
+  private readonly queue = new ToastQueue<Toast>(() => this.requestUpdate());
   private watch: StoreController<TrackerState, unknown[]> | undefined;
   // Items the tracker saw arrive after this moment toast; what came before was already there.
   private since = Date.now();
@@ -198,18 +202,30 @@ export class ErToasts extends LitElement {
     this.watch ??= new StoreController(
       this,
       store,
-      (state): unknown[] => [feedOf(data, state), state.link, goalMenuOf(data, state)],
+      (state): unknown[] => [
+        feedOf(data, state),
+        state.received,
+        state.link,
+        goalMenuOf(data, state),
+      ],
       shallow
     );
     const state = store.getState();
     if (state.link.kind !== "room") {
       return;
     }
-    const arrived = feedOf(data, state)
-      .filter(
-        (entry): entry is Received => entry.kind === "received" && (entry.at ?? 0) > this.since
-      )
-      .reverse();
+    const isNew = ({ at }: Toast): boolean => (at ?? 0) > this.since;
+    const others = feedOf(data, state).filter(
+      (entry): entry is Received => entry.kind === "received" && isNew(entry)
+    );
+    const found = isGoalDone(state)
+      ? []
+      : ownFindsOf(data, state).filter(
+          (find) =>
+            isNew(find) &&
+            (find.isKeyCheck || find.isProgression || this.goalNeed(find) !== undefined)
+        );
+    const arrived = [...others, ...found].sort((a, b) => (a.at ?? 0) - (b.at ?? 0));
     for (const entry of arrived) {
       this.queue.add(entry);
       this.since = Math.max(this.since, entry.at ?? 0);
@@ -226,9 +242,12 @@ export class ErToasts extends LitElement {
     </section>`;
   }
 
-  private toast({ id, value, leaving }: QueuedToast<Received>) {
+  private toast({ id, value, leaving }: QueuedToast<Toast>) {
     const isSwiped = this.swipe?.id === id;
-    const where = foundIn(value.game, value.location);
+    const isOwn = value.kind === "found";
+    const where = isOwn
+      ? value.check && checkLine(value.check)
+      : foundIn(value.game, value.location);
     const goal = this.goalNeed(value);
     const tier: Tier = goal !== undefined ? "goal" : value.isProgression ? "key" : "other";
     const label = TIER_WORDS[tier];
@@ -256,7 +275,7 @@ export class ErToasts extends LitElement {
       }
       <div class="words">
         ${label === undefined ? nothing : html`<span class="tier">${label}</span>`}
-        <span class="from">${playerName(value.from)} sent you</span>
+        <span class="from">${isOwn ? "You found" : `${playerName(value.from)} sent you`}</span>
         <span class="item">${value.item ?? UNNAMED_ITEM}</span>
         ${where === undefined ? nothing : html`<span class="where">${where}</span>`}
       </div>
@@ -272,7 +291,7 @@ export class ErToasts extends LitElement {
   }
 
   // The goal menu's need a received item serves, when the goal waits on it.
-  private goalNeed(value: Received): Need | undefined {
+  private goalNeed(value: Toast): Need | undefined {
     const { store, data } = this;
     if (store === undefined || data === undefined || value.item === undefined) {
       return undefined;

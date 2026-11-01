@@ -2,7 +2,8 @@ import { describe, expect, test } from "bun:test";
 import type { DataPackage } from "../../../src/archipelago/web-responses.js";
 import * as data from "../../../src/data/elden-ring.js";
 import type { RosterEntry } from "../../../src/state/slices/roster.js";
-import { feedOf } from "../../../src/state/utils/feed.js";
+import { feedOf, ownFindsOf } from "../../../src/state/utils/feed.js";
+import { LOCATION_NAMES } from "../../fixtures/seeds.js";
 import { firstCoded, inputs, PACKAGES } from "../../fixtures/slots.js";
 
 // Sam, slot 2, plays a game whose package names its item 77 and its location 900.
@@ -28,11 +29,33 @@ const WITH_SAMS_GAME = new Map<string, DataPackage>([
   ],
 ]);
 const LIMGRAVE = firstCoded("LG");
+const nameOfLimgrave = (): string => LOCATION_NAMES.get(LIMGRAVE) ?? "";
 const item = (id: number, location: number, player: number) => ({
   item: id,
   location,
   player,
   flags: 0,
+});
+
+describe("ownFindsOf", () => {
+  const item = (id: number, player: number, flags = 0, location = LIMGRAVE) => ({
+    value: { item: id, location, player, flags },
+    at: 5,
+  });
+
+  test("gives the slot's own finds, with their check, and not what others sent", () => {
+    const finds = ownFindsOf(data, inputs({ received: [item(1, 1), item(2, 2)] }));
+    expect(finds.map(({ item: name }) => name)).toEqual(["Rusty Key"]);
+    expect(finds[0]?.check).toEqual(data.checkName(nameOfLimgrave()));
+    expect(finds[0]?.at).toBe(5);
+  });
+
+  test("says whether a find is a key item, and whether it was in a key check", () => {
+    const key = inputs({ received: [item(1, 1, 1)], keyChecks: new Set([LIMGRAVE]) });
+    expect(ownFindsOf(data, key)[0]).toMatchObject({ isProgression: true, isKeyCheck: true });
+    const other = inputs({ received: [item(1, 1)], keyChecks: new Set() });
+    expect(ownFindsOf(data, other)[0]).toMatchObject({ isProgression: false, isKeyCheck: false });
+  });
 });
 
 describe("feedOf", () => {

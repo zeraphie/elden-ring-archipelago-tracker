@@ -45,6 +45,19 @@ export type FeedEntry =
       readonly check: { readonly region: string; readonly id: number; readonly name: KeySpot };
     };
 
+/** An item the slot found in its own world: what it was, how it counts, and the check it was in. */
+export interface OwnFind {
+  readonly kind: "found";
+  readonly at: number | undefined;
+  readonly item: string | undefined;
+  /** Whether it's a key item: one Archipelago flags as progression. */
+  readonly isProgression: boolean;
+  /** Whether it was in one of the slot's key checks. */
+  readonly isKeyCheck: boolean;
+  /** The check it was in, once the room's names are in. */
+  readonly check: KeySpot | undefined;
+}
+
 // NetworkItem.flags: the item can unlock logical advancement.
 const PROGRESSION = 0b001;
 
@@ -114,6 +127,29 @@ export function feedOf(data: EldenRingData, inputs: FeedInputs): readonly FeedEn
     .map(({ entry }) => entry);
   last = { findings, regions, feed: ordered };
   return ordered;
+}
+
+/** The items the slot found for itself, in the order they came; the feed leaves these out, as they're its checks' own. */
+export function ownFindsOf(data: EldenRingData, inputs: FeedInputs): OwnFind[] {
+  const { received, packages, keyChecks, slot } = inputs;
+  const itemNames = packages.get(ELDEN_RING)?.itemNames;
+  const names = roomViewOf(inputs)?.names;
+  return received.flatMap(({ value, at }) => {
+    if (value.player !== slot) {
+      return [];
+    }
+    const name = names?.[String(value.location)];
+    return [
+      {
+        kind: "found",
+        at,
+        item: itemNames?.get(value.item),
+        isProgression: (value.flags & PROGRESSION) !== 0,
+        isKeyCheck: keyChecks?.has(value.location) === true,
+        check: name === undefined ? undefined : data.checkName(name),
+      } as const,
+    ];
+  });
 }
 
 // Each check's region, by its id.
