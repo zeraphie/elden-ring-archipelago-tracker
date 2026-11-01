@@ -5,8 +5,10 @@
  * a mouse or a finger, or moved by the arrow keys while it has the focus,
  * Home and End taking it to the least and the most it can be. It's a
  * separator, as screen readers know a window splitter, saying the size and
- * its bounds. It wears the double-line grip such handles do. It resizes
- * nothing itself: it says the size it's moved to, for its holder to set.
+ * its bounds. It wears the double-line grip such handles do, unless it's given
+ * something else to be dragged by, such as a heading. A click inside what holds
+ * it still counts, but a drag isn't also a click. It resizes nothing itself: it
+ * says the size it's moved to, for its holder to set.
  */
 
 import { LitElement, css, html } from "lit";
@@ -15,6 +17,8 @@ import { emit } from "../utils/emit.js";
 
 // How far an arrow key moves the handle, in CSS pixels; with Shift, four times as far.
 const STEP_PX = 16;
+// How far a pointer goes before it's a drag rather than a click, in CSS pixels.
+const DRAG_PX = 4;
 
 /** Which way a handle moves: sideways, sizing a width, or up and down, sizing a height. */
 export type ResizeAxis = "x" | "y";
@@ -23,6 +27,8 @@ export type ResizeAxis = "x" | "y";
  * A handle that resizes a part of the page, by drag or by key.
  *
  * @fires er-resize - The handle was moved; `detail` is the size it asks for, in CSS pixels, within its limits.
+ * @slot - What it's dragged by; the grip when it's given nothing.
+ * @cssproperty --er-resize-justify - Where what it's dragged by sits along it; the middle by default.
  */
 export class ErResizeHandle extends LitElement {
   static override properties = {
@@ -43,7 +49,7 @@ export class ErResizeHandle extends LitElement {
       [role="separator"] {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: var(--er-resize-justify, center);
         box-sizing: border-box;
         width: 100%;
         height: 100%;
@@ -109,6 +115,8 @@ export class ErResizeHandle extends LitElement {
   private drag:
     | { readonly pointer: number; readonly from: number; readonly size: number }
     | undefined;
+  // Whether the last press moved far enough to be a drag, so its click means nothing.
+  private hasDragged = false;
 
   // The size and its bounds follow the window, so a screen reader hears them as they are.
   override connectedCallback(): void {
@@ -137,9 +145,10 @@ export class ErResizeHandle extends LitElement {
       @pointermove=${this.move}
       @pointerup=${this.up}
       @pointercancel=${this.up}
+      @click=${this.afterDrag}
       @keydown=${this.key}
     >
-      <span class="grip" aria-hidden="true"></span>
+      <slot><span class="grip" aria-hidden="true"></span></slot>
     </div>`;
   }
 
@@ -151,13 +160,18 @@ export class ErResizeHandle extends LitElement {
     event.preventDefault();
     handle.setPointerCapture(event.pointerId);
     this.drag = { pointer: event.pointerId, from: this.along(event), size: this.measure() };
+    this.hasDragged = false;
     this.isDragging = true;
   };
 
   private readonly move = (event: PointerEvent): void => {
     const { drag } = this;
     if (drag?.pointer === event.pointerId) {
-      this.ask(drag.size + this.grows * (this.along(event) - drag.from));
+      const moved = this.along(event) - drag.from;
+      this.hasDragged ||= Math.abs(moved) >= DRAG_PX;
+      if (this.hasDragged) {
+        this.ask(drag.size + this.grows * moved);
+      }
     }
   };
 
@@ -165,6 +179,15 @@ export class ErResizeHandle extends LitElement {
     if (this.drag?.pointer === event.pointerId) {
       this.drag = undefined;
       this.isDragging = false;
+    }
+  };
+
+  // A drag ends in a click, which shouldn't reach what holds the handle.
+  private readonly afterDrag = (event: MouseEvent): void => {
+    if (this.hasDragged) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.hasDragged = false;
     }
   };
 

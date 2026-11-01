@@ -13,7 +13,8 @@
  * than rows read well at a glance goes by region: on the desktop its tally and
  * bar, the main path's rows, then one region's bosses at a time; at a tablet's
  * width and below, the main path's icons in the strip, with region chips under
- * them.
+ * them. With Done open on a desktop, the rows to do and all that's under them
+ * scroll apart, and dragging the Done heading moves the line between them.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -34,6 +35,7 @@ import { bandHeadingStyles } from "../../atoms/heading.js";
 import { scrollerStyles } from "../../atoms/scroller.js";
 import { focusRing } from "../../atoms/focus.js";
 import { narrow, NARROW_MEDIA } from "../../atoms/layout.js";
+import "../../molecules/er-resize-handle.js";
 import "./er-goal-band.js";
 import "./er-goal-chips.js";
 import type { GoalChip } from "./er-goal-chips.js";
@@ -63,6 +65,10 @@ import { MediaController } from "../../utils/media.js";
 import { pickerGroups, type PickerGroup } from "../../utils/region-groups.js";
 import { StoreController } from "../../utils/store-controller.js";
 
+// The least the rows to do can be, a row of them; and the least of what's under them, its heading and a row.
+const ROWS_LEAST_PX = 76;
+const UNDER_LEAST_PX = 120;
+
 // A long goal by region, as the menu shows it: its tally, the regions holding a goal boss, and the
 // region picked on the page, with its bosses.
 interface RegionView {
@@ -91,6 +97,8 @@ export class ErGoalMenu extends LitElement {
     allDone: { attribute: false },
     say: { attribute: false },
     region: { attribute: false },
+    isDoneOpen: { state: true },
+    toDoHeight: { state: true },
   };
 
   static override styles = [
@@ -173,6 +181,48 @@ export class ErGoalMenu extends LitElement {
       details ul {
         padding-top: 16px;
       }
+      .under {
+        display: contents;
+      }
+      /* With Done open on a desktop the two lists scroll apart. Until the heading's moved, the rows
+         to do take half at most. The heading stays in view, on the ground, over what scrolls. */
+      nav[data-split] {
+        overflow-y: hidden;
+        scrollbar-gutter: auto;
+      }
+      nav[data-split] > ul {
+        flex: 0 1 auto;
+        height: var(--to-do-height, auto);
+        min-height: 0;
+        max-height: var(--to-do-height, 50%);
+        scrollbar-gutter: stable;
+      }
+      nav[data-split] .under {
+        display: flex;
+        flex: 1 1 0;
+        flex-direction: column;
+        gap: 16px;
+        min-height: 0;
+        scrollbar-gutter: stable;
+      }
+      nav[data-split] summary {
+        position: sticky;
+        z-index: 1;
+        top: 0;
+        background-color: var(--er-surface);
+      }
+      nav[data-split] summary:has(er-resize-handle:hover) {
+        background-color: var(--er-raised);
+        box-shadow: var(--er-glow);
+      }
+      er-resize-handle {
+        display: inline-block;
+        width: calc(100% - 1.25em);
+        --er-resize-justify: flex-start;
+      }
+      .done-words {
+        color: var(--er-ink-soft);
+      }
       /* At a tablet's width and below, a strip of the icons along the map's foot, scrolling sideways:
          the rows left to do, or the band once the goal's achieved. It's as wide as they are, up to
          three icons and a half, so a fourth peeks in to say there are more. It shows no scrollbar,
@@ -237,6 +287,9 @@ export class ErGoalMenu extends LitElement {
   say: ((text: string) => void) | undefined;
   /** The region picked on the page, by its code, which a long goal's regions follow. */
   region: string | undefined;
+  // Whether the Done fold is open, and the height the rows to do were dragged to, for the visit.
+  private isDoneOpen = false;
+  private toDoHeight: number | undefined;
   private menu: StoreController<TrackerState, GoalMenu | undefined> | undefined;
   private release: StoreController<TrackerState, ReleaseState> | undefined;
   private live: StoreController<TrackerState, boolean> | undefined;
@@ -336,9 +389,18 @@ export class ErGoalMenu extends LitElement {
     // A long goal goes by region: in the column on the desktop, in chips under the strip below it.
     const view = this.placedFrom?.byRegion === true ? this.regionView(data) : undefined;
     const isNarrow = this.isNarrow.matches;
+    const isSplit =
+      !isNarrow &&
+      !this.achieved &&
+      this.isDoneOpen &&
+      rows.toDo.length > 0 &&
+      rows.obtained.length > 0;
+    const done = this.achieved ? [...rows.obtained, ...rows.toDo] : rows.obtained;
     return html`<nav
         class="scroller"
         aria-label="Goal"
+        ?data-split=${isSplit}
+        style=${isSplit && this.toDoHeight !== undefined ? `--to-do-height: ${this.toDoHeight}px` : nothing}
         @pointerenter=${strip.enter}
         @wheel=${strip.wheel}
         @pointerdown=${strip.down}
@@ -347,8 +409,11 @@ export class ErGoalMenu extends LitElement {
         @pointercancel=${strip.up}
       >
         ${view === undefined || isNarrow ? html`<h2 class="band-heading">Goal</h2>` : this.tally(view)}
-        ${this.achieved ? this.band(rows, data) : this.toDo(rows, data)}
-        ${view === undefined || isNarrow ? nothing : this.regions(view)}
+        ${this.achieved ? this.band() : this.toDo(rows, data, isSplit)}
+        <div class="under ${isSplit ? "scroller" : ""}">
+          ${this.obtained(done, data, isSplit)}
+          ${view === undefined || isNarrow ? nothing : this.regions(view)}
+        </div>
       </nav>
       ${view !== undefined && isNarrow ? this.chips(view) : nothing}`;
   }
@@ -434,33 +499,47 @@ export class ErGoalMenu extends LitElement {
     ></er-goal-chips>`;
   }
 
-  // Once the goal's achieved, its band, and every row among what's obtained, those still leaving included.
-  private band(rows: GoalRows, data: EldenRingData) {
+  // Once the goal's achieved, its band, with every row among what's obtained under it.
+  private band() {
     return html`<er-goal-band
-        .release=${this.release?.value ?? "unknown"}
-        .say=${this.live?.value === true ? this.say : undefined}
-      ></er-goal-band>
-      ${this.obtained([...rows.obtained, ...rows.toDo], data)}`;
+      .release=${this.release?.value ?? "unknown"}
+      .say=${this.live?.value === true ? this.say : undefined}
+    ></er-goal-band>`;
   }
 
-  // The rows still to do, those leaving among them, then what's obtained.
-  private toDo(rows: GoalRows, data: EldenRingData) {
-    return html`<ul>
-        ${repeat(
-          rows.toDo,
-          (key) => key,
-          (key) => this.row(key, data, rows.leaving.includes(key))
-        )}
-      </ul>
-      ${this.obtained(rows.obtained, data)}`;
+  // The rows still to do, those leaving among them.
+  private toDo(rows: GoalRows, data: EldenRingData, isSplit: boolean) {
+    return html`<ul class=${isSplit ? "scroller" : ""}>
+      ${repeat(
+        rows.toDo,
+        (key) => key,
+        (key) => this.row(key, data, rows.leaving.includes(key))
+      )}
+    </ul>`;
   }
 
-  // What's been obtained, folded away, the latest last; nothing when there's none.
-  private obtained(keys: readonly string[], data: EldenRingData) {
+  // What's been obtained, folded away, the latest last; nothing when there's none. Its heading
+  // moves the line above it while the two lists scroll apart.
+  private obtained(keys: readonly string[], data: EldenRingData, isSplit: boolean) {
+    const words = html`Done <span class="fig">${keys.length}</span>`;
     return keys.length === 0
       ? nothing
-      : html`<details>
-          <summary class="band-heading">Done <span class="fig">${keys.length}</span></summary>
+      : html`<details @toggle=${this.followDone}>
+          <summary class="band-heading">
+            ${
+              isSplit
+                ? html`<er-resize-handle
+                    .axis=${"y"}
+                    .grows=${1}
+                    .measure=${this.toDoHeightNow}
+                    .limits=${this.toDoLimits}
+                    .label=${"Goal rows to do"}
+                    @er-resize=${this.setToDoHeight}
+                    ><span class="done-words">${words}</span></er-resize-handle
+                  >`
+                : words
+            }
+          </summary>
           <ul>
             ${repeat(
               keys,
@@ -508,6 +587,31 @@ export class ErGoalMenu extends LitElement {
       }
     </li>`;
   }
+
+  private readonly followDone = ({ target }: Event): void => {
+    this.isDoneOpen = (target as HTMLDetailsElement).open;
+  };
+
+  private readonly setToDoHeight = ({ detail }: CustomEvent<number>): void => {
+    this.toDoHeight = detail;
+  };
+
+  private toDoList(): HTMLElement | null {
+    return this.renderRoot.querySelector("nav > ul");
+  }
+
+  private readonly toDoHeightNow = (): number => this.toDoList()?.offsetHeight ?? 0;
+
+  // A row of each list at least, and no more of the rows to do than there are.
+  private readonly toDoLimits = (): readonly [number, number] => {
+    const list = this.toDoList();
+    const under = this.renderRoot.querySelector<HTMLElement>(".under");
+    if (list === null || under === null) {
+      return [ROWS_LEAST_PX, ROWS_LEAST_PX];
+    }
+    const room = list.offsetHeight + under.offsetHeight - UNDER_LEAST_PX;
+    return [ROWS_LEAST_PX, Math.max(ROWS_LEAST_PX, Math.min(list.scrollHeight, room))];
+  };
 
   private readonly openDrop = ({ detail }: CustomEvent<string>): void => {
     this.open({ kind: "named", name: detail });
