@@ -3,7 +3,7 @@
  *
  * The large timer, with its buttons stacked on its right. It never starts by
  * itself: before the run a long run's time can be typed into it, and timer play
- * starts it. Reset takes holding replay for a second, with a ring filling, as
+ * starts it. Reset takes holding replay for a second, with its edge filling, as
  * it ends a run of hours. It follows the look set: Compact on a solid ground,
  * right-aligned, and Comfort on the menu's shade, centred between gold rules.
  */
@@ -128,19 +128,19 @@ export class ErRunTimer extends LitElement {
         user-select: none;
         -webkit-touch-callout: none;
       }
-      .hold .ring {
+      /* Round the button by its edge, over its border, from the top clockwise. */
+      .hold .edge {
         position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
+        inset: -1px;
+        width: calc(100% + 2px);
+        height: calc(100% + 2px);
         fill: none;
         stroke: var(--er-gold);
         stroke-width: 2;
         stroke-dasharray: 1;
         stroke-dashoffset: 1;
-        rotate: -90deg;
       }
-      .hold[data-holding] .ring {
+      .hold[data-holding] .edge {
         animation: hold-fill ${unsafeCSS(HOLD_MS)}ms linear forwards;
       }
       @keyframes hold-fill {
@@ -149,7 +149,7 @@ export class ErRunTimer extends LitElement {
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        .hold[data-holding] .ring {
+        .hold[data-holding] .edge {
           stroke-dashoffset: 0;
           animation: none;
         }
@@ -273,8 +273,8 @@ export class ErRunTimer extends LitElement {
       @contextmenu=${(event: Event) => event.preventDefault()}
     >
       ${replayIcon}
-      <svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
-        <circle cx="18" cy="18" r="16" pathLength="1"></circle>
+      <svg class="edge" viewBox="0 0 36 36" aria-hidden="true">
+        <path d="M18 1H35V35H1V1H18" pathLength="1"></path>
       </svg>
     </button>`;
   }
