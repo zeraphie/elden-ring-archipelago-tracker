@@ -137,6 +137,7 @@ export class ErItemsView extends LitElement {
         font-size: 0.85em;
       }
       .empty {
+        display: block;
         padding: 14px 16px;
         border: none;
         font-size: 0.92em;
