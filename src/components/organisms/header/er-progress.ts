@@ -10,7 +10,7 @@ import { LitElement, css, html, nothing } from "lit";
 import type { Progress } from "../../../state/utils/progress.js";
 import { barStyles } from "../../atoms/bar.js";
 import { figures } from "../../atoms/figures.js";
-import { phone } from "../../atoms/layout.js";
+import { narrow } from "../../atoms/layout.js";
 import { visuallyHidden } from "../../atoms/visually-hidden.js";
 import { figure, percentDone } from "../../utils/figure.js";
 
@@ -43,9 +43,9 @@ export class ErProgress extends LitElement {
       strong {
         font-weight: 600;
       }
-      /* At a tablet's width and below the key checks are shown alone, and on a phone their count
-         alone; a screen reader still hears it all. */
-      @media ${phone} {
+      /* At a tablet's width and below, the key checks' count alone; a screen reader still hears it
+         all. */
+      @media ${narrow} {
         .key {
           min-width: 0;
         }
@@ -72,7 +72,7 @@ export class ErProgress extends LitElement {
             >`
           : html`<div class="key">
               <span
-                ><span class="muted">Key<span class="sr-phone"> checks</span></span>
+                ><span class="muted">Key<span class="sr-narrow"> checks</span></span>
                 <strong><span class="fig">${figure(keyDone)}</span></strong>
                 <span class="muted">of <span class="fig">${figure(keyAll)}</span></span></span
               >

@@ -6,8 +6,9 @@
  * reader always hears the full name. Once a room is open, beside it are the
  * slot's name, how the tracker is keeping up with the room, the slot's key
  * checks and all its checks done, the room's players, and the way to leave,
- * which reloads the page, so the card offers the room again or another. On a
- * phone, how the tracker is keeping up and the key checks sit under a line.
+ * which reloads the page, so the card offers the room again or another. At a
+ * tablet's width and below, how the tracker is keeping up and the key checks
+ * sit under a line.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -18,7 +19,7 @@ import type { TrackerState, TrackerStore } from "../../../state/store.js";
 import { progressOf, type Progress } from "../../../state/utils/progress.js";
 import { buttonStyles } from "../../atoms/button.js";
 import { focusRing } from "../../atoms/focus.js";
-import { narrow, phone } from "../../atoms/layout.js";
+import { narrow } from "../../atoms/layout.js";
 import { visuallyHidden } from "../../atoms/visually-hidden.js";
 import "./er-players.js";
 import "./er-progress.js";
@@ -148,20 +149,10 @@ export class ErHeader extends LitElement {
       .grow {
         flex-grow: 1;
       }
-      /* At a tablet's width and below the header keeps to one line, closer set. On a phone with a
-         room open it's two rows: the short name, the way to leave and the players, then under a
-         line, how the tracker is keeping up and the key checks' count. */
+      /* At a tablet's width and below the header is closer set, and with a room open it's two rows:
+         the name, the way to leave and the players, then under a line, how the tracker is keeping
+         up and the key checks' count. */
       @media ${narrow} {
-        .bar {
-          flex-wrap: nowrap;
-          gap: 16px;
-          padding: 8px 16px;
-        }
-        .title {
-          flex-wrap: nowrap;
-        }
-      }
-      @media ${phone} {
         .bar {
           flex-wrap: nowrap;
           gap: 12px;

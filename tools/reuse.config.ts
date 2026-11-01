@@ -211,10 +211,10 @@ export default {
       instead: "`swatchStyles`, with `.swatch` and its `data-state`",
     },
     {
-      what: "the page's widths written by hand",
-      pattern: /max-width: (?:90[0]|60[0])px\)/,
+      what: "the page's width written by hand",
+      pattern: /max-width: 90[0]px\)/,
       home: "src/components/atoms/layout.ts",
-      instead: "`narrow` or `phone` in a css `@media`, or `NARROW_MEDIA` for a `MediaController`",
+      instead: "`narrow` in a css `@media`, or `NARROW_MEDIA` for a `MediaController`",
     },
     {
       what: "the Elden Ring's sigil drawn by hand",

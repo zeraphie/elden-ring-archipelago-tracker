@@ -192,9 +192,7 @@ here first, then search the source, then write.
 
 **src/components/atoms/layout.ts** (src/components, src/components/molecules, src/components/organisms)
 - `NARROW_MEDIA`: Where the page stacks, at a tablet's width and below: the map on top, the panel under it, and the goal menu a strip along the map's foot.
-- `PHONE_MEDIA`: Where the page is a phone's: the header on two rows, cut to its fewest words.
 - `narrow`: `NARROW_MEDIA` for a css template's `@media`.
-- `phone`: `PHONE_MEDIA` for a css template's `@media`.
 
 **src/components/atoms/popover.ts** (src/components/molecules, src/components/organisms)
 - `popoverStyles`: A native popover floating over the page, under what opens it: `.popover` on an element with `popover`.
@@ -212,7 +210,7 @@ here first, then search the source, then write.
 - `swatchStyles`: A region's fill and edge as a small block, by how it stands: `.swatch` with `data-state` "locked", "open" or "done", its size set where it's used.
 
 **src/components/atoms/visually-hidden.ts** (src/components/organisms)
-- `visuallyHidden`: Text for a screen reader alone: `.sr` keeps it in the page, out of sight; `.sr-narrow` and `.sr-phone` do so only at a tablet's width and below, or a phone's.
+- `visuallyHidden`: Text for a screen reader alone: `.sr` keeps it in the page, out of sight; `.sr-narrow` does so only at a tablet's width and below.
 
 ## src/components/molecules
 
