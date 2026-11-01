@@ -7,11 +7,12 @@
  * boss, and a choice of needs reads as each of them, joined with "or".
  */
 
-import type { ReleaseState } from "../../../archipelago/release.js";
-import type { GoalBoss, GoalState } from "../../../data/bosses/goal.js";
-import type { Need } from "../../../data/rules/rules.js";
-import { listed } from "../../../data/words.js";
-import type { EldenRingData } from "../../../state/setup.js";
+import type { ReleaseState } from "../../archipelago/release.js";
+import type { GoalBoss, GoalState } from "../../data/bosses/goal.js";
+import type { Need } from "../../data/rules/rules.js";
+import { listed } from "../../data/words.js";
+import type { EldenRingData } from "../../state/setup.js";
+import type { RowView } from "./goal-rows.js";
 
 const BOSS_LINES: Readonly<Record<GoalState, string>> = {
   defeated: "Defeated",
@@ -74,6 +75,17 @@ export function bossName({ name, flag }: GoalBoss): string {
 /** How a goal boss stands. */
 export function bossLine({ state }: GoalBoss): string {
   return BOSS_LINES[state];
+}
+
+/** What a goal row says: its name, and how it stands. */
+export function rowWords(
+  view: RowView,
+  data: EldenRingData,
+  ownFinds: ReadonlyMap<string | undefined, number>
+): { readonly label: string; readonly line: string } {
+  return view.kind === "need"
+    ? { label: needName(view.need, data), line: needLine(view.need, view.isGotten, ownFinds) }
+    : { label: bossName(view.boss), line: bossLine(view.boss) };
 }
 
 /** What becomes of the items left in the slot's world, its goal achieved, as the goal menu's band says it. */

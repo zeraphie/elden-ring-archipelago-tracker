@@ -25,8 +25,7 @@ import type { GoalMenu } from "../../../data/bosses/goal-menu.js";
 import type { RegionSummary } from "../../../data/rules/region-summary.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
-import { ownFindsOf } from "../../../state/utils/feed.js";
-import { checkNamed, checkOf, goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
+import { goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
 import { regionsOf } from "../../../state/utils/regions.js";
 import { barStyles } from "../../atoms/bar.js";
 import { figures } from "../../atoms/figures.js";
@@ -43,8 +42,12 @@ import "./er-goal-regions.js";
 import type { RegionBossRow } from "./er-region-bosses.js";
 import "./er-goal-row.js";
 import { bossesByRegion, bossTally, goalPickerGroups, isByRegion } from "./goal-regions.js";
+import { StripScroll } from "./strip-scroll.js";
+import { figure, percentDone } from "../../utils/figure.js";
 import {
   LEAVE_MS,
+  openRow,
+  ownFindChecks,
   placeRows,
   rowLeft,
   rowTarget,
@@ -53,12 +56,8 @@ import {
   type GoalRows,
   type RowTarget,
   type RowView,
-} from "./goal-rows.js";
-import { bossLine, bossName, needLine, needName } from "./goal-words.js";
-import { StripScroll } from "./strip-scroll.js";
-import type { CheckPick } from "../../utils/check-pick.js";
-import { emit } from "../../utils/emit.js";
-import { figure, percentDone } from "../../utils/figure.js";
+} from "../../utils/goal-rows.js";
+import { bossName, rowWords } from "../../utils/goal-words.js";
 import { isMotionReduced } from "../../utils/motion.js";
 import { iconUrl } from "../../utils/icons.js";
 import { MediaController } from "../../utils/media.js";
@@ -355,9 +354,7 @@ export class ErGoalMenu extends LitElement {
     const done = views.done.filter(isShown);
     this.views = new Map([...toDo, ...done].map((view) => [view.key, view]));
     const state = this.store?.getState();
-    this.ownFinds = new Map(
-      state && ownFindsOf(data, state).map(({ item, location }) => [item, location])
-    );
+    this.ownFinds = state === undefined ? new Map() : ownFindChecks(data, state);
     const { rows, started } = placeRows(
       this.rows,
       toDo.map(({ key }) => key),
@@ -558,14 +555,8 @@ export class ErGoalMenu extends LitElement {
       return nothing;
     }
     const delay = isLeaving ? (this.delays.get(key) ?? 0) : 0;
-    const [icon, label, line] =
-      view.kind === "need"
-        ? [
-            data.needIcon(view.need),
-            needName(view.need, data),
-            needLine(view.need, view.isGotten, this.ownFinds),
-          ]
-        : [data.bossIcon(view.boss.flag), bossName(view.boss), bossLine(view.boss)];
+    const icon = view.kind === "need" ? data.needIcon(view.need) : data.bossIcon(view.boss.flag);
+    const { label, line } = rowWords(view, data, this.ownFinds);
     const row = html`<er-goal-row
       ?data-gotten=${view.isGotten}
       ?data-leaving=${isLeaving}
@@ -619,24 +610,11 @@ export class ErGoalMenu extends LitElement {
     this.open({ kind: "named", name: detail });
   };
 
-  // A finished row opens its check, as a click on the map does, or the items for what came from
-  // elsewhere, which has no check here.
+  // A finished row opens its check, as a click on the map does, or the items.
   private open(target: RowTarget): void {
     const { store, data } = this;
-    if (store === undefined || data === undefined) {
-      return;
-    }
-    if (target.kind === "items") {
-      emit<undefined>(this, "er-items", undefined);
-      return;
-    }
-    const state = store.getState();
-    const check =
-      target.kind === "check"
-        ? checkOf(data, state, target.id)
-        : checkNamed(data, state, target.name);
-    if (check !== undefined) {
-      emit<CheckPick>(this, "er-check", check);
+    if (store !== undefined && data !== undefined) {
+      openRow(this, target, data, store.getState());
     }
   }
 }

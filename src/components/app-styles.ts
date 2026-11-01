@@ -11,6 +11,8 @@ import { MAP_MIN_PX, PANEL_MIN_HEIGHT_PX } from "./panel-split.js";
 
 /** How wide the goal menu lies over the map's left side, in CSS pixels. */
 export const GOAL_MENU_PX = 440;
+/** How wide the run's timer lies over the map's left side, in CSS pixels. */
+export const RUN_TIMER_WIDTH_PX = 396;
 // How high the run's timer lies over the goal menu's foot, in CSS pixels: 78 for its two buttons,
 // and its 20 of room around them.
 const RUN_TIMER_PX = 98;
@@ -76,7 +78,16 @@ export const appStyles = css`
     z-index: 2;
     bottom: 0;
     left: 0;
-    width: 396px;
+    width: ${unsafeCSS(RUN_TIMER_WIDTH_PX)}px;
+  }
+  /* In the goal menu's place, from the header to the page's foot. */
+  er-run-splits {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(${unsafeCSS(RUN_TIMER_WIDTH_PX)}px, 100%);
   }
   /* With no sheet tabs over it, the goal menu starts nearer the top. */
   .map[data-timer] er-goal-menu {

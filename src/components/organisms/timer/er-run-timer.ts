@@ -6,6 +6,8 @@
  * starts it. Reset takes holding replay for a second, with its edge filling, as
  * it ends a run of hours. It follows the look set: Compact on a solid ground,
  * right-aligned, and Comfort on the menu's shade, centred between gold rules.
+ * With `column` it holds what's slotted in it, from the top of the page to the
+ * foot: the buttons go up beside the top slot, and the timer stays at the foot.
  */
 
 import { LitElement, css, html, nothing, unsafeCSS } from "lit";
@@ -25,6 +27,9 @@ const HOLD_MS = 1000;
 
 /**
  * The run's large timer and its buttons.
+ *
+ * @slot top - What sits beside the buttons, in a column.
+ * @slot - What sits between the buttons and the timer, in a column.
  */
 export class ErRunTimer extends LitElement {
   static override properties = {
@@ -110,6 +115,35 @@ export class ErRunTimer extends LitElement {
       }
       .rule {
         margin: 0 8%;
+      }
+      :host([column]) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        height: 100%;
+        padding: 0;
+        border-top: none;
+      }
+      :host([column]) .face {
+        flex: none;
+        margin-top: auto;
+        padding: 8px 12px 10px;
+        border-top: 1px solid var(--er-line);
+      }
+      .top {
+        flex: none;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px 9px;
+        border-bottom: 1px solid var(--er-line);
+      }
+      /* The width of both buttons before there are two, so starting moves nothing. */
+      .top .buttons {
+        flex-direction: row;
+        min-width: 78px;
+        min-height: 0;
       }
       :host([data-look="comfort"]) .clock {
         justify-content: center;
@@ -209,13 +243,18 @@ export class ErRunTimer extends LitElement {
     }
     const isRuled = this.look.value === "comfort";
     const rule = isRuled ? html`<div class="rule" aria-hidden="true"></div>` : nothing;
-    return html`<div class="face">
-        ${rule} ${run.phase === "before" ? this.typed() : this.clock(runTimeOf(run, Date.now()))}
-        ${rule}
-      </div>
-      <div class="buttons">
-        ${this.press(run)} ${run.phase === "before" ? nothing : this.reset()}
-      </div>`;
+    const face = html`<div class="face">
+      ${rule} ${run.phase === "before" ? this.typed() : this.clock(runTimeOf(run, Date.now()))}
+      ${rule}
+    </div>`;
+    const buttons = html`<div class="buttons">
+      ${this.press(run)} ${run.phase === "before" ? nothing : this.reset()}
+    </div>`;
+    return this.hasAttribute("column")
+      ? html`<div class="top"><slot name="top"></slot>${buttons}</div>
+          <slot></slot>
+          ${face}`
+      : html`${face}${buttons}`;
   }
 
   private clock(ms: number) {

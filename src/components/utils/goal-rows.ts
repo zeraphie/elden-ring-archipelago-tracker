@@ -6,12 +6,20 @@
  * and holds, then the row slides off the menu's left edge, still lit, as a
  * toast leaves, and only then does it join the end of Done. So the rows
  * around it close up at once rather than slide, and nothing already obtained
- * moves. The rows the menu opens on take their places straight away.
+ * moves. The rows the menu opens on take their places straight away. Where
+ * nothing plays its way out, as in the run's splits, a row done goes straight to
+ * the end of what's obtained.
  */
 
-import type { GoalBoss } from "../../../data/bosses/goal.js";
-import type { GoalMenu } from "../../../data/bosses/goal-menu.js";
-import type { Need } from "../../../data/rules/rules.js";
+import type { GoalBoss } from "../../data/bosses/goal.js";
+import type { GoalMenu } from "../../data/bosses/goal-menu.js";
+import type { Need } from "../../data/rules/rules.js";
+import type { EldenRingData } from "../../state/setup.js";
+import type { TrackerState } from "../../state/store.js";
+import { ownFindsOf } from "../../state/utils/feed.js";
+import { checkNamed, checkOf } from "../../state/utils/goal.js";
+import type { CheckPick } from "./check-pick.js";
+import { emit } from "./emit.js";
 
 /** How long a leaving row's frame takes to light up. */
 export const GLOW_IN_MS = 500;
@@ -74,6 +82,16 @@ export function rowLeft(rows: GoalRows, key: string): GoalRows {
   };
 }
 
+/** Where the rows stand with none leaving: a row done goes straight to the end of what's obtained. */
+export function settleRows(
+  before: GoalRows | undefined,
+  toDo: readonly string[],
+  done: readonly string[]
+): GoalRows {
+  const { rows, started } = placeRows(before, toDo, done);
+  return started.reduce(rowLeft, rows);
+}
+
 /** A goal row as the menu shows it: a need or a boss, by its key, and whether it's gotten. */
 export type RowView = { readonly key: string; readonly isGotten: boolean } & (
   | { readonly kind: "need"; readonly need: Need }
@@ -104,6 +122,37 @@ export function rowTarget(
   }
   const id = need.kind === "item" ? ownFinds.get(need.item) : undefined;
   return id === undefined ? { kind: "items" } : { kind: "check", id };
+}
+
+/** The check each item the slot found in its own world was in, by the item's name. */
+export function ownFindChecks(
+  data: EldenRingData,
+  state: TrackerState
+): ReadonlyMap<string | undefined, number> {
+  return new Map(ownFindsOf(data, state).map(({ item, location }) => [item, location]));
+}
+
+/**
+ * Sends where a finished row leads from `host`: `er-check` with its check, or
+ * `er-items` for what came from elsewhere, which has no check here.
+ */
+export function openRow(
+  host: HTMLElement,
+  target: RowTarget,
+  data: EldenRingData,
+  state: TrackerState
+): void {
+  if (target.kind === "items") {
+    emit<undefined>(host, "er-items", undefined);
+    return;
+  }
+  const check =
+    target.kind === "check"
+      ? checkOf(data, state, target.id)
+      : checkNamed(data, state, target.name);
+  if (check !== undefined) {
+    emit<CheckPick>(host, "er-check", check);
+  }
 }
 
 /**

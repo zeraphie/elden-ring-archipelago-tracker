@@ -10,7 +10,8 @@
  * the goal menu's band keeps it; one done before the page opened goes
  * straight to the band. A handle between the map and the panel resizes them,
  * as the page splits, and the settings lie over the panel while they're open.
- * With the timer on, it lies at the goal menu's foot.
+ * With the timer on, it lies at the goal menu's foot, or in Compact's column
+ * in the menu's place where splits are on.
  */
 
 import { LitElement, html, nothing } from "lit";
@@ -24,24 +25,28 @@ import { regionsOf } from "../state/utils/regions.js";
 import type { CheckPick } from "./utils/check-pick.js";
 import "./organisms/goal-achieved/er-goal-achieved.js";
 import "./organisms/goal-menu/er-goal-menu.js";
-import { LEAVE_MS, STAGGER_MS } from "./organisms/goal-menu/goal-rows.js";
 import "./organisms/header/er-header.js";
 import "./organisms/map/components/er-map.js";
 import "./organisms/intro/er-room-card.js";
 import "./organisms/panel/er-panel.js";
 import "./organisms/settings/er-settings.js";
+import "./organisms/timer/er-run-splits.js";
 import "./organisms/timer/er-run-timer.js";
 import "./organisms/toasts/er-toasts.js";
 import "./organisms/version-notice/er-version-notice.js";
 import { curtain } from "./organisms/intro/curtain.js";
 import { holdCurtainFor } from "./organisms/intro/entry-curtain.js";
-import { appStyles, GOAL_MENU_PX } from "./app-styles.js";
+import { appStyles, GOAL_MENU_PX, RUN_TIMER_WIDTH_PX } from "./app-styles.js";
 import { NARROW_MEDIA } from "./atoms/layout.js";
 import "./molecules/er-resize-handle.js";
 import { PanelSplit } from "./panel-split.js";
 import { SettingsOpen } from "./settings-open.js";
+import { LEAVE_MS, STAGGER_MS } from "./utils/goal-rows.js";
 import { MediaController } from "./utils/media.js";
 import { StoreController } from "./utils/store-controller.js";
+
+// Where the run's timer lies: nowhere, at the goal menu's foot, or in the menu's place.
+type TimerPlace = "none" | "foot" | "column";
 
 // Seeing locally only: a development build reads it from .env.development.local, and a built page has none.
 const PART_DELAY_MS = import.meta.env.DEV ? import.meta.env.VITE_PART_DELAY_MS : undefined;
@@ -72,12 +77,8 @@ export class ErApp extends LitElement {
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
   // How the page splits between the map and the panel, as dragged.
   private readonly split = new PanelSplit(this);
-  // Whether the page has the run's timer, which its accordion brings to the stacked page.
-  private readonly isTimerOn = new StoreController(
-    this,
-    SETTINGS,
-    ({ isTimerOn }: SettingsState) => isTimerOn
-  );
+  // Where the run's timer lies, which its accordion brings to the stacked page.
+  private readonly timerPlace = new StoreController(this, SETTINGS, timerPlaceOf);
   // Whether the settings panel is open, and the cog to go back to as it closes.
   private readonly settings = new SettingsOpen(this, () =>
     this.renderRoot.querySelector("er-header")?.focusCog()
@@ -169,7 +170,9 @@ export class ErApp extends LitElement {
 
   override render() {
     const ready = this.ready.value;
-    const hasTimer = this.isTimerOn.value && !this.isNarrow.matches;
+    const isNarrow = this.isNarrow.matches;
+    const timerPlace = isNarrow ? "none" : this.timerPlace.value;
+    const coveredLeft = isNarrow ? 0 : timerPlace === "column" ? RUN_TIMER_WIDTH_PX : GOAL_MENU_PX;
     return html`<er-header
         .store=${ready?.store}
         .isSettingsOpen=${this.settings.isOpen}
@@ -178,33 +181,22 @@ export class ErApp extends LitElement {
         ${
           ready === undefined
             ? nothing
-            : html`<div class="map" ?data-timer=${hasTimer}>
+            : html`<div class="map" ?data-timer=${timerPlace !== "none"}>
                   <er-map
                     .store=${ready.store}
                     .data=${ready.data}
-                    .coveredLeft=${this.isNarrow.matches ? 0 : GOAL_MENU_PX}
+                    .coveredLeft=${coveredLeft}
                     .selected=${this.region}
                     .picked=${this.picked}
                     @er-region=${this.selectRegion}
                     @er-check=${this.pick}
                   ></er-map>
-                  <er-goal-menu
-                    .store=${ready.store}
-                    .data=${ready.data}
-                    .achieved=${this.goalPhase === "settled"}
-                    .allDone=${this.isRestSimulated}
-                    .say=${this.isGoalSimulated ? undefined : ready.say}
-                    .region=${this.region}
-                    @er-region=${this.selectRegion}
-                    @er-check=${this.pickFromGoal}
-                    @er-items=${this.showItems}
-                  ></er-goal-menu>
-                  ${hasTimer ? html`<er-run-timer .store=${ready.store}></er-run-timer>` : nothing}
+                  ${this.goal(ready, timerPlace)}
                   <er-toasts .store=${ready.store} .data=${ready.data}></er-toasts>
                   <er-version-notice
                     .store=${ready.store}
                     .tracker=${import.meta.env.TRACKER_VERSION}
-                    .coveredLeft=${this.isNarrow.matches ? 0 : GOAL_MENU_PX}
+                    .coveredLeft=${coveredLeft}
                   ></er-version-notice>
                 </div>
                 ${this.handle()}
@@ -227,6 +219,34 @@ export class ErApp extends LitElement {
           : nothing
       }
       ${this.isOpen ? nothing : html`<er-room-card .entry=${this.entry}></er-room-card>`}`;
+  }
+
+  // The goal menu, with the timer at its foot where it's on, or the timer's column in its place.
+  private goal(ready: NonNullable<ReturnType<typeof readyPhase>>, timerPlace: TimerPlace) {
+    const achieved = this.goalPhase === "settled";
+    const say = this.isGoalSimulated ? undefined : ready.say;
+    return timerPlace === "column"
+      ? html`<er-run-splits
+          .store=${ready.store}
+          .data=${ready.data}
+          .achieved=${achieved}
+          .allDone=${this.isRestSimulated}
+          .say=${say}
+          @er-check=${this.pickFromGoal}
+          @er-items=${this.showItems}
+        ></er-run-splits>`
+      : html`<er-goal-menu
+            .store=${ready.store}
+            .data=${ready.data}
+            .achieved=${achieved}
+            .allDone=${this.isRestSimulated}
+            .say=${say}
+            .region=${this.region}
+            @er-region=${this.selectRegion}
+            @er-check=${this.pickFromGoal}
+            @er-items=${this.showItems}
+          ></er-goal-menu>
+          ${timerPlace === "foot" ? html`<er-run-timer .store=${ready.store}></er-run-timer>` : nothing}`;
   }
 
   // The handle between the map and the panel: sizing the panel's width beside the map, or the map's
@@ -280,6 +300,14 @@ export class ErApp extends LitElement {
   private readonly showItems = (): void => {
     this.renderRoot.querySelector("er-panel")?.showItems();
   };
+}
+
+// Compact's column stands in for the goal menu where splits are on; Comfort's has yet to.
+function timerPlaceOf({ isTimerOn, hasSplits, timerLook }: SettingsState): TimerPlace {
+  if (!isTimerOn) {
+    return "none";
+  }
+  return hasSplits && timerLook === "compact" ? "column" : "foot";
 }
 
 function readyPhase({ phase }: EntryState): Extract<EntryPhase, { phase: "ready" }> | undefined {

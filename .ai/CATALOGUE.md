@@ -127,7 +127,7 @@ here first, then search the source, then write.
 **src/archipelago/look-up.ts** (src/components/organisms, src/components/utils, src/demo, src/state, tools)
 - `ELDEN_RING`: Elden Ring's name as Archipelago gives a slot's game.
 
-**src/archipelago/release.ts** (src/components/organisms, src/state)
+**src/archipelago/release.ts** (src/components/molecules, src/components/organisms, src/components/utils, src/state)
 - `ReleaseState`: What becomes of a slot's items left after its goal: sent already, the slot's to send, the admin's alone, or not known.
 - `releaseAfterGoal()`: What becomes of the slot's items left, its goal done, by the room's release permission (undefined when no login has said it) and whether the room has announced their release.
 
@@ -233,7 +233,7 @@ here first, then search the source, then write.
 **src/components/atoms/swatch.ts** (src/components/molecules, src/components/organisms)
 - `swatchStyles`: A region's fill and edge as a small block, by how it stands: `.swatch` with `data-state` "locked", "open" or "done", its size set where it's used.
 
-**src/components/atoms/visually-hidden.ts** (src/components/organisms)
+**src/components/atoms/visually-hidden.ts** (src/components/molecules, src/components/organisms)
 - `visuallyHidden`: Text for a screen reader alone: `.sr` keeps it in the page, out of sight; `.sr-narrow` does so only at a tablet's width and below.
 
 ## src/components/molecules
@@ -253,6 +253,9 @@ here first, then search the source, then write.
 **src/components/molecules/er-region-picker.ts**
 - `PickerLook`: How the picker's button looks: a quiet button, a region's name as a heading shows it, or a select naming the region picked and its count.
 - `ErRegionPicker`: The button and the list of regions it opens.
+
+**src/components/molecules/er-release.ts**
+- `ErRelease`: What becomes of the items left, and the button that releases them.
 
 **src/components/molecules/er-resize-handle.ts**
 - `ResizeAxis`: Which way a handle moves: sideways, sizing a width, or up and down, sizing a height.
@@ -304,27 +307,6 @@ here first, then search the source, then write.
 - `bossesByRegion()`: The goal's bosses by the code of the region their drop is a check in.
 - `bossTally()`: How many of the goal's placed bosses are defeated, out of all of them.
 - `goalPickerGroups()`: The picker's groups for the goal: the regions holding a goal boss, each counting its bosses defeated out of all.
-
-**src/components/organisms/goal-menu/goal-rows.ts** (src/components)
-- `GLOW_IN_MS`: How long a leaving row's frame takes to light up.
-- `HOLD_MS`: How long it holds the glow, long enough to be seen in passing.
-- `SLIDE_MS`: How long the row takes to slide off the menu's edge, as long as a toast takes to leave.
-- `LEAVE_MS`: How long a row takes to leave, all told.
-- `STAGGER_MS`: How far apart rows achieved together start leaving, so each is seen.
-- `GoalRows`: Where the goal rows stand, by key, each list in the order shown.
-- `placeRows()`: Where the rows stand once the menu has the rows to do and done: a row done that was to do starts leaving, and stays in its place until it's left.
-- `rowLeft()`: The rows once `key` has left: gone from the list, and last in Done; as they were when it isn't leaving.
-- `RowView`: A goal row as the menu shows it: a need or a boss, by its key, and whether it's gotten.
-- `RowTarget`: Where a finished row leads: a check, by its name or its id, or the items, for what came from elsewhere.
-- `rowTarget()`: Where a finished row leads, given the check each of the slot's own finds was in, by the item's name; undefined for a boss with no drop in the room.
-- `rowViewsOf()`: The menu's rows to do and done, needs before bosses.
-
-**src/components/organisms/goal-menu/goal-words.ts**
-- `needName()`: What a need is: an item or a count by its name, a region, or the boss a drop asks to defeat.
-- `needLine()`: How a need stands: a count's tally, or whether it's obtained, received or defeated.
-- `bossName()`: A goal boss's name, or its flag for one the Elden Ring data doesn't know.
-- `bossLine()`: How a goal boss stands.
-- `RELEASE_LINES`: What becomes of the items left in the slot's world, its goal achieved, as the goal menu's band says it.
 
 **src/components/organisms/goal-menu/strip-scroll.ts**
 - `StripScroll`: The handlers that scroll a strip sideways with a mouse, for its wheel and pointer events.
@@ -539,6 +521,9 @@ here first, then search the source, then write.
 **src/components/organisms/settings/er-settings.ts**
 - `ErSettings`: The settings panel, over the right-hand panel.
 
+**src/components/organisms/timer/er-run-splits.ts**
+- `ErRunSplits`: The run's splits: the goal's rows, in the timer's column.
+
 **src/components/organisms/timer/er-run-timer.ts**
 - `ErRunTimer`: The run's large timer and its buttons.
 
@@ -610,6 +595,31 @@ here first, then search the source, then write.
 - `figure()`: A count as a person reads it, with its thousands set apart: "3,765".
 - `percentDone()`: How much of a whole is done, as a percentage; none of nothing.
 
+**src/components/utils/goal-rows.ts** (src/components, src/components/organisms)
+- `GLOW_IN_MS`: How long a leaving row's frame takes to light up.
+- `HOLD_MS`: How long it holds the glow, long enough to be seen in passing.
+- `SLIDE_MS`: How long the row takes to slide off the menu's edge, as long as a toast takes to leave.
+- `LEAVE_MS`: How long a row takes to leave, all told.
+- `STAGGER_MS`: How far apart rows achieved together start leaving, so each is seen.
+- `GoalRows`: Where the goal rows stand, by key, each list in the order shown.
+- `placeRows()`: Where the rows stand once the menu has the rows to do and done: a row done that was to do starts leaving, and stays in its place until it's left.
+- `rowLeft()`: The rows once `key` has left: gone from the list, and last in Done; as they were when it isn't leaving.
+- `settleRows()`: Where the rows stand with none leaving: a row done goes straight to the end of what's obtained.
+- `RowView`: A goal row as the menu shows it: a need or a boss, by its key, and whether it's gotten.
+- `RowTarget`: Where a finished row leads: a check, by its name or its id, or the items, for what came from elsewhere.
+- `rowTarget()`: Where a finished row leads, given the check each of the slot's own finds was in, by the item's name; undefined for a boss with no drop in the room.
+- `ownFindChecks()`: The check each item the slot found in its own world was in, by the item's name.
+- `openRow()`: Sends where a finished row leads from `host`: `er-check` with its check, or `er-items` for what came from elsewhere, which has no check here.
+- `rowViewsOf()`: The menu's rows to do and done, needs before bosses.
+
+**src/components/utils/goal-words.ts** (src/components/molecules, src/components/organisms)
+- `needName()`: What a need is: an item or a count by its name, a region, or the boss a drop asks to defeat.
+- `needLine()`: How a need stands: a count's tally, or whether it's obtained, received or defeated.
+- `bossName()`: A goal boss's name, or its flag for one the Elden Ring data doesn't know.
+- `bossLine()`: How a goal boss stands.
+- `rowWords()`: What a goal row says: its name, and how it stands.
+- `RELEASE_LINES`: What becomes of the items left in the slot's world, its goal achieved, as the goal menu's band says it.
+
 **src/components/utils/icons.ts** (src/components/molecules, src/components/organisms)
 - `iconUrl()`: An icon's URL by its name, such as "sack"; undefined when there's no icon by that name.
 
@@ -660,10 +670,10 @@ here first, then search the source, then write.
 
 ## src/data
 
-**src/data/bosses/goal-menu.ts** (src/components/organisms, src/state)
+**src/data/bosses/goal-menu.ts** (src/components/organisms, src/components/utils, src/state)
 - `GoalMenu`: What the goal menu holds: what's still needed, what's met, and the goal's bosses.
 
-**src/data/bosses/goal.ts** (src/components/organisms)
+**src/data/bosses/goal.ts** (src/components/organisms, src/components/utils)
 - `GoalState`: How a goal boss stands: defeated, still to do, or not knowable from the room's checks.
 - `GoalBoss`: One of a room's goal bosses, and how it stands.
 
@@ -714,13 +724,13 @@ here first, then search the source, then write.
 **src/data/rules/room-reach.ts** (src/state)
 - `Room`: A room as its rules read it: its options, the bosses forced into arenas, its goal, and every check it has, by name.
 
-**src/data/rules/rules.ts** (src/components/organisms)
+**src/data/rules/rules.ts** (src/components/organisms, src/components/utils)
 - `Need`: What a rule still needs: the parts of it not yet met, with a count's progress.
 
 **src/data/rules/world-rules.ts** (src/archipelago)
 - `WorldRuleOptions`: The options a room's rules read, with the apworld's names.
 
-**src/data/words.ts** (src/components/organisms, src/components/utils)
+**src/data/words.ts** (src/components/utils)
 - `listed()`: Parts read out as one list: "A", "A and B", "A, B and C", or with "or".
 
 ## src/state
@@ -780,7 +790,7 @@ here first, then search the source, then write.
 - `Finding`: What a check held: the item, and who it went to when that's another player.
 - `findingsOf()`: What each of this slot's checks held, by location id, for the checks it's known of.
 
-**src/state/utils/goal.ts** (src/components, src/components/organisms)
+**src/state/utils/goal.ts** (src/components, src/components/organisms, src/components/utils)
 - `goalMenuOf()`: The goal menu for the store's room; undefined until slot_data is in, or when it can't be read.
 - `checkOf()`: The check of this id, with its region; undefined where the room has no such check.
 - `checkNamed()`: The check of this location's name, with its region; undefined where the room has no such check.

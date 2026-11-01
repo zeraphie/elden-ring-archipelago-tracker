@@ -14,7 +14,7 @@ import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import { frameStyles } from "../../atoms/frame.js";
 import { narrow } from "../../atoms/layout.js";
 import { visuallyHidden } from "../../atoms/visually-hidden.js";
-import { GLOW_IN_MS, HOLD_MS, LEAVE_MS } from "./goal-rows.js";
+import { GLOW_IN_MS, HOLD_MS, LEAVE_MS } from "../../utils/goal-rows.js";
 
 // The leaving row's steps, as shares of its whole leaving: lit, held, then sliding off.
 const LIT = unsafeCSS((GLOW_IN_MS / LEAVE_MS) * 100);

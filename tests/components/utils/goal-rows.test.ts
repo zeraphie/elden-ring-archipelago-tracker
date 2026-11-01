@@ -4,10 +4,36 @@ import {
   rowLeft,
   rowTarget,
   rowViewsOf,
+  settleRows,
   type RowView,
-} from "../../../../src/components/organisms/goal-menu/goal-rows.js";
-import type { GoalMenu } from "../../../../src/data/bosses/goal-menu.js";
-import type { Need } from "../../../../src/data/rules/rules.js";
+} from "../../../src/components/utils/goal-rows.js";
+import type { GoalMenu } from "../../../src/data/bosses/goal-menu.js";
+import type { Need } from "../../../src/data/rules/rules.js";
+
+describe("settleRows", () => {
+  test("a row done goes straight to the end of what's obtained, with nothing leaving", () => {
+    const before = settleRows(undefined, ["a", "b", "c"], ["x"]);
+    expect(settleRows(before, ["a", "c"], ["x", "b"])).toEqual({
+      toDo: ["a", "c"],
+      leaving: [],
+      obtained: ["x", "b"],
+    });
+  });
+
+  test("rows done keep the order they came in, whatever order the goal lists them in", () => {
+    const first = settleRows(settleRows(undefined, ["a", "b"], []), ["a"], ["b"]);
+    expect(settleRows(first, [], ["a", "b"]).obtained).toEqual(["b", "a"]);
+  });
+
+  test("a row undone goes back among those to do", () => {
+    const before = settleRows(undefined, ["a"], ["b"]);
+    expect(settleRows(before, ["a", "b"], [])).toEqual({
+      toDo: ["a", "b"],
+      leaving: [],
+      obtained: [],
+    });
+  });
+});
 
 describe("placeRows", () => {
   test("the rows the menu opens on take their places at once, with nothing leaving", () => {
