@@ -456,7 +456,7 @@ export class ErGoalMenu extends LitElement {
         ? [
             data.needIcon(view.need),
             needName(view.need, data),
-            needLine(view.need, view.isGotten, data, this.ownFinds),
+            needLine(view.need, view.isGotten, this.ownFinds),
           ]
         : [data.bossIcon(view.boss.flag), bossName(view.boss), bossLine(view.boss)];
     return html`<li>

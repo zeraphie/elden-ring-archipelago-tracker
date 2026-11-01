@@ -285,7 +285,7 @@ here first, then search the source, then write.
 
 **src/components/organisms/goal-menu/goal-words.ts**
 - `needName()`: What a need is: an item or a count by its name, a region, or the boss a drop asks to defeat.
-- `needLine()`: How a need stands: a count's tally, or whether it's obtained, received, reached or done.
+- `needLine()`: How a need stands: a count's tally, or whether it's obtained, received or defeated.
 - `bossName()`: A goal boss's name, or its flag for one the Elden Ring data doesn't know.
 - `bossLine()`: How a goal boss stands.
 - `RELEASE_LINES`: What becomes of the items left in the slot's world, its goal achieved, as the goal menu's band says it.

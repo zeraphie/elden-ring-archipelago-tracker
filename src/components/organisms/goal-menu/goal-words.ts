@@ -44,13 +44,13 @@ export function needName(need: Need, data: EldenRingData): string {
 }
 
 /**
- * How a need stands: a count's tally, or whether it's obtained, received, reached or done. An item
- * is obtained when the slot found it in its own world, and received when it came from anyone else.
+ * How a need stands: a count's tally, or whether it's obtained, received or defeated. An item is
+ * obtained when the slot found it in its own world, and received when it came from anyone else.
+ * Anything else is a boss's drop, as the goal menu holds no other need.
  */
 export function needLine(
   need: Need,
   isMet: boolean,
-  data: EldenRingData,
   ownFinds: ReadonlySet<string | undefined>
 ): string {
   switch (need.kind) {
@@ -61,15 +61,8 @@ export function needLine(
         return "Not obtained";
       }
       return ownFinds.has(need.item) ? "Obtained" : "Received";
-    case "area":
-      return isMet ? "Reached" : "Not reached yet";
-    case "location":
-      if (data.bossDropping(need.location) !== undefined) {
-        return isMet ? "Defeated" : "Not defeated";
-      }
-      return isMet ? "Checked" : "Not checked yet";
     default:
-      return isMet ? "Done" : "Not yet";
+      return isMet ? "Defeated" : "Not defeated";
   }
 }
 
