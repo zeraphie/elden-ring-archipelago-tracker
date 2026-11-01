@@ -4,8 +4,10 @@
  * What the header says of the room: how the tracker is keeping up with it,
  * and how each player stands by the client status Archipelago keeps for them.
  * The status is live feedback, so a tracker link, which has none, says nothing.
+ * The demo's room is always there, so it says what it is instead.
  */
 
+import { isDemo, type RoomLink } from "../../../archipelago/room-link.js";
 import type { ConnectionPhase } from "../../../state/slices/connection.js";
 import { GOAL_STATUS } from "../../../state/slices/roster.js";
 import { failureText } from "../../utils/entry-words.js";
@@ -26,10 +28,10 @@ const STATUS_WORDS: Readonly<Record<number, string>> = {
 };
 
 /** How the tracker is keeping up with the room, from where following it stands; nothing on a tracker link that's reading the web API as it should. */
-export function liveState(phase: ConnectionPhase): LiveState | undefined {
+export function liveState(phase: ConnectionPhase, link: RoomLink): LiveState | undefined {
   switch (phase.phase) {
     case "connected":
-      return { kind: "live", text: "Live" };
+      return { kind: "live", text: isDemo(link) ? "Demo" : "Live" };
     case "web only":
       return undefined;
     case "looking":

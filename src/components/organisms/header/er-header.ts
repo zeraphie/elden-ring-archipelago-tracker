@@ -6,15 +6,16 @@
  * reader always hears the full name. Once a room is open, beside it is the
  * settings cog, in the bar's middle the slot's key checks and all its checks
  * done, and at the far end how the tracker is keeping up with the room, which
- * links to the room's own page, the room's players, and the way to leave, which
- * reloads the page, so the card offers the room again or another. Where the
- * middle has no room, the checks go back beside the name. At a tablet's width
- * and below, how the tracker is keeping up and the key checks sit under a line.
+ * links to the room's own page where it has one, the room's players, and the
+ * way to leave, which reloads the page, so the card offers the room again or
+ * another. Where the middle has no room, the checks go back beside the name. At
+ * a tablet's width and below, how the tracker is keeping up and the key checks
+ * sit under a line.
  */
 
 import { LitElement, css, html, nothing } from "lit";
 import { shallow } from "zustand/vanilla/shallow";
-import { linkPage, type RoomLink } from "../../../archipelago/room-link.js";
+import { isDemo, linkPage, type RoomLink } from "../../../archipelago/room-link.js";
 import type { ConnectionPhase } from "../../../state/slices/connection.js";
 import type { RosterEntry } from "../../../state/slices/roster.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
@@ -126,6 +127,10 @@ export class ErHeader extends LitElement {
       }
       .live {
         gap: 6px;
+      }
+      /* The demo has no page to go to, so its status looks the same and answers no pointer. */
+      span.live {
+        pointer-events: none;
       }
       .light {
         width: 8px;
@@ -305,25 +310,30 @@ export class ErHeader extends LitElement {
   }
 
   private live(phase: ConnectionPhase, link: RoomLink) {
-    const state = liveState(phase);
+    const state = liveState(phase, link);
     if (state === undefined) {
       return nothing;
     }
     const { kind, text, detail } = state;
-    return html`<a
-      class="button live"
-      data-tone="bare"
-      data-size="small"
-      data-kind=${kind}
-      title=${detail ?? nothing}
-      href=${linkPage(link)}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <span class="light" aria-hidden="true"></span>
+    const words = html`<span class="light" aria-hidden="true"></span>
       <span>${text}</span>
-      ${detail === undefined ? nothing : html`<span class="sr">${detail}</span>`}
-    </a>`;
+      ${detail === undefined ? nothing : html`<span class="sr">${detail}</span>`}`;
+    return isDemo(link)
+      ? html`<span class="button live" data-tone="bare" data-size="small" data-kind=${kind}>
+          ${words}
+        </span>`
+      : html`<a
+          class="button live"
+          data-tone="bare"
+          data-size="small"
+          data-kind=${kind}
+          title=${detail ?? nothing}
+          href=${linkPage(link)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ${words}
+        </a>`;
   }
 }
 
