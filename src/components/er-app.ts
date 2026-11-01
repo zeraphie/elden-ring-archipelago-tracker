@@ -22,6 +22,7 @@ import { SETTINGS, type SettingsState } from "../state/settings.js";
 import type { TrackerState, TrackerStore } from "../state/store.js";
 import { goalMenuOf, isGoalReached } from "../state/utils/goal.js";
 import { regionsOf } from "../state/utils/regions.js";
+import { finishedRows } from "../state/utils/run-times.js";
 import type { CheckPick } from "./utils/check-pick.js";
 import "./organisms/goal-achieved/er-goal-achieved.js";
 import "./organisms/goal-menu/er-goal-menu.js";
@@ -164,8 +165,8 @@ export class ErApp extends LitElement {
       this.isGoalSimulated = false;
       this.isRestSimulated = false;
       this.goalPhase = this.goalDone?.value === true ? "settled" : "none";
-      if (this.goalPhase === "settled") {
-        store?.getState().endRun();
+      if (ready !== undefined && this.goalPhase === "settled") {
+        this.stopRun(ready);
       }
     }
     const isDone = this.goalDone?.value === true || this.isGoalSimulated;
@@ -173,7 +174,19 @@ export class ErApp extends LitElement {
       this.goalPhase = "none";
     } else if (this.goalPhase === "none") {
       this.goalPhase = "reaction";
-      store?.getState().endRun();
+      if (ready !== undefined) {
+        this.stopRun(ready);
+      }
+    }
+  }
+
+  // The goal stops the run's clock, and keeps the run, unless the goal is only on the page.
+  private stopRun({ data, store }: NonNullable<ReturnType<typeof readyPhase>>): void {
+    const state = store.getState();
+    if (this.isGoalSimulated) {
+      state.endRun();
+    } else {
+      state.finishRun(finishedRows(data, state));
     }
   }
 

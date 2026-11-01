@@ -43,6 +43,11 @@ export function splitTime(ms: number): string {
     : `${minutes}:${twoFigures(seconds)}`;
 }
 
+/** A difference in milliseconds as a row shows it, to the second: "+0:06", or "-1:08:05" when it's ahead. */
+export function signedTime(ms: number): string {
+  return `${ms < 0 ? "-" : "+"}${splitTime(Math.abs(ms))}`;
+}
+
 /**
  * A typed time in milliseconds: "90", "1:30" or "1:02:03", each with hundredths
  * if they're given. Nothing typed is no time at all; undefined when it can't be read.

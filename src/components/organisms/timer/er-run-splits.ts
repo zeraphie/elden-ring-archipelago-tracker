@@ -8,7 +8,9 @@
  * Comfort's are framed, under Done and To do bands, on the menu's shade. A row
  * gotten sorts up at once, by the time it came, a dash for one the tracker
  * didn't see come, and opens its check, or the items for what came from
- * elsewhere. Once the goal's achieved, what becomes of the items left comes
+ * elsewhere. Each is compared with the fastest finished run of its preset: its
+ * difference, a row left that run's time, and Previous Segment under the timer,
+ * a dash for each with nothing to compare. Once the goal's achieved, what becomes of the items left comes
  * under the rows. Where the rows don't all fit, the two lists scroll apart,
  * Done keeping to its latest, and Comfort's To do band or Compact's line drags
  * to give either more room; Compact holds the goal's last row apart too.
@@ -20,9 +22,11 @@ import type { ReleaseState } from "../../../archipelago/release.js";
 import type { GoalMenu } from "../../../data/bosses/goal-menu.js";
 import { SETTINGS, type SettingsState } from "../../../state/settings.js";
 import type { EldenRingData } from "../../../state/setup.js";
+import type { FinishedRun } from "../../../state/run-history.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
 import type { Run } from "../../../state/slices/run.js";
 import { goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
+import { comparisonOf, previousSegment } from "../../../state/utils/run-compare.js";
 import { rowTimesOf } from "../../../state/utils/run-times.js";
 import "../../molecules/er-release.js";
 import "../../molecules/er-resize-handle.js";
@@ -47,10 +51,9 @@ import { StickToBottom } from "../../utils/stick-to-bottom.js";
 import { StoreController } from "../../utils/store-controller.js";
 import "./er-run-timer.js";
 import { runSplitsStyles } from "./run-splits-styles.js";
-import { splitTime } from "./run-words.js";
+import { signedTime } from "./run-words.js";
+import { DASH, splitGotten, splitLeft, type RowMarks } from "./split-row.js";
 
-// A time or a difference with nothing to show.
-const DASH = "-";
 // The least either list can be dragged to: about two rows.
 const LIST_LEAST_PX = 60;
 
@@ -89,6 +92,7 @@ export class ErRunSplits extends LitElement {
   private live: StoreController<TrackerState, boolean> | undefined;
   private name: StoreController<TrackerState, string | undefined> | undefined;
   private run: StoreController<TrackerState, Run> | undefined;
+  private earlier: StoreController<TrackerState, readonly FinishedRun[]> | undefined;
   private readonly look = new StoreController(
     this,
     SETTINGS,
@@ -130,6 +134,11 @@ export class ErRunSplits extends LitElement {
       );
       this.name = new StoreController(this, store, ownName);
       this.run = new StoreController(this, store, ({ run }: TrackerState) => run);
+      this.earlier = new StoreController(
+        this,
+        store,
+        ({ earlierRuns }: TrackerState) => earlierRuns
+      );
     }
     const menu = this.menu?.value;
     if (menu !== undefined && data !== undefined) {
@@ -181,21 +190,32 @@ export class ErRunSplits extends LitElement {
     };
     const obtained = byTimeCame(rows.obtained, timeOf);
     const latest = obtained.at(-1);
+    const compared = comparisonOf(this.earlier?.value ?? []);
+    const paceOf = (key: string) => {
+      const time = timeOf(key);
+      return time === undefined ? undefined : compared.paceOf(key, time);
+    };
     const gotten = repeat(
       obtained,
       (key) => key,
-      (key) => this.row(key, data, key === latest, timeOf(key))
+      (key) =>
+        this.row(key, data, { isLatest: key === latest, time: timeOf(key), pace: paceOf(key) })
     );
     const left = (keys: readonly string[]) =>
       repeat(
         keys,
         (key) => key,
-        (key) => this.row(key, data, false, undefined)
+        (key) => this.row(key, data, { time: compared.timeOf(key) })
       );
+    const diffs = obtained
+      .filter((key) => timeOf(key) !== undefined)
+      .map((key) => paceOf(key)?.diffMs);
+    const latestDiff = diffs.at(-1);
     const height = this.isLong ? this.doneHeight : undefined;
     return html`<er-run-timer
       column
       .store=${store}
+      data-pace=${latestDiff === undefined ? nothing : aheadOrBehind(latestDiff)}
       style=${height === undefined ? nothing : `--done-height: ${height}px`}
     >
       <div slot="top">
@@ -210,6 +230,7 @@ export class ErRunSplits extends LitElement {
           ? this.comfortRows(gotten, left(toDo), obtained.length, toDo.length)
           : this.compactRows(gotten, left, obtained.length, toDo)
       }
+      ${this.previous(previousSegment(diffs))}
       ${
         this.achieved
           ? html`<div class="release">
@@ -277,6 +298,16 @@ export class ErRunSplits extends LitElement {
       }`;
   }
 
+  // How much the latest row gained or lost on the one before it.
+  private previous(gainedMs: number | undefined) {
+    return html`<div class="previous" slot="foot">
+      <span>Previous Segment</span>
+      <span class="fig" data-pace=${gainedMs === undefined ? nothing : aheadOrBehind(gainedMs)}
+        >${gainedMs === undefined ? DASH : signedTime(gainedMs)}</span
+      >
+    </div>`;
+  }
+
   // What moves the line between the lists, dragged by `by`.
   private handle(handleClass: string, by: unknown) {
     return html`<er-resize-handle
@@ -309,47 +340,21 @@ export class ErRunSplits extends LitElement {
     this.doneHeight = detail;
   };
 
-  private row(key: string, data: EldenRingData, isLatest: boolean, time: number | undefined) {
+  private row(key: string, data: EldenRingData, marks: RowMarks) {
     const view = this.views.get(key);
     if (view === undefined) {
       return nothing;
     }
-    const { label, line } = rowWords(view, data, this.ownFinds);
-    const icon = iconUrl(rowIcon(view, data));
-    const frame =
-      this.look.value === "comfort"
-        ? html`<span class="frame" aria-hidden="true">
-            ${icon === undefined ? nothing : html`<img src=${icon} alt="" />`}
-          </span>`
-        : nothing;
+    const face = {
+      ...rowWords(view, data, this.ownFinds),
+      icon: iconUrl(rowIcon(view, data)),
+      isFramed: this.look.value === "comfort",
+    };
     if (!view.isGotten) {
-      // A count's tally has this column to itself, as a row left has no difference.
-      const tally = view.kind === "need" && view.need.kind === "count" ? line : nothing;
-      return html`<li class="row" data-left aria-label=${`${label}: ${line}`}>
-        ${frame}<span class="label" title=${label}>${label}</span><span class="fig">${tally}</span
-        ><span class="fig">${DASH}</span>
-      </li>`;
+      return splitLeft(face, marks.time, view.kind === "need" && view.need.kind === "count");
     }
     const target = rowTarget(view, this.ownFinds);
-    const cells = html`${frame}<span class="label" title=${label}>${label}</span
-      ><span class="fig">${DASH}</span
-      ><span class="fig">${time === undefined ? DASH : splitTime(time)}</span>`;
-    return html`<li>
-      ${
-        target === undefined
-          ? html`<div class="row band-row" aria-current=${isLatest ? "true" : "false"}>
-              ${cells}
-            </div>`
-          : html`<button
-              class="row band-row"
-              aria-current=${isLatest ? "true" : "false"}
-              aria-label=${`${label}: ${line}`}
-              @click=${() => this.open(target)}
-            >
-              ${cells}
-            </button>`
-      }
-    </li>`;
+    return splitGotten(face, marks, target && (() => this.open(target)));
   }
 
   // A row gotten opens its check, as a click on the map does, or the items.
@@ -360,6 +365,8 @@ export class ErRunSplits extends LitElement {
     }
   }
 }
+
+const aheadOrBehind = (ms: number): "ahead" | "behind" => (ms < 0 ? "ahead" : "behind");
 
 function ownName({ roster, team, slot }: TrackerState): string | undefined {
   const mine = roster.find((entry) => entry.team === team && entry.slot === slot);

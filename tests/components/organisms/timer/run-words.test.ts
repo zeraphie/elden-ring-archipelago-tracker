@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   clockFace,
+  signedTime,
   splitTime,
   typedTime,
 } from "../../../../src/components/organisms/timer/run-words.js";
@@ -42,6 +43,17 @@ describe("splitTime", () => {
   test("shows hours once there are any", () => {
     expect(splitTime(485_000)).toBe("8:05");
     expect(splitTime(4_085_000)).toBe("1:08:05");
+  });
+});
+
+describe("signedTime", () => {
+  test("marks a difference ahead or behind", () => {
+    expect(signedTime(-6_000)).toBe("-0:06");
+    expect(signedTime(4_085_000)).toBe("+1:08:05");
+  });
+
+  test("reads level as behind, as a row is only ahead if it's sooner", () => {
+    expect(signedTime(0)).toBe("+0:00");
   });
 });
 

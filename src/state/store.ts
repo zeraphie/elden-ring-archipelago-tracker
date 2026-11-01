@@ -98,7 +98,7 @@ export function createTrackerStore(
           ...createItemsSlice(now)(...slice),
           ...createLogSlice(now)(...slice),
           ...createRosterSlice(...slice),
-          ...createRunSlice(now)(...slice),
+          ...createRunSlice(now, storage)(...slice),
           take: (event) => {
             const before = slice[1]();
             const { takeStanding, takeSlotData, takeItems, takeSent, takeMessage, markGoal } =
@@ -159,6 +159,10 @@ export function createTrackerStore(
         }
       )
     )
+  );
+  store.subscribe(
+    ({ slotData }) => slotData,
+    () => void store.getState().loadEarlierRuns()
   );
   return store;
 }

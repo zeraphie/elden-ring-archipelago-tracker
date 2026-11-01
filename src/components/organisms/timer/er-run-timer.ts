@@ -25,6 +25,7 @@ import { clockFace, typedTime } from "./run-words.js";
  *
  * @slot top - What sits beside the buttons, in a column.
  * @slot - What sits between the buttons and the timer, in a column.
+ * @slot foot - What sits under the timer, in a column.
  */
 export class ErRunTimer extends LitElement {
   static override properties = {
@@ -84,14 +85,15 @@ export class ErRunTimer extends LitElement {
     }
     const isRuled = this.look.value === "comfort";
     const rule = isRuled ? html`<div class="rule" aria-hidden="true"></div>` : nothing;
+    const isColumn = this.hasAttribute("column");
     const face = html`<div class="face">
       ${rule} ${run.phase === "before" ? this.typed() : this.clock(runTimeOf(run, Date.now()))}
-      ${rule}
+      ${rule} ${isColumn ? html`<slot name="foot"></slot>` : nothing}
     </div>`;
     const buttons = html`<div class="buttons">
       ${this.press(run)} ${run.phase === "before" ? nothing : this.reset()}
     </div>`;
-    return this.hasAttribute("column")
+    return isColumn
       ? html`<div class="top"><slot name="top"></slot>${buttons}</div>
           <slot></slot>
           ${face}`

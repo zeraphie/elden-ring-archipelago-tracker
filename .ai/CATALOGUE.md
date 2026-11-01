@@ -539,7 +539,15 @@ here first, then search the source, then write.
 - `ClockFace`: A run's time on the large timer: the whole seconds, and the hundredths, which show smaller.
 - `clockFace()`: A time in milliseconds as the large timer shows it: "0", "8:05" or "1:08:05", then ".20".
 - `splitTime()`: A time in milliseconds as a row shows it, to the second: "0:06", "8:05" or "1:08:05".
+- `signedTime()`: A difference in milliseconds as a row shows it, to the second: "+0:06", or "-1:08:05" when it's ahead.
 - `typedTime()`: A typed time in milliseconds: "90", "1:30" or "1:02:03", each with hundredths if they're given.
+
+**src/components/organisms/timer/split-row.ts**
+- `DASH`: A time or a difference with nothing to show.
+- `RowFace`: A goal as its row shows it: its name, how it stands, and its icon, framed in Comfort.
+- `RowMarks`: What a row gotten shows beyond its goal: whether it's the latest, and its time and how it stands.
+- `splitLeft()`: A row left, with the time it came in the run compared with, and `line` beside it for a count.
+- `splitGotten()`: A row gotten, opening what it leads to where `onOpen` is given.
 
 **src/components/organisms/toasts/er-toasts.ts**
 - `ErToasts`: The items others send, and the slot's own finds that matter, as toasts.
@@ -687,6 +695,9 @@ here first, then search the source, then write.
 
 ## src/data
 
+**src/data/bosses/boss-key.ts** (src/components/organisms, src/components/utils, src/demo, src/state)
+- `bossKey`: What makes a goal boss's row the same one in any room, as a key, by the flag the game sets for it.
+
 **src/data/bosses/goal-menu.ts** (src/components/organisms, src/components/utils, src/state)
 - `GoalMenu`: What the goal menu holds: what's still needed, what's met, and the goal's bosses.
 
@@ -761,6 +772,11 @@ here first, then search the source, then write.
 - `DemoWays`: What the demo goes by: how it asks, connects and keeps, with no room behind them.
 - `createEntryStore()`: A way in, starting from nothing until `start` reads the last visit.
 
+**src/state/run-history.ts** (src/components/organisms, src/demo)
+- `FinishedRun`: A run that reached the goal: its time, and each row seen come, by its key, in milliseconds.
+- `presetOf()`: The preset a room's slot_data is of: a hash of its options; undefined with none.
+- `runsEntry()`: What's kept for a preset, name and value, so a room can open with runs behind it.
+
 **src/state/settings.ts** (src/components, src/components/molecules, src/components/organisms)
 - `SettingsState`: What the person has set, and the way to set it.
 - `SETTINGS`: The page's one settings store.
@@ -808,7 +824,7 @@ here first, then search the source, then write.
 - `Finding`: What a check held: the item, and who it went to when that's another player.
 - `findingsOf()`: What each of this slot's checks held, by location id, for the checks it's known of.
 
-**src/state/utils/goal.ts** (src/components, src/components/organisms, src/components/utils)
+**src/state/utils/goal.ts** (src/components, src/components/organisms, src/components/utils, src/demo)
 - `goalMenuOf()`: The goal menu for the store's room; undefined until slot_data is in, or when it can't be read.
 - `checkOf()`: The check of this id, with its region; undefined where the room has no such check.
 - `checkNamed()`: The check of this location's name, with its region; undefined where the room has no such check.
@@ -834,8 +850,13 @@ here first, then search the source, then write.
 **src/state/utils/regions.ts** (src/components, src/components/organisms, src/components/utils, src/demo)
 - `regionsOf()`: Each region of the store's room, by its code; undefined until slot_data and the data package are in, or when they can't be read.
 
-**src/state/utils/run-times.ts** (src/components/organisms)
+**src/state/utils/run-compare.ts** (src/components/organisms)
+- `comparisonOf()`: What a run is compared with, from the finished runs of its preset.
+- `previousSegment()`: How much the latest row gained or lost on the one before it, by each row's difference in the order they came; undefined when the latest has none.
+
+**src/state/utils/run-times.ts** (src/components, src/components/organisms)
 - `rowTimesOf()`: When the store's goal rows came.
+- `finishedRows()`: The time of each row seen come, by its key, as a finished run is kept.
 
 **src/state/utils/simulate.ts** (src/components/organisms, src/demo)
 - `SimulateInputs`: What simulating reads, in the store.

@@ -45,9 +45,10 @@ export const runSplitsStyles = [
       padding: 4px 0;
       list-style: none;
     }
+    /* The figures' columns hold a difference past the hour: "-1:02:33". */
     .row {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 58px 70px;
+      grid-template-columns: minmax(0, 1fr) 70px 70px;
       align-items: center;
       column-gap: 8px;
       box-sizing: border-box;
@@ -76,6 +77,25 @@ export const runSplitsStyles = [
     }
     .row:not([data-left]) > :last-child {
       color: var(--er-ink-bright);
+    }
+    [data-pace="ahead"] {
+      color: var(--er-live-ink);
+    }
+    [data-pace="behind"] {
+      color: var(--er-error);
+    }
+    [data-pace="best"] {
+      color: var(--er-gold-bright);
+    }
+    .previous {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 4px;
+      color: var(--er-ink-soft);
+    }
+    :host([data-look="comfort"]) .previous {
+      padding: 6px 12px 0;
     }
     .line {
       height: 1px;
@@ -116,7 +136,7 @@ export const runSplitsStyles = [
       max-height: 45%;
     }
     :host([data-look="comfort"]) .row {
-      grid-template-columns: 28px minmax(0, 1fr) 52px 60px;
+      grid-template-columns: 28px minmax(0, 1fr) 70px 70px;
       height: auto;
       padding: 2px 8px 2px 12px;
     }

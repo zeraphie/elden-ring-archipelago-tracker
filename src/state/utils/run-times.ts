@@ -9,10 +9,12 @@
  */
 
 import { ELDEN_RING } from "../../archipelago/look-up.js";
+import { bossKey } from "../../data/bosses/boss-key.js";
 import type { GoalBoss } from "../../data/bosses/goal.js";
 import type { Need } from "../../data/rules/rules.js";
 import type { EldenRingData } from "../setup.js";
 import type { TrackerState } from "../store.js";
+import { goalMenuOf } from "./goal.js";
 import { roomViewOf, type RoomInputs } from "./room.js";
 
 /** What reading a row's time reads, in the store. */
@@ -62,6 +64,24 @@ export function rowTimesOf(data: EldenRingData, inputs: RowTimeInputs): RowTimes
     need: needTime,
     boss: ({ drop }) => (drop === undefined ? undefined : fallTime(drop)),
   };
+}
+
+/** The time of each row seen come, by its key, as a finished run is kept. */
+export function finishedRows(
+  data: EldenRingData,
+  inputs: RowTimeInputs
+): Readonly<Record<string, number>> {
+  const times = rowTimesOf(data, inputs);
+  const menu = goalMenuOf(data, inputs);
+  const rows = [
+    ...[...(menu?.met ?? []), ...(menu?.needed ?? [])].map(
+      (need) => [data.needKey(need), times.need(need)] as const
+    ),
+    ...(menu?.bosses ?? []).map((boss) => [bossKey(boss.flag), times.boss(boss)] as const),
+  ];
+  return Object.fromEntries(
+    rows.flatMap(([key, time]) => (time === undefined ? [] : [[key, time]]))
+  );
 }
 
 function known(times: readonly (number | undefined)[]): number[] {

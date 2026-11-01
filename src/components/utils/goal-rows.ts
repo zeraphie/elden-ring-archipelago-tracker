@@ -11,6 +11,7 @@
  * the end of what's obtained.
  */
 
+import { bossKey } from "../../data/bosses/boss-key.js";
 import type { GoalBoss } from "../../data/bosses/goal.js";
 import type { GoalMenu } from "../../data/bosses/goal-menu.js";
 import type { Need } from "../../data/rules/rules.js";
@@ -185,7 +186,7 @@ export function rowViewsOf(
     need: isGotten && each.kind === "count" ? { ...each, have: each.needs } : each,
   });
   const boss = (each: GoalBoss, isGotten: boolean): RowView => ({
-    key: `boss:${each.flag}`,
+    key: bossKey(each.flag),
     isGotten,
     kind: "boss",
     boss: isGotten ? { ...each, state: "defeated" } : each,

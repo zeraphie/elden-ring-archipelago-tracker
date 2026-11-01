@@ -8,11 +8,12 @@ import {
   demoSlotData,
   DEMO_PLAYER,
 } from "../../src/demo/room.js";
-import { demoRun } from "../../src/demo/run.js";
+import { demoEarlierRuns, demoRun } from "../../src/demo/run.js";
 import { demoSnapshot } from "../../src/demo/snapshot.js";
 import { demoWays } from "../../src/demo/ways.js";
 import { runTimeOf } from "../../src/state/slices/run.js";
 import { goalMenuOf } from "../../src/state/utils/goal.js";
+import { comparisonOf } from "../../src/state/utils/run-compare.js";
 import { rowTimesOf } from "../../src/state/utils/run-times.js";
 import { loaded } from "../fixtures/stores.js";
 
@@ -64,5 +65,31 @@ describe("the demo's run", () => {
     const met = goalMenuOf(data, state)?.met ?? [];
     expect(met.length).toBeGreaterThan(0);
     expect(met.map(times.need).every((time) => time !== undefined)).toBe(true);
+  });
+});
+
+describe("the runs behind the demo's", () => {
+  test("come in with the room, by its preset", async () => {
+    const store = await loaded(DEMO_LINK, { storage: demoWays().storage });
+    store.getState().takeSlotData(demoSlotData());
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(store.getState().earlierRuns).toHaveLength(2);
+  });
+
+  test("have every row of the goal", () => {
+    const [fastest, slower] = demoEarlierRuns();
+    expect(Object.keys(fastest?.rows ?? {})).toHaveLength(6);
+    expect(Object.keys(slower?.rows ?? {})).toHaveLength(6);
+  });
+
+  test("hold a row of each kind against the run, so each colour shows on the demo", () => {
+    const [fastest] = demoEarlierRuns();
+    const compared = comparisonOf(demoEarlierRuns());
+    const paces = Object.keys(fastest?.rows ?? {}).map(
+      (key) => compared.paceOf(key, RUN.bankedMs)?.pace
+    );
+    expect(paces).toContain("ahead");
+    expect(paces).toContain("behind");
+    expect(paces).toContain("best");
   });
 });

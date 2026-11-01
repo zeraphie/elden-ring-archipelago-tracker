@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { RoomLink } from "../../../src/archipelago/room-link.js";
+import { keepRun, keptRuns, presetOf } from "../../../src/state/run-history.js";
 import { runTimeOf } from "../../../src/state/slices/run.js";
 import { createTrackerStore } from "../../../src/state/store.js";
 import { memory } from "../../fixtures/stores.js";
@@ -205,5 +206,91 @@ describe("a run kept before it had times", () => {
     await store.persist.rehydrate();
     expect(time()).toBe(5_000);
     expect(store.getState().run).toMatchObject({ checkTimes: {}, itemTimes: {} });
+  });
+});
+
+describe("runs kept for the preset", () => {
+  const SLOT_DATA = { options: { goal_count: 3 } };
+  const PRESET = presetOf(SLOT_DATA) ?? "";
+  const ROWS = { "boss:1": 2_000 };
+  // Lets what the store reads and writes as it goes come back.
+  const settled = () => new Promise((resolve) => setTimeout(resolve));
+
+  test("a finished run is kept with its time and rows", async () => {
+    const { clock, kept, store } = setUp();
+    store.getState().takeSlotData(SLOT_DATA);
+    store.getState().startRun(0);
+    clock.now += 5_000;
+    store.getState().finishRun(ROWS);
+    await settled();
+    expect(store.getState().run.phase).toBe("finished");
+    expect(await keptRuns(PRESET, kept)).toEqual([{ timeMs: 5_000, rows: ROWS }]);
+  });
+
+  test("a run reset isn't kept", async () => {
+    const { kept, store } = setUp();
+    store.getState().takeSlotData(SLOT_DATA);
+    store.getState().startRun(0);
+    store.getState().resetRun();
+    await settled();
+    expect(await keptRuns(PRESET, kept)).toEqual([]);
+  });
+
+  test("a run never started isn't kept when the goal's reached", async () => {
+    const { kept, store } = setUp();
+    store.getState().takeSlotData(SLOT_DATA);
+    store.getState().finishRun(ROWS);
+    await settled();
+    expect(await keptRuns(PRESET, kept)).toEqual([]);
+  });
+
+  test("a run finished already isn't kept twice", async () => {
+    const { kept, store } = setUp();
+    store.getState().takeSlotData(SLOT_DATA);
+    store.getState().startRun(0);
+    store.getState().finishRun(ROWS);
+    store.getState().finishRun(ROWS);
+    await settled();
+    expect(await keptRuns(PRESET, kept)).toHaveLength(1);
+  });
+
+  test("a run only stopped, as Simulate's goal does, isn't kept", async () => {
+    const { kept, store } = setUp();
+    store.getState().takeSlotData(SLOT_DATA);
+    store.getState().startRun(0);
+    store.getState().endRun();
+    await settled();
+    expect(await keptRuns(PRESET, kept)).toEqual([]);
+  });
+
+  test("come in with the room's slot_data", async () => {
+    const { kept, store } = setUp();
+    await keepRun(PRESET, { timeMs: 9_000, rows: ROWS }, kept);
+    store.getState().takeSlotData(SLOT_DATA);
+    await settled();
+    expect(store.getState().earlierRuns).toEqual([{ timeMs: 9_000, rows: ROWS }]);
+  });
+
+  test("change with the room's options", async () => {
+    const { kept, store } = setUp();
+    await keepRun(PRESET, { timeMs: 9_000, rows: ROWS }, kept);
+    store.getState().takeSlotData(SLOT_DATA);
+    await settled();
+    store.getState().takeSlotData({ options: { goal_count: 4 } });
+    await settled();
+    expect(store.getState().earlierRuns).toEqual([]);
+  });
+
+  test("hold still as a run finishes, so it isn't compared with itself, and take it in on a reset", async () => {
+    const { store } = setUp();
+    store.getState().takeSlotData(SLOT_DATA);
+    await settled();
+    store.getState().startRun(0);
+    store.getState().finishRun(ROWS);
+    await settled();
+    expect(store.getState().earlierRuns).toEqual([]);
+    store.getState().resetRun();
+    await settled();
+    expect(store.getState().earlierRuns).toHaveLength(1);
   });
 });

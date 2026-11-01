@@ -1,9 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { bossKey } from "../../../src/data/bosses/boss-key.js";
 import * as data from "../../../src/data/elden-ring.js";
 import type { GoalBoss } from "../../../src/data/bosses/goal.js";
 import type { Need } from "../../../src/data/rules/rules.js";
 import type { Run } from "../../../src/state/slices/run.js";
-import { rowTimesOf } from "../../../src/state/utils/run-times.js";
+import { finishedRows, rowTimesOf } from "../../../src/state/utils/run-times.js";
 import { idOf, inputs, MORGOTT, received } from "../../fixtures/slots.js";
 
 const RUSTY_KEY = 1;
@@ -103,5 +104,17 @@ describe("a row's time", () => {
   test("a region reached has no time, as no message says when", () => {
     const times = rowTimesOf(data, { ...inputs(), run: run({}) });
     expect(times.need({ kind: "area", area: "Liurnia of the Lakes" })).toBeUndefined();
+  });
+});
+
+describe("a finished run's rows", () => {
+  test("are those with a time, by each row's key", () => {
+    const checkTimes = { [idOf(REMEMBRANCE_DROP)]: 4_000 };
+    const rows = finishedRows(data, { ...inputs(), run: run({ checkTimes }) });
+    expect(rows).toEqual({ [bossKey(MORGOTT)]: 4_000 });
+  });
+
+  test("are none with nothing seen come", () => {
+    expect(finishedRows(data, { ...inputs(), run: run({}) })).toEqual({});
   });
 });

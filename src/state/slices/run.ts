@@ -7,9 +7,14 @@
  * brought up to date as the page is left, so what's written is current. While
  * it's under way, it keeps its time as each check is made and each item comes
  * while the tracker watches, which is what times the goal's rows. Reaching the
- * goal finishes it.
+ * goal finishes it, and keeps it for the runs of the same preset after it. It
+ * holds the finished runs behind it, which stay as they were until a reset, so
+ * a run isn't compared with itself.
  */
 
+import { castDraft } from "immer";
+import type { StateStorage } from "zustand/middleware";
+import { keepRun, keptRuns, presetOf, type FinishedRun } from "../run-history.js";
 import type { TrackerSlice, TrackerState } from "../store.js";
 
 /** Where the run stands: not started, its clock running, paused, or finished by reaching the goal. */
@@ -30,6 +35,8 @@ export interface Run {
 
 export interface RunSlice {
   readonly run: Run;
+  /** The finished runs of the room's preset, kept on this device, oldest first. */
+  readonly earlierRuns: readonly FinishedRun[];
   /** Starts the clock, from `fromMs` for a run already under way. */
   startRun(fromMs: number): void;
   pauseRun(): void;
@@ -41,6 +48,10 @@ export interface RunSlice {
   reopenRun(): void;
   /** Stops the clock for good, the goal reached. */
   endRun(): void;
+  /** Stops the clock for good and keeps the run, with each row's time by its key. */
+  finishRun(rows: Readonly<Record<string, number>>): void;
+  /** Reads the finished runs of the room's preset. */
+  loadEarlierRuns(): Promise<void>;
   /** Keeps the run's time for the checks and items new since `before`, while it's under way. */
   stampArrivals(before: Pick<TrackerState, "checked" | "received">): void;
 }
@@ -61,9 +72,10 @@ export function runTimeOf({ bankedMs, since }: Run, now: number): number {
 const isUnderWay = ({ phase }: Run): boolean => phase === "running" || phase === "paused";
 
 export const createRunSlice =
-  (now: () => number): TrackerSlice<RunSlice> =>
-  (set) => ({
+  (now: () => number, storage: StateStorage): TrackerSlice<RunSlice> =>
+  (set, get) => ({
     run: NOT_STARTED,
+    earlierRuns: [],
     startRun: (fromMs) =>
       set((state) => {
         state.run = { ...NOT_STARTED, phase: "running", bankedMs: fromMs, since: now() };
@@ -81,10 +93,12 @@ export const createRunSlice =
       set((state) => {
         state.run = { ...state.run, phase: "running", since: now() };
       }),
-    resetRun: () =>
+    resetRun: () => {
       set((state) => {
         state.run = NOT_STARTED;
-      }),
+      });
+      void get().loadEarlierRuns();
+    },
     bankRun: () =>
       set((state) => {
         if (state.run.phase === "running") {
@@ -110,6 +124,27 @@ export const createRunSlice =
           };
         }
       }),
+    finishRun: (rows) => {
+      const { run, slotData, endRun } = get();
+      if (!isUnderWay(run)) {
+        return;
+      }
+      endRun();
+      const preset = presetOf(slotData);
+      if (preset !== undefined) {
+        void keepRun(preset, { timeMs: get().run.bankedMs, rows }, storage);
+      }
+    },
+    loadEarlierRuns: async () => {
+      const preset = presetOf(get().slotData);
+      const runs = preset === undefined ? [] : await keptRuns(preset, storage);
+      // The room may have moved on to another preset while they were read.
+      if (presetOf(get().slotData) === preset) {
+        set((state) => {
+          state.earlierRuns = castDraft(runs);
+        });
+      }
+    },
     stampArrivals: ({ checked, received }) =>
       set((state) => {
         if (!isUnderWay(state.run)) {

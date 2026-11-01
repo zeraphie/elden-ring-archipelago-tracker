@@ -49,6 +49,13 @@ export const runTimerStyles = [
       line-height: 1;
       color: var(--er-gold);
     }
+    /* Compact's timer takes on how the run stands. */
+    :host([data-look="compact"][data-pace="ahead"]) .clock {
+      color: var(--er-live-ink);
+    }
+    :host([data-look="compact"][data-pace="behind"]) .clock {
+      color: var(--er-error);
+    }
     .whole,
     .typed {
       font-size: 56px;

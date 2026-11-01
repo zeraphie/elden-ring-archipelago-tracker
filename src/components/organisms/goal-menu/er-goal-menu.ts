@@ -21,6 +21,7 @@
 import { LitElement, css, html, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import type { ReleaseState } from "../../../archipelago/release.js";
+import { bossKey } from "../../../data/bosses/boss-key.js";
 import type { GoalBoss } from "../../../data/bosses/goal.js";
 import type { GoalMenu } from "../../../data/bosses/goal-menu.js";
 import type { RegionSummary } from "../../../data/rules/region-summary.js";
@@ -456,7 +457,7 @@ export class ErGoalMenu extends LitElement {
     const { region } = this;
     const picked = region === undefined ? undefined : byRegion.get(region);
     const row = (boss: GoalBoss): RegionBossRow => ({
-      key: `boss:${boss.flag}`,
+      key: bossKey(boss.flag),
       name: bossName(boss),
       place: boss.drop === undefined ? "" : data.checkName(boss.drop).place,
       drop: boss.drop,
