@@ -40,10 +40,11 @@ export class ErPlayers extends LitElement {
       .button:hover {
         border-color: var(--er-gold-edge);
       }
-      /* Its right edge on the button's. */
+      /* Its right edge on the button's, as far as that keeps it on the screen. */
       .popover {
-        right: var(--right, 20px);
-        width: min(340px, calc(100vw - 32px));
+        --width: min(340px, calc(100vw - 32px));
+        right: min(var(--right, 20px), calc(100vw - 16px - var(--width)));
+        width: var(--width);
         max-height: min(60vh, 480px);
         padding: 8px 0;
       }

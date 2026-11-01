@@ -3,11 +3,12 @@
  *
  * The bar over the page. The tracker's name shortens as the bar narrows: the
  * full name, then "ER Archipelago Tracker", then "ERA Tracker", and a screen
- * reader always hears the full name. Once a room is open, beside it are how
- * the tracker is keeping up with the room, the slot's key checks and all its
- * checks done, the room's players, and the way to leave, which reloads the
- * page, so the card offers the room again or another. At a tablet's width and
- * below, how the tracker is keeping up and the key checks sit under a line.
+ * reader always hears the full name. Once a room is open, beside it are the
+ * slot's key checks and all its checks done, then at the bar's far end, how the
+ * tracker is keeping up with the room, the room's players, and the way to
+ * leave, which reloads the page, so the card offers the room again or another.
+ * At a tablet's width and below, how the tracker is keeping up and the key
+ * checks sit under a line.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -66,12 +67,6 @@ export class ErHeader extends LitElement {
         padding: 10px 20px;
         background: var(--er-surface);
         border-bottom: 1px solid var(--er-divider);
-      }
-      .title {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 14px;
       }
       h1 {
         margin: 0;
@@ -145,7 +140,7 @@ export class ErHeader extends LitElement {
         flex-grow: 1;
       }
       /* At a tablet's width and below the header is closer set, and with a room open it's two rows:
-         the name, the way to leave and the players, then under a line, how the tracker is keeping
+         the name, the players and the way to leave, then under a line, how the tracker is keeping
          up and the key checks' count. */
       @media ${narrow} {
         .bar {
@@ -158,10 +153,6 @@ export class ErHeader extends LitElement {
         }
         .leave-icon {
           display: inline-flex;
-        }
-        .title {
-          flex-wrap: nowrap;
-          gap: 10px;
         }
         .bar[data-room] {
           display: grid;
@@ -176,19 +167,16 @@ export class ErHeader extends LitElement {
           margin: 8px -12px 0;
           background: var(--er-divider);
         }
-        .bar[data-room] .title {
-          display: contents;
-        }
         .bar[data-room] .grow {
           display: none;
         }
         .bar[data-room] h1 {
           grid-area: 1 / 1;
         }
-        .bar[data-room] .leave {
+        .bar[data-room] er-players {
           grid-area: 1 / 2;
         }
-        .bar[data-room] er-players {
+        .bar[data-room] .leave {
           grid-area: 1 / 3;
         }
         .bar[data-room] .live,
@@ -227,21 +215,23 @@ export class ErHeader extends LitElement {
 
   override render() {
     return html`<header class="bar" ?data-room=${this.room !== undefined}>
-      <div class="title">
-        <h1>
-          <span class="sr">Elden Ring Archipelago Tracker</span>
-          <span class="full" aria-hidden="true">Elden Ring Archipelago Tracker</span>
-          <span class="mid" aria-hidden="true">ER Archipelago Tracker</span>
-          <span class="short" aria-hidden="true">ERA Tracker</span>
-        </h1>
-        ${this.connection === undefined ? nothing : this.live(this.connection.value)}
-      </div>
+      <h1>
+        <span class="sr">Elden Ring Archipelago Tracker</span>
+        <span class="full" aria-hidden="true">Elden Ring Archipelago Tracker</span>
+        <span class="mid" aria-hidden="true">ER Archipelago Tracker</span>
+        <span class="short" aria-hidden="true">ERA Tracker</span>
+      </h1>
       <er-progress .progress=${this.progress?.value}></er-progress>
       <div class="grow"></div>
+      ${this.connection === undefined ? nothing : this.live(this.connection.value)}
       ${
         this.room === undefined || this.progress === undefined
           ? nothing
-          : html`<button
+          : html`<er-players
+                .roster=${withMine(this.room.value, this.progress.value.allDone)}
+                .mine=${this.room.value}
+              ></er-players>
+              <button
                 class="button leave"
                 data-tone="quiet"
                 data-size="small"
@@ -250,11 +240,7 @@ export class ErHeader extends LitElement {
               >
                 <span class="leave-word">Disconnect</span
                 ><span class="leave-icon">${closeIcon}</span>
-              </button>
-              <er-players
-                .roster=${withMine(this.room.value, this.progress.value.allDone)}
-                .mine=${this.room.value}
-              ></er-players>`
+              </button>`
       }
     </header>`;
   }
