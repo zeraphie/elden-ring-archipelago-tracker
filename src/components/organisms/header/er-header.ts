@@ -3,11 +3,12 @@
  *
  * The bar over the page. The tracker's name shortens as the bar narrows: the
  * full name, then "ER Archipelago Tracker", then "ERA Tracker", and a screen
- * reader always hears the full name. Once a room is open, beside it are the
- * settings cog and the slot's key checks and all its checks done, then at the
- * bar's far end, how the tracker is keeping up with the room, which links to
- * the room's own page, the room's players, and the way to leave, which reloads
- * the page, so the card offers the room again or another. At a tablet's width
+ * reader always hears the full name. Once a room is open, beside it is the
+ * settings cog, in the bar's middle the slot's key checks and all its checks
+ * done, and at the far end how the tracker is keeping up with the room, which
+ * links to the room's own page, the room's players, and the way to leave, which
+ * reloads the page, so the card offers the room again or another. Where the
+ * middle has no room, the checks go back beside the name. At a tablet's width
  * and below, how the tracker is keeping up and the key checks sit under a line.
  */
 
@@ -53,6 +54,8 @@ export class ErHeader extends LitElement {
     css`
       :host {
         display: block;
+        /* The bar's room, for its parts and the name to fit themselves to. */
+        container: bar / inline-size;
       }
       .leave {
         color: var(--er-ink);
@@ -69,8 +72,6 @@ export class ErHeader extends LitElement {
         height: 18px;
       }
       .bar {
-        /* The bar's room, for the name to shorten in. */
-        container: bar / inline-size;
         display: flex;
         align-items: center;
         flex-wrap: wrap;
@@ -98,10 +99,9 @@ export class ErHeader extends LitElement {
       .short {
         display: none;
       }
-      /* Where the name and everything beside it stop fitting on one line, as the design found
-         them, and the cog's 46 px: windows of 1426 and 1226 px, at the page's 16.5 px text. The
-         query measures the bar inside its padding, so 40 px less. */
-      @container bar (max-width: 84em) {
+      /* The name shortens where its longer form would push the checks off the bar's middle: windows
+         of 1186 and 1016 px, at the page's 16.5 px text, by each form's width and the widest checks. */
+      @container bar (max-width: 71.9em) {
         .full {
           display: none;
         }
@@ -109,7 +109,7 @@ export class ErHeader extends LitElement {
           display: inline;
         }
       }
-      @container bar (max-width: 71.9em) {
+      @container bar (max-width: 61.6em) {
         .mid {
           display: none;
         }
@@ -141,8 +141,22 @@ export class ErHeader extends LitElement {
         background: var(--er-error);
         border-color: var(--er-error);
       }
-      .grow {
-        flex-grow: 1;
+      .end {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 22px;
+        margin-left: auto;
+      }
+      /* Three alignments: the two ends take equal shares, which holds the checks in the bar's true
+         middle, and neither is ever narrower than what's in it, so a long end pushes them along
+         rather than over. Under a window of 976 px, the widest of them all stops fitting, so the
+         checks go back beside the name. */
+      @container bar (min-width: 59.2em) {
+        .bar[data-room] {
+          display: grid;
+          grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+        }
       }
       /* At a tablet's width and below the header is closer set, and with a room open it's two rows:
          the name, the players and the way to leave, then under a line, how the tracker is keeping
@@ -172,8 +186,8 @@ export class ErHeader extends LitElement {
           margin: 8px -12px 0;
           background: var(--er-divider);
         }
-        .bar[data-room] .grow {
-          display: none;
+        .bar[data-room] .end {
+          display: contents;
         }
         .bar[data-room] .title {
           grid-area: 1 / 1;
@@ -246,30 +260,31 @@ export class ErHeader extends LitElement {
         }
       </div>
       <er-progress .progress=${this.progress?.value}></er-progress>
-      <div class="grow"></div>
-      ${
-        this.connection === undefined || this.room === undefined
-          ? nothing
-          : this.live(this.connection.value, this.room.value.link)
-      }
-      ${
-        this.room === undefined || this.progress === undefined
-          ? nothing
-          : html`<er-players
-                .roster=${withMine(this.room.value, this.progress.value.allDone)}
-                .mine=${this.room.value}
-              ></er-players>
-              <button
-                class="button leave"
-                data-tone="quiet"
-                data-size="small"
-                aria-label="Disconnect"
-                @click=${() => location.reload()}
-              >
-                <span class="leave-word">Disconnect</span
-                ><span class="leave-icon">${logoutIcon}</span>
-              </button>`
-      }
+      <div class="end">
+        ${
+          this.connection === undefined || this.room === undefined
+            ? nothing
+            : this.live(this.connection.value, this.room.value.link)
+        }
+        ${
+          this.room === undefined || this.progress === undefined
+            ? nothing
+            : html`<er-players
+                  .roster=${withMine(this.room.value, this.progress.value.allDone)}
+                  .mine=${this.room.value}
+                ></er-players>
+                <button
+                  class="button leave"
+                  data-tone="quiet"
+                  data-size="small"
+                  aria-label="Disconnect"
+                  @click=${() => location.reload()}
+                >
+                  <span class="leave-word">Disconnect</span
+                  ><span class="leave-icon">${logoutIcon}</span>
+                </button>`
+        }
+      </div>
     </header>`;
   }
 

@@ -91,7 +91,7 @@ export class ErPlayers extends LitElement {
         class="popover"
         popover
         @beforetoggle=${(event: Event) =>
-          placeUnder(event, this.renderRoot.querySelector("button"), this.parentElement)}
+          placeUnder(event, this.renderRoot.querySelector("button"), this.closest("header"))}
       >
         <ul aria-label="Players">
           ${this.roster.map(
