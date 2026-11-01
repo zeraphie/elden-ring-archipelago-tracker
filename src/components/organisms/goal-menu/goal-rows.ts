@@ -4,7 +4,7 @@
  * Where each goal row stands, by its key: still to do, leaving, or obtained.
  * A row achieved while the menu watches doesn't go at once. Its frame glows
  * and holds, then the row slides off the menu's left edge, still lit, as a
- * toast leaves, and only then does it join the end of Obtained. So the rows
+ * toast leaves, and only then does it join the end of Done. So the rows
  * around it close up at once rather than slide, and nothing already obtained
  * moves. The rows the menu opens on take their places straight away.
  */
@@ -62,7 +62,7 @@ export function placeRows(
   return { rows: { toDo: shown, leaving, obtained }, started };
 }
 
-/** The rows once `key` has left: gone from the list, and last in Obtained; as they were when it isn't leaving. */
+/** The rows once `key` has left: gone from the list, and last in Done; as they were when it isn't leaving. */
 export function rowLeft(rows: GoalRows, key: string): GoalRows {
   if (!rows.leaving.includes(key)) {
     return rows;

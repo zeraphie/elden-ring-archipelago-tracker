@@ -279,7 +279,7 @@ here first, then search the source, then write.
 - `STAGGER_MS`: How far apart rows achieved together start leaving, so each is seen.
 - `GoalRows`: Where the goal rows stand, by key, each list in the order shown.
 - `placeRows()`: Where the rows stand once the menu has the rows to do and done: a row done that was to do starts leaving, and stays in its place until it's left.
-- `rowLeft()`: The rows once `key` has left: gone from the list, and last in Obtained; as they were when it isn't leaving.
+- `rowLeft()`: The rows once `key` has left: gone from the list, and last in Done; as they were when it isn't leaving.
 - `RowView`: A goal row as the menu shows it: a need or a boss, by its key, and whether it's gotten.
 - `rowViewsOf()`: The menu's rows to do and done, needs before bosses.
 

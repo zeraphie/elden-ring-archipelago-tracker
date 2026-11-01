@@ -434,7 +434,7 @@ export class ErGoalMenu extends LitElement {
     return keys.length === 0
       ? nothing
       : html`<details>
-          <summary class="band-heading">Obtained <span class="fig">${keys.length}</span></summary>
+          <summary class="band-heading">Done <span class="fig">${keys.length}</span></summary>
           <ul>
             ${repeat(
               keys,
