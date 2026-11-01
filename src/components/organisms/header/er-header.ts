@@ -6,7 +6,8 @@
  * reader always hears the full name. Once a room is open, beside it are the
  * slot's name, how the tracker is keeping up with the room, the slot's key
  * checks and all its checks done, the room's players, and the way to leave,
- * which reloads the page, so the card offers the room again or another.
+ * which reloads the page, so the card offers the room again or another. On a
+ * phone, how the tracker is keeping up and the key checks sit under a line.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -147,8 +148,9 @@ export class ErHeader extends LitElement {
       .grow {
         flex-grow: 1;
       }
-      /* At a tablet's width and below the header keeps to one line, closer set; on a phone, the
-         short name, the live light, and the key checks' count. */
+      /* At a tablet's width and below the header keeps to one line, closer set. On a phone with a
+         room open it's two rows: the short name, the way to leave and the players, then under a
+         line, how the tracker is keeping up and the key checks' count. */
       @media ${narrow} {
         .bar {
           flex-wrap: nowrap;
@@ -178,6 +180,45 @@ export class ErHeader extends LitElement {
         .slot {
           display: none;
         }
+        .bar[data-room] {
+          display: grid;
+          grid-template-columns: 1fr auto auto;
+          gap: 0 12px;
+          padding-bottom: 0;
+        }
+        .bar[data-room]::before {
+          content: "";
+          grid-area: 2 / 1 / 3 / -1;
+          height: 1px;
+          margin: 8px -12px 0;
+          background: var(--er-divider);
+        }
+        .bar[data-room] .title {
+          display: contents;
+        }
+        .bar[data-room] .grow {
+          display: none;
+        }
+        .bar[data-room] h1 {
+          grid-area: 1 / 1;
+        }
+        .bar[data-room] .leave {
+          grid-area: 1 / 2;
+        }
+        .bar[data-room] er-players {
+          grid-area: 1 / 3;
+        }
+        .bar[data-room] .live,
+        .bar[data-room] er-progress {
+          grid-area: 3 / 1 / 4 / -1;
+          padding: 7px 0;
+        }
+        .bar[data-room] .live {
+          justify-self: start;
+        }
+        .bar[data-room] er-progress {
+          justify-self: end;
+        }
       }
     `,
   ];
@@ -202,7 +243,7 @@ export class ErHeader extends LitElement {
   }
 
   override render() {
-    return html`<header class="bar">
+    return html`<header class="bar" ?data-room=${this.room !== undefined}>
       <div class="title">
         <h1>
           <span class="sr">Elden Ring Archipelago Tracker</span>
@@ -243,14 +284,13 @@ export class ErHeader extends LitElement {
     const { kind, text, detail, page } = liveState(phase);
     return html`<span class="small live" data-kind=${kind} title=${detail ?? nothing}>
       <span class="light" aria-hidden="true"></span>
-      <span>
-        <span class="sr-phone">${text}${page === undefined ? nothing : ","}</span>
-        ${
+      <span
+        >${text}${
           page === undefined
             ? nothing
-            : html`<a href=${page} target="_blank" rel="noopener noreferrer">reopen the room</a>`
-        }
-      </span>
+            : html`, <a href=${page} target="_blank" rel="noopener noreferrer">reopen the room</a>`
+        }</span
+      >
       ${detail === undefined ? nothing : html`<span class="sr">${detail}</span>`}
     </span>`;
   }

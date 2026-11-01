@@ -192,7 +192,7 @@ here first, then search the source, then write.
 
 **src/components/atoms/layout.ts** (src/components, src/components/molecules, src/components/organisms)
 - `NARROW_MEDIA`: Where the page stacks, at a tablet's width and below: the map on top, the panel under it, and the goal menu a strip along the map's foot.
-- `PHONE_MEDIA`: Where the page is a phone's: the header on one line, cut to its fewest words.
+- `PHONE_MEDIA`: Where the page is a phone's: the header on two rows, cut to its fewest words.
 - `narrow`: `NARROW_MEDIA` for a css template's `@media`.
 - `phone`: `PHONE_MEDIA` for a css template's `@media`.
 

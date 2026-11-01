@@ -5,7 +5,7 @@ import { unsafeCSS } from "lit";
  */
 export const NARROW_MEDIA = "(max-width: 900px)";
 
-/** Where the page is a phone's: the header on one line, cut to its fewest words. */
+/** Where the page is a phone's: the header on two rows, cut to its fewest words. */
 export const PHONE_MEDIA = "(max-width: 600px)";
 
 /** `NARROW_MEDIA` for a css template's `@media`. */
