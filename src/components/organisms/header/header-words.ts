@@ -15,8 +15,6 @@ export interface LiveState {
   readonly text: string;
   /** More on it, for a hover and a screen reader. */
   readonly detail?: string;
-  /** The room's page, where a sleeping room is woken. */
-  readonly page?: string;
 }
 
 const STATUS_WORDS: Readonly<Record<number, string>> = {
@@ -44,14 +42,13 @@ export function liveState(phase: ConnectionPhase): LiveState {
       return {
         kind: "asleep",
         text: "Inactive",
-        page: phase.page,
         detail:
           "Nobody has played for a while, so archipelago.gg has made the room inactive. Opening its page reopens it, and the tracker reconnects once it's up.",
       };
     case "unreachable":
       return {
         kind: "trouble",
-        text: "Can't reach the room",
+        text: "Unreachable",
         detail: "archipelago.gg or the room didn't answer. The tracker asks again shortly.",
       };
     case "gone":

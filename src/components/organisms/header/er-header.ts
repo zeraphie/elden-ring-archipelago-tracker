@@ -5,14 +5,15 @@
  * full name, then "ER Archipelago Tracker", then "ERA Tracker", and a screen
  * reader always hears the full name. Once a room is open, beside it are the
  * slot's key checks and all its checks done, then at the bar's far end, how the
- * tracker is keeping up with the room, the room's players, and the way to
- * leave, which reloads the page, so the card offers the room again or another.
- * At a tablet's width and below, how the tracker is keeping up and the key
- * checks sit under a line.
+ * tracker is keeping up with the room, which links to the room's own page, the
+ * room's players, and the way to leave, which reloads the page, so the card
+ * offers the room again or another. At a tablet's width and below, how the
+ * tracker is keeping up and the key checks sit under a line.
  */
 
 import { LitElement, css, html, nothing } from "lit";
 import { shallow } from "zustand/vanilla/shallow";
+import { linkPage, type RoomLink } from "../../../archipelago/room-link.js";
 import type { ConnectionPhase } from "../../../state/slices/connection.js";
 import type { RosterEntry } from "../../../state/slices/roster.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
@@ -27,8 +28,10 @@ import { liveState } from "./header-words.js";
 import { logoutIcon } from "../../utils/material-icons.js";
 import { StoreController } from "../../utils/store-controller.js";
 
-// The room's players, and which of them this slot is, as the header reads them from the store.
+// The link to the room, its players, and which of them this slot is, as the header reads them from
+// the store.
 interface Room {
+  readonly link: RoomLink;
   readonly roster: readonly RosterEntry[];
   readonly team: number | undefined;
   readonly slot: number | undefined;
@@ -107,10 +110,14 @@ export class ErHeader extends LitElement {
       .small {
         font-size: 0.9em;
       }
+      /* A button with no edge until it's hovered, so its words sit level with what's around it. */
       .live {
-        display: inline-flex;
-        align-items: center;
         gap: 6px;
+        min-height: 0;
+        margin-inline: -8px;
+        padding: 3px 8px;
+        background: transparent;
+        border-color: transparent;
         color: var(--er-ink-soft);
       }
       .light {
@@ -133,12 +140,6 @@ export class ErHeader extends LitElement {
       .live[data-kind="trouble"] .light {
         background: var(--er-error);
         border-color: var(--er-error);
-      }
-      a {
-        color: var(--er-gold);
-      }
-      a:hover {
-        color: var(--er-gold-bright);
       }
       .grow {
         flex-grow: 1;
@@ -186,13 +187,15 @@ export class ErHeader extends LitElement {
         .bar[data-room] .live,
         .bar[data-room] er-progress {
           grid-area: 3 / 1 / 4 / -1;
-          padding: 7px 0;
         }
         .bar[data-room] .live {
           justify-self: start;
+          min-height: 34px;
+          padding-block: 0;
         }
         .bar[data-room] er-progress {
           justify-self: end;
+          padding: 7px 0;
         }
       }
     `,
@@ -227,7 +230,11 @@ export class ErHeader extends LitElement {
       </h1>
       <er-progress .progress=${this.progress?.value}></er-progress>
       <div class="grow"></div>
-      ${this.connection === undefined ? nothing : this.live(this.connection.value)}
+      ${
+        this.connection === undefined || this.room === undefined
+          ? nothing
+          : this.live(this.connection.value, this.room.value.link)
+      }
       ${
         this.room === undefined || this.progress === undefined
           ? nothing
@@ -249,24 +256,25 @@ export class ErHeader extends LitElement {
     </header>`;
   }
 
-  private live(phase: ConnectionPhase) {
-    const { kind, text, detail, page } = liveState(phase);
-    return html`<span class="small live" data-kind=${kind} title=${detail ?? nothing}>
+  private live(phase: ConnectionPhase, link: RoomLink) {
+    const { kind, text, detail } = liveState(phase);
+    return html`<a
+      class="button small live"
+      data-kind=${kind}
+      title=${detail ?? nothing}
+      href=${linkPage(link)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       <span class="light" aria-hidden="true"></span>
-      <span
-        >${text}${
-          page === undefined
-            ? nothing
-            : html`, <a href=${page} target="_blank" rel="noopener noreferrer">reopen the room</a>`
-        }</span
-      >
+      <span>${text}</span>
       ${detail === undefined ? nothing : html`<span class="sr">${detail}</span>`}
-    </span>`;
+    </a>`;
   }
 }
 
-function roomOf({ roster, team, slot }: TrackerState): Room {
-  return { roster, team, slot };
+function roomOf({ link, roster, team, slot }: TrackerState): Room {
+  return { link, roster, team, slot };
 }
 
 // The roster with this slot's own checks as the login keeps them, fresher than the web API's.
