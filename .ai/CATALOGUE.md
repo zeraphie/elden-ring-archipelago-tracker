@@ -576,6 +576,7 @@ here first, then search the source, then write.
 - `forumIcon`: Two speech bubbles, for the Chat tab.
 - `arrowDownIcon`: An arrow pointing down, for going to the foot of a list.
 - `logoutIcon`: An arrow out of a door, for leaving the room: the header's Disconnect.
+- `settingsIcon`: A cog, for the header's settings button.
 
 **src/components/utils/media.ts** (src/components, src/components/organisms)
 - `MediaController`: Whether a media query matches, for a Lit element: `matches`, kept current, and the element updated when it changes, while it's connected.

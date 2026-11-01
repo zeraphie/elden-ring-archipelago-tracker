@@ -4,9 +4,10 @@ import { narrow } from "./layout.js";
 /**
  * A button in the game's menu style: square and raised, with an inner glow
  * when hovered. `.button` on a button or a link; `data-tone="primary"` for the
- * way on, `data-tone="quiet"` for leaving, `data-tone="overlay"` for a control
- * floating over the map, lit and edged in gold with `aria-pressed="true"`, that
- * light breathing with `data-attention` while it asks to be pressed,
+ * way on, `data-tone="quiet"` for leaving, `data-tone="bare"` for one with no
+ * edge or fill until it's hovered, `data-tone="overlay"` for a control floating
+ * over the map, lit and edged in gold with `aria-pressed="true"`, that light
+ * breathing with `data-attention` while it asks to be pressed,
  * `data-size="small"` for a bar, and `data-shape="icon"` for a square holding
  * an icon alone.
  */
@@ -39,6 +40,11 @@ export const buttonStyles = css`
     padding-inline: 16px;
     background: transparent;
     border-color: var(--er-line);
+    color: var(--er-ink-soft);
+  }
+  .button[data-tone="bare"] {
+    background: transparent;
+    border-color: transparent;
     color: var(--er-ink-soft);
   }
   .button[data-tone="overlay"] {

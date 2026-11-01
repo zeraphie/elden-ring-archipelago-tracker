@@ -4,11 +4,11 @@
  * The bar over the page. The tracker's name shortens as the bar narrows: the
  * full name, then "ER Archipelago Tracker", then "ERA Tracker", and a screen
  * reader always hears the full name. Once a room is open, beside it are the
- * slot's key checks and all its checks done, then at the bar's far end, how the
- * tracker is keeping up with the room, which links to the room's own page, the
- * room's players, and the way to leave, which reloads the page, so the card
- * offers the room again or another. At a tablet's width and below, how the
- * tracker is keeping up and the key checks sit under a line.
+ * settings cog and the slot's key checks and all its checks done, then at the
+ * bar's far end, how the tracker is keeping up with the room, which links to
+ * the room's own page, the room's players, and the way to leave, which reloads
+ * the page, so the card offers the room again or another. At a tablet's width
+ * and below, how the tracker is keeping up and the key checks sit under a line.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -25,7 +25,8 @@ import { visuallyHidden } from "../../atoms/visually-hidden.js";
 import "./er-players.js";
 import "./er-progress.js";
 import { liveState } from "./header-words.js";
-import { logoutIcon } from "../../utils/material-icons.js";
+import { emit } from "../../utils/emit.js";
+import { logoutIcon, settingsIcon } from "../../utils/material-icons.js";
 import { StoreController } from "../../utils/store-controller.js";
 
 // The link to the room, its players, and which of them this slot is, as the header reads them from
@@ -39,6 +40,8 @@ interface Room {
 
 /**
  * The bar over the page: the tracker's name, and the room it's open on.
+ *
+ * @fires er-settings - The cog was pressed; `detail` is undefined.
  */
 export class ErHeader extends LitElement {
   static override properties = { store: { attribute: false } };
@@ -60,7 +63,8 @@ export class ErHeader extends LitElement {
       .leave-icon {
         display: none;
       }
-      .leave-icon svg {
+      .leave-icon svg,
+      .cog svg {
         width: 18px;
         height: 18px;
       }
@@ -74,6 +78,12 @@ export class ErHeader extends LitElement {
         padding: 10px 20px;
         background: var(--er-surface);
         border-bottom: 1px solid var(--er-divider);
+      }
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
       }
       h1 {
         margin: 0;
@@ -89,9 +99,9 @@ export class ErHeader extends LitElement {
         display: none;
       }
       /* Where the name and everything beside it stop fitting on one line, as the design found
-         them: windows of 1380 and 1180 px, at the page's 16.5 px text. The query measures the
-         bar inside its padding, so 40 px less. */
-      @container bar (max-width: 81.25em) {
+         them, and the cog's 46 px: windows of 1426 and 1226 px, at the page's 16.5 px text. The
+         query measures the bar inside its padding, so 40 px less. */
+      @container bar (max-width: 84em) {
         .full {
           display: none;
         }
@@ -99,7 +109,7 @@ export class ErHeader extends LitElement {
           display: inline;
         }
       }
-      @container bar (max-width: 69.1em) {
+      @container bar (max-width: 71.9em) {
         .mid {
           display: none;
         }
@@ -107,12 +117,8 @@ export class ErHeader extends LitElement {
           display: inline;
         }
       }
-      /* A small button with no edge or fill until it's hovered. */
       .live {
         gap: 6px;
-        background: transparent;
-        border-color: transparent;
-        color: var(--er-ink-soft);
       }
       .light {
         width: 8px;
@@ -169,8 +175,9 @@ export class ErHeader extends LitElement {
         .bar[data-room] .grow {
           display: none;
         }
-        .bar[data-room] h1 {
+        .bar[data-room] .title {
           grid-area: 1 / 1;
+          gap: 4px;
         }
         .bar[data-room] er-players {
           grid-area: 1 / 2;
@@ -216,12 +223,28 @@ export class ErHeader extends LitElement {
 
   override render() {
     return html`<header class="bar" ?data-room=${this.room !== undefined}>
-      <h1>
-        <span class="sr">Elden Ring Archipelago Tracker</span>
-        <span class="full" aria-hidden="true">Elden Ring Archipelago Tracker</span>
-        <span class="mid" aria-hidden="true">ER Archipelago Tracker</span>
-        <span class="short" aria-hidden="true">ERA Tracker</span>
-      </h1>
+      <div class="title">
+        <h1>
+          <span class="sr">Elden Ring Archipelago Tracker</span>
+          <span class="full" aria-hidden="true">Elden Ring Archipelago Tracker</span>
+          <span class="mid" aria-hidden="true">ER Archipelago Tracker</span>
+          <span class="short" aria-hidden="true">ERA Tracker</span>
+        </h1>
+        ${
+          this.room === undefined
+            ? nothing
+            : html`<button
+                class="button cog"
+                data-tone="bare"
+                data-size="small"
+                data-shape="icon"
+                aria-label="Settings"
+                @click=${() => emit(this, "er-settings", undefined)}
+              >
+                ${settingsIcon}
+              </button>`
+        }
+      </div>
       <er-progress .progress=${this.progress?.value}></er-progress>
       <div class="grow"></div>
       ${
@@ -254,6 +277,7 @@ export class ErHeader extends LitElement {
     const { kind, text, detail } = liveState(phase);
     return html`<a
       class="button live"
+      data-tone="bare"
       data-size="small"
       data-kind=${kind}
       title=${detail ?? nothing}

@@ -248,6 +248,12 @@ export default {
       instead: "`keyChecksFrom(data, slotData)`",
     },
     {
+      what: "a button with no edge or fill written by hand",
+      pattern: /background: transparent;\s+border-color: transparent/,
+      home: "src/components/atoms/button.ts",
+      instead: '`buttonStyles`, with `data-tone="bare"`',
+    },
+    {
       what: "a pressed overlay button's glow written by hand",
       pattern:
         /\[aria-pressed="true"\] \{\s+background: var\(--er-glow-fil[l]\);\s+box-shadow: var\(--er-glow\);\s+border-color/,
