@@ -26,6 +26,13 @@ unprompted.**
 - **Full names over abbreviations** in anything a person reads. The
   mapping from Archipelago's short names to Elden Ring's full names
   lives beside the static domain data.
+- **No fluff.** Every word on screen or in a doc has to earn its place.
+  Leave out what the screen already shows, such as "not Elden Ring" on
+  a dimmed row, and what only restates where the person is, such as
+  "In the room". No description under a label that explains itself, and
+  no button beside a row that can be clicked itself. Writing or
+  touching anything a person reads, cut what isn't needed; when in
+  doubt, leave it out and say so in the report.
 
 ## Where things live
 
