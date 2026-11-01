@@ -10,12 +10,14 @@
  * the goal menu's band keeps it; one done before the page opened goes
  * straight to the band. A handle between the map and the panel resizes them,
  * as the page splits, and the settings lie over the panel while they're open.
+ * With the timer on, it lies at the goal menu's foot.
  */
 
 import { LitElement, html, nothing } from "lit";
 import { styleMap } from "lit/directives/style-map.js";
 import { roomInQuery } from "../archipelago/room-link.js";
 import { createEntryStore, type EntryPhase, type EntryState } from "../state/entry.js";
+import { SETTINGS, type SettingsState } from "../state/settings.js";
 import type { TrackerState, TrackerStore } from "../state/store.js";
 import { goalMenuOf, isGoalReached } from "../state/utils/goal.js";
 import { regionsOf } from "../state/utils/regions.js";
@@ -28,6 +30,7 @@ import "./organisms/map/components/er-map.js";
 import "./organisms/intro/er-room-card.js";
 import "./organisms/panel/er-panel.js";
 import "./organisms/settings/er-settings.js";
+import "./organisms/timer/er-run-timer.js";
 import "./organisms/toasts/er-toasts.js";
 import "./organisms/version-notice/er-version-notice.js";
 import { curtain } from "./organisms/intro/curtain.js";
@@ -69,6 +72,12 @@ export class ErApp extends LitElement {
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
   // How the page splits between the map and the panel, as dragged.
   private readonly split = new PanelSplit(this);
+  // Whether the page has the run's timer, which its accordion brings to the stacked page.
+  private readonly isTimerOn = new StoreController(
+    this,
+    SETTINGS,
+    ({ isTimerOn }: SettingsState) => isTimerOn
+  );
   // Whether the settings panel is open, and the cog to go back to as it closes.
   private readonly settings = new SettingsOpen(this, () =>
     this.renderRoot.querySelector("er-header")?.focusCog()
@@ -160,6 +169,7 @@ export class ErApp extends LitElement {
 
   override render() {
     const ready = this.ready.value;
+    const hasTimer = this.isTimerOn.value && !this.isNarrow.matches;
     return html`<er-header
         .store=${ready?.store}
         .isSettingsOpen=${this.settings.isOpen}
@@ -168,7 +178,7 @@ export class ErApp extends LitElement {
         ${
           ready === undefined
             ? nothing
-            : html`<div class="map">
+            : html`<div class="map" ?data-timer=${hasTimer}>
                   <er-map
                     .store=${ready.store}
                     .data=${ready.data}
@@ -189,6 +199,7 @@ export class ErApp extends LitElement {
                     @er-check=${this.pickFromGoal}
                     @er-items=${this.showItems}
                   ></er-goal-menu>
+                  ${hasTimer ? html`<er-run-timer .store=${ready.store}></er-run-timer>` : nothing}
                   <er-toasts .store=${ready.store} .data=${ready.data}></er-toasts>
                   <er-version-notice
                     .store=${ready.store}

@@ -19,6 +19,8 @@ export interface QuietOptions {
   readonly timer?: (callback: () => void, ms: number) => unknown;
   /** Calls `write` whenever the page is closed or hidden; the browser's own events unless a test hands in its own. */
   readonly onLeaving?: (write: () => void) => void;
+  /** Brings what's kept up to date as the page is left, just before it's written. */
+  readonly beforeLeaving?: () => void;
 }
 
 // The page's own events: hiding is the last a phone's browser is sure to send.
@@ -34,7 +36,7 @@ function onPageLeaving(write: () => void): void {
 /** Storage that passes reads straight through, and writes the newest value once nothing has changed for a while. */
 export function quietStorage<S>(
   storage: PersistStorage<S>,
-  { timer = setTimeout, onLeaving = onPageLeaving }: QuietOptions = {}
+  { timer = setTimeout, onLeaving = onPageLeaving, beforeLeaving }: QuietOptions = {}
 ): PersistStorage<S> {
   let held: Parameters<PersistStorage<S>["setItem"]> | undefined;
   // Each change is a new wait; only the newest one's timer writes.
@@ -46,7 +48,10 @@ export function quietStorage<S>(
       held = undefined;
     }
   };
-  onLeaving(write);
+  onLeaving(() => {
+    beforeLeaving?.();
+    write();
+  });
 
   return {
     getItem: (name) => storage.getItem(name),

@@ -1,4 +1,4 @@
-/*! The backpack, forum, logout, keyboard arrow down, settings and info icons are Material Symbols, copyright Google LLC, under the Apache License 2.0, https://www.apache.org/licenses/LICENSE-2.0 */
+/*! The backpack, forum, logout, keyboard arrow down, settings, info, timer play, timer pause and replay icons are Material Symbols, copyright Google LLC, under the Apache License 2.0, https://www.apache.org/licenses/LICENSE-2.0 */
 
 /**
  * ─ Material icons ─
@@ -6,8 +6,8 @@
  * The page's icons from Material Symbols, each one path on its view box,
  * filled in the text's colour and sized where they're used: a backpack for
  * items, speech for the chat, a door to leave by, an arrow down to a list's
- * foot, a cog for the settings, and an i for the legend. Checks keep the
- * game's own sack.
+ * foot, a cog for the settings, an i for the legend, and a stopwatch and an
+ * arrow round for the run's timer. Checks keep the game's own sack.
  */
 
 import { html } from "lit";
@@ -46,6 +46,30 @@ export const infoIcon = html`<svg viewBox="0 -960 960 960" aria-hidden="true">
   <path
     fill="currentColor"
     d="M453-280h60v-240h-60v240Zm50.5-323.2q9.5-9.2 9.5-22.8 0-14.45-9.48-24.22-9.48-9.78-23.5-9.78t-23.52 9.78Q447-640.45 447-626q0 13.6 9.48 22.8 9.48 9.2 23.5 9.2t23.52-9.2ZM480.27-80q-82.74 0-155.5-31.5Q252-143 197.5-197.5t-86-127.34Q80-397.68 80-480.5t31.5-155.66Q143-709 197.5-763t127.34-85.5Q397.68-880 480.5-880t155.66 31.5Q709-817 763-763t85.5 127Q880-563 880-480.27q0 82.74-31.5 155.5Q817-252 763-197.68q-54 54.31-127 86Q563-80 480.27-80Zm.23-60Q622-140 721-239.5t99-241Q820-622 721.19-721T480-820q-141 0-240.5 98.81T140-480q0 141 99.5 240.5t241 99.5Zm-.5-340Z"
+  ></path>
+</svg>`;
+
+/** A stopwatch with a play mark, for starting or going on with the run. */
+export const timerPlayIcon = html`<svg viewBox="0 -960 960 960" aria-hidden="true">
+  <path
+    fill="currentColor"
+    d="M360-860v-60h240v60H360Zm-19.5 750.5Q275-138 226-187t-77.5-114.5Q120-367 120-441t28.5-139.5Q177-646 226-695t114.5-77.5Q406-801 480-801q67 0 126 22.5T711-716l51-51 42 42-51 51q36 40 61.5 97T840-441q0 74-28.5 139.5T734-187q-49 49-114.5 77.5T480-81q-74 0-139.5-28.5Zm352-119Q780-316 780-441t-87.5-212.5Q605-741 480-741t-212.5 87.5Q180-566 180-441t87.5 212.5Q355-141 480-141t212.5-87.5ZM480-440Zm-73 147 221-149-221-148v297Z"
+  ></path>
+</svg>`;
+
+/** A stopwatch with a pause mark, for pausing the run. */
+export const timerPauseIcon = html`<svg viewBox="0 -960 960 960" aria-hidden="true">
+  <path
+    fill="currentColor"
+    d="M360-860v-60h240v60H360Zm-19.5 750.5Q275-138 226-187t-77.5-114.5Q120-367 120-441t28.5-139.5Q177-646 226-695t114.5-77.5Q406-801 480-801q67 0 126 22.5T711-716l51-51 42 42-51 51q36 40 61.5 97T840-441q0 74-28.5 139.5T734-187q-49 49-114.5 77.5T480-81q-74 0-139.5-28.5Zm352-119Q780-316 780-441t-87.5-212.5Q605-741 480-741t-212.5 87.5Q180-566 180-441t87.5 212.5Q355-141 480-141t212.5-87.5ZM480-440ZM370-281h60v-320h-60v320Zm160 0h60v-320h-60v320Z"
+  ></path>
+</svg>`;
+
+/** An arrow going back round, for resetting the run. */
+export const replayIcon = html`<svg viewBox="0 -960 960 960" aria-hidden="true">
+  <path
+    fill="currentColor"
+    d="M339.5-108Q274-136 225-185t-77-114.5Q120-365 120-440h60q0 125 87.5 212.5T480-140q125 0 212.5-87.5T780-440q0-125-85-212.5T485-740h-23l73 73-41 42-147-147 147-147 41 41-78 78h23q75 0 140.5 28T735-695q49 49 77 114.5T840-440q0 75-28 140.5T735-185q-49 49-114.5 77T480-80q-75 0-140.5-28Z"
   ></path>
 </svg>`;
 

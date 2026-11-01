@@ -1,13 +1,14 @@
 /**
  * ─ Tracker store ─
  *
- * One store for what the tracker knows of a room, made of six slices: the
+ * One store for what the tracker knows of a room, made of seven slices: the
  * connection, the seed's names and options, the slot's standing, the items
- * received and sent, the log, and the roster of every slot. A live event goes to the slices it changes, the
+ * received and sent, the log, the roster of every slot, and the run's clock. A live event goes to the slices it changes, the
  * latest word replacing what was held; the web API's history fills in what
  * the websocket didn't see, and never overrules it. What persists is what's
- * stamped, the items and the whole log, per room in the tracker's database,
- * written once the room goes quiet; the password is never part of it. The
+ * stamped, the items and the whole log, with the run's clock, per room in the
+ * tracker's database, written once the room goes quiet; the password is never
+ * part of it. The
  * store says when it has loaded, so the socket opens only onto a store that's
  * ready.
  */
@@ -29,6 +30,7 @@ import { createConnectionSlice, type ConnectionSlice } from "./slices/connection
 import { createItemsSlice, type ItemsSlice } from "./slices/items.js";
 import { createLogSlice, type LogSlice } from "./slices/log.js";
 import { createRosterSlice, type RosterSlice } from "./slices/roster.js";
+import { createRunSlice, type RunSlice } from "./slices/run.js";
 import { createSeedSlice, type SeedSlice } from "./slices/seed.js";
 import { createStandingSlice, type StandingSlice } from "./slices/standing.js";
 import { quietStorage, type QuietOptions } from "./utils/quiet-storage.js";
@@ -39,7 +41,8 @@ export type TrackerState = ConnectionSlice &
   StandingSlice &
   ItemsSlice &
   LogSlice &
-  RosterSlice & {
+  RosterSlice &
+  RunSlice & {
     /** Takes a live event into the slices it changes. */
     take(event: LiveEvent): void;
     /** Takes the web API's history, filling in what the websocket didn't see. */
@@ -80,7 +83,7 @@ export function createTrackerStore(
   { now = Date.now, storage = stateStorage, onLoaded, quiet }: TrackerStoreOptions = {}
 ): TrackerStore {
   const kept = createJSONStorage(() => storage);
-  return createStore<TrackerState>()(
+  const store: TrackerStore = createStore<TrackerState>()(
     subscribeWithSelector(
       persist(
         immer((...slice) => ({
@@ -90,6 +93,7 @@ export function createTrackerStore(
           ...createItemsSlice(now)(...slice),
           ...createLogSlice(now)(...slice),
           ...createRosterSlice(...slice),
+          ...createRunSlice(now)(...slice),
           take: (event) => {
             const { takeStanding, takeSlotData, takeItems, takeSent, takeMessage, markGoal } =
               slice[1]();
@@ -126,13 +130,24 @@ export function createTrackerStore(
         {
           name: keptName(link),
           version: 1,
-          storage: kept && quietStorage(kept, quiet),
-          partialize: ({ received, sent, log }) => ({ received, sent, log }),
-          onRehydrateStorage: () => (_state, error) => onLoaded?.(error),
+          storage:
+            kept &&
+            quietStorage(kept, { ...quiet, beforeLeaving: () => store.getState().bankRun() }),
+          partialize: ({ received, sent, log, run }) => ({
+            received,
+            sent,
+            log,
+            run: { ...run, since: undefined },
+          }),
+          onRehydrateStorage: () => (state, error) => {
+            state?.reopenRun();
+            onLoaded?.(error);
+          },
         }
       )
     )
   );
+  return store;
 }
 
 /** Clears what this device kept for a room, by the link it was opened from, as when archipelago.gg no longer has it. */

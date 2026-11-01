@@ -88,6 +88,7 @@ interface RegionView {
  * @fires er-region - A region was picked in a long goal's select; `detail` is its code.
  * @fires er-check - A finished row was clicked; `detail` is a `CheckPick`, the check it opens.
  * @fires er-items - A finished row was clicked whose item has no check here, as it came from elsewhere.
+ * @cssproperty --er-goal-menu-foot - Room kept clear under the menu's list, for whatever lies over the menu's foot; none by default.
  */
 export class ErGoalMenu extends LitElement {
   static override properties = {
@@ -116,6 +117,7 @@ export class ErGoalMenu extends LitElement {
         flex-direction: column;
         box-sizing: border-box;
         padding-top: 76px;
+        padding-bottom: var(--er-goal-menu-foot, 0px);
         background: var(--er-menu-shade);
         pointer-events: none;
       }

@@ -536,6 +536,14 @@ here first, then search the source, then write.
 **src/components/organisms/settings/er-settings.ts**
 - `ErSettings`: The settings panel, over the right-hand panel.
 
+**src/components/organisms/timer/er-run-timer.ts**
+- `ErRunTimer`: The run's large timer and its buttons.
+
+**src/components/organisms/timer/run-words.ts**
+- `ClockFace`: A run's time on the large timer: the whole seconds, and the hundredths, which show smaller.
+- `clockFace()`: A time in milliseconds as the large timer shows it: "0", "8:05" or "1:08:05", then ".20".
+- `typedTime()`: A typed time in milliseconds: "90", "1:30" or "1:02:03", each with hundredths if they're given.
+
 **src/components/organisms/toasts/er-toasts.ts**
 - `ErToasts`: The items others send, and the slot's own finds that matter, as toasts.
 
@@ -613,6 +621,9 @@ here first, then search the source, then write.
 - `arrowDownIcon`: An arrow pointing down, for going to the foot of a list.
 - `logoutIcon`: An arrow out of a door, for leaving the room: the header's Disconnect.
 - `infoIcon`: An i in a ring, for the map's legend.
+- `timerPlayIcon`: A stopwatch with a play mark, for starting or going on with the run.
+- `timerPauseIcon`: A stopwatch with a pause mark, for pausing the run.
+- `replayIcon`: An arrow going back round, for resetting the run.
 - `settingsIcon`: A cog, for the header's settings button.
 
 **src/components/utils/media.ts** (src/components, src/components/organisms)
@@ -720,6 +731,10 @@ here first, then search the source, then write.
 - `DemoWays`: What the demo goes by: how it asks, connects and keeps, with no room behind them.
 - `createEntryStore()`: A way in, starting from nothing until `start` reads the last visit.
 
+**src/state/settings.ts** (src/components, src/components/molecules, src/components/organisms)
+- `SettingsState`: What the person has set, and the way to set it.
+- `SETTINGS`: The page's one settings store.
+
 **src/state/setup.ts** (src/components/organisms, src/components/utils)
 - `Part`: A part of setting up, as the loader names it.
 - `PARTS`: Every part, in the order the loader lists them.
@@ -735,6 +750,10 @@ here first, then search the source, then write.
 **src/state/slices/roster.ts** (src/components/organisms)
 - `GOAL_STATUS`: The client status a slot reaches once it's done its goal; it can't be undone.
 - `RosterEntry`: One slot of the room, as the web API last told it.
+
+**src/state/slices/run.ts** (src/components/organisms)
+- `Run`: The run's clock.
+- `runTimeOf()`: The run's time at `now`, both in milliseconds.
 
 **src/state/store.ts** (src/components, src/components/organisms, src/components/utils)
 - `TrackerState`: What the tracker knows of a room, and the ways the room's word comes in.

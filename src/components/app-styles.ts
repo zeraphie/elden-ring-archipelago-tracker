@@ -11,6 +11,9 @@ import { MAP_MIN_PX, PANEL_MIN_HEIGHT_PX } from "./panel-split.js";
 
 /** How wide the goal menu lies over the map's left side, in CSS pixels. */
 export const GOAL_MENU_PX = 440;
+// How high the run's timer lies over the goal menu's foot, in CSS pixels: 78 for its two buttons,
+// and its 20 of room around them.
+const RUN_TIMER_PX = 98;
 
 /** The page's layout, for its root element. */
 export const appStyles = css`
@@ -67,6 +70,16 @@ export const appStyles = css`
     bottom: 0;
     left: 0;
     width: min(${unsafeCSS(GOAL_MENU_PX)}px, 100%);
+  }
+  er-run-timer {
+    position: absolute;
+    z-index: 2;
+    bottom: 0;
+    left: 0;
+    width: 396px;
+  }
+  .map[data-timer] er-goal-menu {
+    --er-goal-menu-foot: ${unsafeCSS(RUN_TIMER_PX)}px;
   }
   /* Across the top of the map, under its sheet tabs and route tools. */
   er-version-notice {
