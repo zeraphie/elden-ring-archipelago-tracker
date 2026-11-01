@@ -1,17 +1,10 @@
 // The room between what opens a popover and the popover, in CSS pixels.
 const GAP_PX = 6;
 
-// The anchor's box as a popover opens, with `--left` and `--right` set on its edges, for the
-// popover's styles to pick from; undefined on closing, or with no anchor.
-function openingBeside(event: Event, anchor: Element | null): DOMRect | undefined {
-  const box = anchor?.getBoundingClientRect();
-  if ((event as ToggleEvent).newState !== "open" || box === undefined) {
-    return undefined;
-  }
-  const { style } = event.target as HTMLElement;
+// Sets `--left` and `--right` on the anchor's edges, for the popover's styles to pick from.
+function setEdges({ style }: HTMLElement, box: DOMRect): void {
   style.setProperty("--left", `${box.left}px`);
   style.setProperty("--right", `${document.documentElement.clientWidth - box.right}px`);
-  return box;
 }
 
 /**
@@ -21,22 +14,23 @@ function openingBeside(event: Event, anchor: Element | null): DOMRect | undefine
  * popover's `beforetoggle`.
  */
 export function placeUnder(event: Event, anchor: Element | null, foot?: Element | null): void {
-  const box = openingBeside(event, anchor);
-  if (box !== undefined) {
-    const top = foot?.getBoundingClientRect().bottom ?? box.bottom + GAP_PX;
-    (event.target as HTMLElement).style.setProperty("--top", `${top}px`);
+  const box = anchor?.getBoundingClientRect();
+  const popover = event.target as HTMLElement;
+  if ((event as ToggleEvent).newState !== "open" || box === undefined) {
+    return;
   }
+  const top = foot?.getBoundingClientRect().bottom ?? box.bottom + GAP_PX;
+  popover.style.setProperty("--top", `${top}px`);
+  setEdges(popover, box);
 }
 
 /**
- * Places a popover above what opens it, as it opens: `--bottom` over the
- * anchor, and `--left` and `--right` on the anchor's edges, for its styles to
- * pick from. Called from the popover's `beforetoggle`.
+ * Places a popover above `anchor`: `--bottom` over it, and `--left` and
+ * `--right` on its edges, for the popover's styles to pick from.
  */
-export function placeOver(event: Event, anchor: Element | null): void {
-  const box = openingBeside(event, anchor);
-  if (box !== undefined) {
-    const bottom = document.documentElement.clientHeight - box.top + GAP_PX;
-    (event.target as HTMLElement).style.setProperty("--bottom", `${bottom}px`);
-  }
+export function placeOver(popover: HTMLElement, anchor: Element): void {
+  const box = anchor.getBoundingClientRect();
+  const bottom = document.documentElement.clientHeight - box.top + GAP_PX;
+  popover.style.setProperty("--bottom", `${bottom}px`);
+  setEdges(popover, box);
 }

@@ -4,7 +4,8 @@
  * What the map's colours and pins mean, behind an info button beside the zoom
  * buttons: how a region stands, then how a key check stands. It's a native
  * popover, so it lies over everything, toasts included, and Escape or a click
- * outside closes it. It opens above the buttons, its right edge on theirs.
+ * outside closes it. It opens above the buttons, its right edge on theirs, and
+ * stays there while the map changes size under it.
  */
 
 import { LitElement, css, html } from "lit";
@@ -82,6 +83,14 @@ export class ErMapLegend extends LitElement {
     `,
   ];
 
+  // Follows the map's size while the legend's open, as the buttons move with it.
+  private follower: ResizeObserver | undefined;
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.follower?.disconnect();
+  }
+
   override render() {
     return html`<button
         class="button"
@@ -92,12 +101,7 @@ export class ErMapLegend extends LitElement {
       >
         ${infoIcon}
       </button>
-      <div
-        id="legend"
-        class="popover"
-        popover
-        @beforetoggle=${(event: Event) => placeOver(event, this.closest(".corner"))}
-      >
+      <div id="legend" class="popover" popover @beforetoggle=${this.toggling}>
         <ul aria-label="Regions">
           ${AREAS.map(
             (state) =>
@@ -116,6 +120,19 @@ export class ErMapLegend extends LitElement {
         </ul>
       </div>`;
   }
+
+  private readonly toggling = (event: ToggleEvent): void => {
+    this.follower?.disconnect();
+    const corner = this.closest<HTMLElement>(".corner");
+    const map = corner?.offsetParent;
+    if (event.newState !== "open" || !corner || !map) {
+      return;
+    }
+    const legend = event.target as HTMLElement;
+    placeOver(legend, corner);
+    this.follower = new ResizeObserver(() => placeOver(legend, corner));
+    this.follower.observe(map);
+  };
 }
 
 customElements.define("er-map-legend", ErMapLegend);
