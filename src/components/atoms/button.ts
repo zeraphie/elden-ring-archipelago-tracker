@@ -58,10 +58,17 @@ export const buttonStyles = css`
     padding: 5px 12px;
     font-size: 0.88em;
   }
+  .button[data-shape="icon"][data-size="small"] {
+    width: 36px;
+    padding: 0;
+  }
   /* At a tablet's width and below, a small button is still 44 px tall, for a finger. */
   @media ${narrow} {
     .button[data-size="small"] {
       min-height: 44px;
+    }
+    .button[data-shape="icon"][data-size="small"] {
+      width: 44px;
     }
   }
   .button:disabled {

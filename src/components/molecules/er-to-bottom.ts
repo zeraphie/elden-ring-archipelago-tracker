@@ -30,8 +30,8 @@ export class ErToBottom extends LitElement {
         transform: translateX(-50%);
       }
       svg {
-        width: 24px;
-        height: 24px;
+        width: 22px;
+        height: 22px;
       }
     `,
   ];
@@ -41,6 +41,7 @@ export class ErToBottom extends LitElement {
       class="button"
       data-tone="overlay"
       data-shape="icon"
+      data-size="small"
       aria-label="Scroll to bottom"
       title="Scroll to bottom"
       @click=${() => emit<undefined>(this, "er-to-bottom", undefined)}
