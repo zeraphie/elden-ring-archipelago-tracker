@@ -417,11 +417,19 @@ here first, then search the source, then write.
 - `pinCount()`: How many of a pin's checks are checked, as its tooltip's foot says it.
 - `DRAWING_LINE`: What the line under the legend says while the pen is on.
 
+**src/components/organisms/map/map/er-map-controls.ts**
+- `ErMapControls`: The map's tabs, legend, tools and zoom buttons, over its view.
+
 **src/components/organisms/map/map/er-map-legend.ts**
 - `ErMapLegend`: The map's legend, and the line under it.
 
 **src/components/organisms/map/map/er-map.ts**
 - `ErMap`: The map of the room's open-world regions, how each stands, and the one selected.
+
+**src/components/organisms/map/map/region-layer.ts**
+- `RegionHandlers`: What the layer reads of its regions, by code: how each stands and its name; and a click on one.
+- `regionStyles`: The regions' look: each filled for how it stands, lighter when hovered, and the lines over them.
+- `regionLayer()`: A sheet's regions and their lines, for the map's world.
 
 **src/components/organisms/map/pin-layer.ts**
 - `PinHandlers`: What the map is told of its pins: the pointer coming onto one, given its element, or leaving it, and a click on one.

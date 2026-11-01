@@ -15,37 +15,29 @@
  * drag draws a route, and so does a left one while the pen top right is on.
  */
 
-import { LitElement, css, html, nothing, svg, type PropertyValues } from "lit";
+import { LitElement, css, html, nothing, type PropertyValues } from "lit";
 import type { MapPin } from "../../../../data/checks/map-pins.js";
 import type { Sheet } from "../../../../data/checks/map-tiles.js";
 import type { EldenRingData } from "../../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../../state/store.js";
 import { regionChecksOf } from "../../../../state/utils/checks.js";
 import { mapOf, type MapView } from "../../../../state/utils/map.js";
-import { narrow, NARROW_MEDIA } from "../../../atoms/layout.js";
-import "./er-map-legend.js";
+import { NARROW_MEDIA } from "../../../atoms/layout.js";
+import "./er-map-controls.js";
 import "../er-pin-tip.js";
-import "../er-route-tools.js";
-import "../er-sheet-tabs.js";
-import "../er-zoom-buttons.js";
 import { LostWatch } from "../camera/lost-watch.js";
 import { MapCamera, type ZoomTo } from "../camera/map-camera.js";
 import { pickRing, pinLayer, pinStyles } from "../pin-layer.js";
 import { pinSpots } from "../pin-tip.js";
 import { RoutePen, routeStyles, type RouteAction } from "../route-pen.js";
-import { anyTileIn, boundsOf, edgesPath, tileCentre, tilesPath } from "../map-paths.js";
-import { DRAWING_LINE, pinCount } from "../map-words.js";
-import { AREA_STATE_WORDS } from "../../../utils/area-words.js";
+import { anyTileIn, boundsOf, tileCentre } from "../map-paths.js";
+import { pinCount } from "../map-words.js";
+import { regionLayer, regionStyles } from "./region-layer.js";
 import type { CheckPick } from "../../../utils/check-pick.js";
 import { emit } from "../../../utils/emit.js";
 import { MediaController } from "../../../utils/media.js";
 import { SHEET_NAMES } from "../../../utils/sheet-names.js";
 import { StoreController } from "../../../utils/store-controller.js";
-
-// The simulate buttons are for a development build only, so a built page never loads them.
-if (import.meta.env.DEV) {
-  void import("../er-simulate.js");
-}
 
 // Screen pixels per 256 m tile: from a whole sheet in a small window to a tile filling much of the view.
 const ZOOM_LIMITS = { min: 2, max: 400 };
@@ -70,6 +62,7 @@ export class ErMap extends LitElement {
 
   static override styles = [
     pinStyles,
+    regionStyles,
     routeStyles,
     css`
       :host {
@@ -95,101 +88,6 @@ export class ErMap extends LitElement {
       /* Strokes keep their width in screen pixels however the map is scaled. */
       path {
         vector-effect: non-scaling-stroke;
-      }
-      .region {
-        stroke: var(--er-map);
-        stroke-width: 0.8;
-        cursor: pointer;
-      }
-      .region[data-state="locked"] {
-        fill: var(--er-region-locked);
-      }
-      .region[data-state="locked"]:hover {
-        fill: var(--er-region-locked-hover);
-      }
-      .region[data-state="open"] {
-        fill: var(--er-region-open);
-      }
-      .region[data-state="open"]:hover {
-        fill: var(--er-region-open-hover);
-      }
-      .region[data-state="done"] {
-        fill: var(--er-region-done);
-      }
-      .region[data-state="done"]:hover {
-        fill: var(--er-region-done-hover);
-      }
-      .lines {
-        fill: none;
-        stroke-linecap: square;
-        pointer-events: none;
-      }
-      .edge {
-        stroke: var(--er-region-edge);
-        stroke-width: 1;
-      }
-      .coast {
-        stroke: var(--er-coast);
-        stroke-width: 1.5;
-      }
-      .selected {
-        stroke: var(--er-gold);
-        stroke-width: 2.5;
-      }
-      /* The tabs and the legend sit above the goal menu, which runs under them. */
-      er-sheet-tabs {
-        position: absolute;
-        z-index: 2;
-        top: 14px;
-        left: 16px;
-      }
-      er-map-legend {
-        position: absolute;
-        z-index: 2;
-        right: 240px;
-        bottom: 14px;
-        left: 16px;
-        pointer-events: none;
-      }
-      /* The top right: the route tools, and in a development build the simulate buttons under them. */
-      .tools {
-        position: absolute;
-        z-index: 3;
-        top: 14px;
-        right: 16px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 12px;
-      }
-      /* At a tablet's width and below the controls sit closer to the edges, and the legend goes:
-         the goal strip has the map's foot, and a touch points at nothing. */
-      @media ${narrow} {
-        er-sheet-tabs {
-          top: 10px;
-          left: 10px;
-        }
-        .tools {
-          top: 10px;
-          right: 10px;
-        }
-        er-map-legend {
-          display: none;
-        }
-        .corner {
-          right: 10px;
-          bottom: 10px;
-        }
-      }
-      /* The bottom right: the zoom buttons. */
-      .corner {
-        position: absolute;
-        z-index: 3;
-        right: 16px;
-        bottom: 14px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
       }
     `,
   ];
@@ -299,26 +197,11 @@ export class ErMap extends LitElement {
     return html`<div class="view" ?data-drawing=${this.route.isOn()}>
         <svg role="img" aria-label=${`Map of the ${name}`}>
           <g class="world">
-            ${tiles.regions.map(({ region, tiles: squares }) => {
-              const state = map.regions.get(region)?.state ?? "locked";
-              return svg`<path
-                class="region"
-                data-state=${state}
-                d=${tilesPath(squares)}
-                @click=${() => this.select(region)}
-              ><title>${data.regionName(region)}: ${AREA_STATE_WORDS[state]}</title></path>`;
+            ${regionLayer(tiles, selected, {
+              stateOf: (region) => map.regions.get(region)?.state ?? "locked",
+              nameOf: (region) => data.regionName(region),
+              onPick: (region) => this.select(region),
             })}
-            <g class="lines" aria-hidden="true">
-              ${tiles.regions.map(
-                ({ edges }) => svg`<path class="edge" d=${edgesPath(edges)}></path>`
-              )}
-              <path class="coast" d=${edgesPath(tiles.coast)}></path>
-              ${
-                selected === undefined
-                  ? nothing
-                  : svg`<path class="selected" d=${edgesPath(selected.edges)}></path>`
-              }
-            </g>
             ${
               pickedPin === undefined && pickedAt?.sheet === sheet
                 ? pickRing(tileCentre(pickedAt.x, pickedAt.y))
@@ -338,42 +221,23 @@ export class ErMap extends LitElement {
           </g>
         </svg>
       </div>
-      ${
-        sheets.length < 2
-          ? nothing
-          : html`<er-sheet-tabs
-              .sheets=${sheets}
-              .shown=${sheet}
-              @er-sheet=${({ detail }: CustomEvent<Sheet>) => {
-                this.sheet = detail;
-                this.pointed = undefined;
-              }}
-            ></er-sheet-tabs>`
-      }
       ${pointed === undefined || this.route.isOn() ? nothing : this.tip(pointed, data)}
-      <er-map-legend .readout=${this.route.isOn() ? DRAWING_LINE : undefined}></er-map-legend>
-      <div class="tools">
-        <er-route-tools
-          .isOn=${this.route.isOn()}
-          .hasLines=${this.route.hasLines()}
-          @er-route=${({ detail }: CustomEvent<RouteAction>) => this.route.act(detail)}
-        ></er-route-tools>
-        ${
-          import.meta.env.DEV
-            ? html`<er-simulate
-                .store=${this.store}
-                .data=${data}
-                .region=${this.selected}
-              ></er-simulate>`
-            : nothing
-        }
-      </div>
-      <div class="corner">
-        <er-zoom-buttons
-          .isLost=${this.isLost}
-          @er-zoom=${({ detail }: CustomEvent<ZoomTo>) => this.camera.zoom(detail)}
-        ></er-zoom-buttons>
-      </div>`;
+      <er-map-controls
+        .store=${this.store}
+        .data=${data}
+        .sheets=${sheets}
+        .shown=${sheet}
+        .region=${this.selected}
+        .isDrawing=${this.route.isOn()}
+        .hasLines=${this.route.hasLines()}
+        .isLost=${this.isLost}
+        @er-sheet=${({ detail }: CustomEvent<Sheet>) => {
+          this.sheet = detail;
+          this.pointed = undefined;
+        }}
+        @er-route=${({ detail }: CustomEvent<RouteAction>) => this.route.act(detail)}
+        @er-zoom=${({ detail }: CustomEvent<ZoomTo>) => this.camera.zoom(detail)}
+      ></er-map-controls>`;
   }
 
   // The tooltip of the pin pointed at, its checks as the panel lists them.
