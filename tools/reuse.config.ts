@@ -345,7 +345,8 @@ export default {
       // Material Symbols' own view box, which every one of its icons is drawn on.
       pattern: /viewBox="0 -960 960 96[0]"/,
       home: "src/components/utils/material-icons.ts",
-      instead: "`backpackIcon` or `forumIcon`, or a new icon beside them under the same notice",
+      instead:
+        "`backpackIcon`, `forumIcon` or `logoutIcon`, or a new icon beside them under the same notice",
     },
     {
       what: "a bar slid under a row of filters by hand",

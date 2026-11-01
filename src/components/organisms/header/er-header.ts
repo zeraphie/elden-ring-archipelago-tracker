@@ -24,7 +24,7 @@ import { visuallyHidden } from "../../atoms/visually-hidden.js";
 import "./er-players.js";
 import "./er-progress.js";
 import { liveState } from "./header-words.js";
-import { closeIcon } from "../../utils/close-icon.js";
+import { logoutIcon } from "../../utils/material-icons.js";
 import { StoreController } from "../../utils/store-controller.js";
 
 // The room's players, and which of them this slot is, as the header reads them from the store.
@@ -56,6 +56,10 @@ export class ErHeader extends LitElement {
       }
       .leave-icon {
         display: none;
+      }
+      .leave-icon svg {
+        width: 18px;
+        height: 18px;
       }
       .bar {
         /* The bar's room, for the name to shorten in. */
@@ -239,7 +243,7 @@ export class ErHeader extends LitElement {
                 @click=${() => location.reload()}
               >
                 <span class="leave-word">Disconnect</span
-                ><span class="leave-icon">${closeIcon}</span>
+                ><span class="leave-icon">${logoutIcon}</span>
               </button>`
       }
     </header>`;

@@ -539,6 +539,7 @@ here first, then search the source, then write.
 **src/components/utils/material-icons.ts** (src/components/organisms)
 - `backpackIcon`: A backpack, for items: the Items tab, and the simulated item.
 - `forumIcon`: Two speech bubbles, for the Chat tab.
+- `logoutIcon`: An arrow out of a door, for leaving the room: the header's Disconnect.
 
 **src/components/utils/media.ts** (src/components, src/components/organisms)
 - `MediaController`: Whether a media query matches, for a Lit element: `matches`, kept current, and the element updated when it changes, while it's connected.
