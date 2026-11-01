@@ -4,7 +4,8 @@
  * The room's players behind a button that counts them: each one's name,
  * status, game and checks done, a completed goal in gold, and this slot marked
  * as "(You)". The list is a native popover, so Escape or a click outside
- * closes it, and it's placed under its button as it opens.
+ * closes it, and it opens flush with the foot of the bar that holds its button,
+ * so it's clear of everything in the bar.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -89,7 +90,8 @@ export class ErPlayers extends LitElement {
         id="players"
         class="popover"
         popover
-        @beforetoggle=${(event: Event) => placeUnder(event, this.renderRoot.querySelector("button"))}
+        @beforetoggle=${(event: Event) =>
+          placeUnder(event, this.renderRoot.querySelector("button"), this.parentElement)}
       >
         <ul aria-label="Players">
           ${this.roster.map(
