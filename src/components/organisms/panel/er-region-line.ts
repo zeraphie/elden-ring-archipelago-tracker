@@ -1,10 +1,9 @@
 /**
  * ─ Region line ─
  *
- * The line over the panel's tabs, where they have no region of their own: the
- * region picked, named by the region picker itself, how it stands, and how many
- * of its key checks and of all its checks are done. Before a region is picked,
- * the picker alone.
+ * Under the map, the line over every tab of the panel: the region picked, named
+ * by the region picker itself, how it stands, and how many of its key checks
+ * and of all its checks are done. Before a region is picked, the picker alone.
  */
 
 import { LitElement, css, html, nothing } from "lit";

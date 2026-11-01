@@ -2,16 +2,16 @@
  * ─ Panel ─
  *
  * The right-hand panel: tabs for Checks, Items and Chat, and the view of the
- * one chosen. The tabs follow the usual keys: the arrows move between them,
- * and Home and End go to the first and the last. Checks picks its own region
- * on a desktop, and Items and Chat have the region picked as a line over them,
- * so the map can change from any tab. At a tablet's width and below, that line
- * is over every tab, and the tabs are a rail on the right edge: the one chosen
- * stands out with its icon and name, and the others peek in, dimmed, as icons.
- * What's laid over it goes in its `over` slot.
+ * one chosen, with the search and the region picker over them on a desktop,
+ * whichever is up, and a search bringing up Checks for its matches. The tabs
+ * follow the usual keys: the arrows move between them, and Home and End go to
+ * the first and the last. At a tablet's width and below there's no search, the
+ * region picked is a line over every tab, and the tabs are a rail
+ * on the right edge: the one chosen stands out with its icon and name, and the others
+ * peek in, dimmed, as icons. What's laid over it goes in its `over` slot.
  */
 
-import { LitElement, css, html, nothing, type TemplateResult } from "lit";
+import { LitElement, css, html, type PropertyValues, type TemplateResult } from "lit";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerStore } from "../../../state/store.js";
 import { focusRing } from "../../atoms/focus.js";
@@ -25,6 +25,7 @@ import { MediaController } from "../../utils/media.js";
 import "./er-chat-view.js";
 import "./er-checks-view.js";
 import "./er-items-view.js";
+import "./er-panel-search.js";
 import "./er-region-line.js";
 import type { FeedFilter } from "./feed-words.js";
 import type { CheckFilter } from "./row-words.js";
@@ -58,6 +59,7 @@ export class ErPanel extends LitElement {
     picked: { attribute: false },
     say: { attribute: false },
     view: { state: true },
+    query: { state: true },
     checkFilter: { state: true },
     itemFilter: { state: true },
   };
@@ -187,10 +189,18 @@ export class ErPanel extends LitElement {
   /** Says something to the room. */
   say: (text: string) => void = () => {};
   private view: View = "checks";
+  private query = "";
   // The filters chosen on Checks and Items, kept here so they hold while another tab is shown.
   private checkFilter: CheckFilter = "todo";
   private itemFilter: FeedFilter = "received";
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
+
+  // A region or a check picked from elsewhere ends the search, to show it.
+  protected override willUpdate(changed: PropertyValues<this>): void {
+    if (changed.has("region") || changed.has("picked")) {
+      this.query = "";
+    }
+  }
 
   /** Shows the Checks tab, for a check picked from outside the panel. */
   showChecks(): void {
@@ -207,7 +217,11 @@ export class ErPanel extends LitElement {
 
   override render() {
     if (this.isNarrow.matches) {
-      return html`${this.regionLine()}
+      return html`<er-region-line
+          .store=${this.store}
+          .data=${this.data}
+          .region=${this.region}
+        ></er-region-line>
         <div class="body">
           <div
             role="tablist"
@@ -228,19 +242,17 @@ export class ErPanel extends LitElement {
         </div>
         <slot name="over"></slot>`;
     }
-    return html`<div role="tablist" class="tabs" aria-label="Panel" @keydown=${this.onTabKey}>
+    return html`<er-panel-search
+        .store=${this.store}
+        .data=${this.data}
+        .query=${this.query}
+        @er-search=${this.search}
+      ></er-panel-search>
+      <div role="tablist" class="tabs" aria-label="Panel" @keydown=${this.onTabKey}>
         ${VIEWS.map(([view, name]) => this.tab(view, "segment", name))}
       </div>
-      ${this.view === "checks" ? nothing : this.regionLine()} ${this.tabPanel()}
+      ${this.tabPanel()}
       <slot name="over"></slot>`;
-  }
-
-  private regionLine() {
-    return html`<er-region-line
-      .store=${this.store}
-      .data=${this.data}
-      .region=${this.region}
-    ></er-region-line>`;
   }
 
   // A tab: joined to the others as a segment, or a plate on the rail.
@@ -269,6 +281,7 @@ export class ErPanel extends LitElement {
               .data=${this.data}
               .region=${this.region}
               .picked=${this.picked}
+              .query=${this.query}
               .filter=${this.checkFilter}
               @er-filter=${({ detail }: CustomEvent<CheckFilter>) => {
                 this.checkFilter = detail;
@@ -294,6 +307,14 @@ export class ErPanel extends LitElement {
       }
     </div>`;
   }
+
+  // The matches show on Checks, whichever tab the search was typed over.
+  private readonly search = ({ detail }: CustomEvent<string>): void => {
+    this.query = detail;
+    if (detail !== "") {
+      this.view = "checks";
+    }
+  };
 
   // The arrows move between the tabs, round from the last to the first, sideways or, on the rail,
   // up and down; Home and End go to the ends.

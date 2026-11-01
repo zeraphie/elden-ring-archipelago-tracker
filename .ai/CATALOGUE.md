@@ -496,10 +496,13 @@ here first, then search the source, then write.
 - `ErCheckResults`: A search's matches.
 
 **src/components/organisms/panel/er-checks-view.ts**
-- `ErChecksView`: The search, the region picker, and the region picked with its checks.
+- `ErChecksView`: The region picked with its checks, or a search's matches.
 
 **src/components/organisms/panel/er-items-view.ts**
 - `ErItemsView`: The items received, obtained and sent, under a filter.
+
+**src/components/organisms/panel/er-panel-search.ts**
+- `ErPanelSearch`: The search and the region picker, over the panel's tabs.
 
 **src/components/organisms/panel/er-panel.ts**
 - `ErPanel`: The panel beside the map, its tabs and the view chosen.

@@ -1,29 +1,23 @@
 /**
  * ─ Checks view ─
  *
- * The panel's Checks tab: a search across every check, and the "All regions"
- * picker, over the region picked: its name, how it stands, what it still
- * needs in English while it's locked, how many of its checks are done, and
- * its checks themselves, the one picked banded. While a search is typed, its
- * matches take the region's place; picking one opens its region. At a
+ * The panel's Checks tab: the region picked: its name, how it stands, what it
+ * still needs in English while it's locked, how many of its checks are done,
+ * and its checks themselves, the one picked banded. While a search is typed,
+ * its matches take the region's place; picking one opens its region. At a
  * tablet's width and below, the tab is the checks alone: the panel names the
- * region over every tab, and there's no search.
+ * region over every tab.
  */
 
-import { LitElement, css, html, type PropertyValues } from "lit";
+import { LitElement, css, html } from "lit";
 import { shallow } from "zustand/vanilla/shallow";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
 import { regionChecksOf, searchChecks } from "../../../state/utils/checks.js";
 import { findingsOf } from "../../../state/utils/findings.js";
 import { regionsOf } from "../../../state/utils/regions.js";
-import { fieldStyles } from "../../atoms/field.js";
-import { NARROW_MEDIA } from "../../atoms/layout.js";
-import { focusRing } from "../../atoms/focus.js";
-import { visuallyHidden } from "../../atoms/visually-hidden.js";
-import "../../molecules/er-region-picker.js";
+import { narrow, NARROW_MEDIA } from "../../atoms/layout.js";
 import { MediaController } from "../../utils/media.js";
-import { pickerGroups } from "../../utils/region-groups.js";
 import { StoreController } from "../../utils/store-controller.js";
 import "./er-check-list.js";
 import "./er-check-results.js";
@@ -37,7 +31,7 @@ const SEARCH_FROM = 2;
 const MATCHES_SHOWN = 60;
 
 /**
- * The search, the region picker, and the region picked with its checks.
+ * The region picked with its checks, or a search's matches.
  */
 export class ErChecksView extends LitElement {
   static override properties = {
@@ -45,43 +39,34 @@ export class ErChecksView extends LitElement {
     data: { attribute: false },
     region: { attribute: false },
     picked: { attribute: false },
+    query: { attribute: false },
     filter: { attribute: false },
-    query: { state: true },
   };
 
-  static override styles = [
-    fieldStyles,
-    focusRing,
-    visuallyHidden,
-    css`
+  static override styles = css`
+    :host {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      margin-top: 12px;
+      border-top: 1px solid var(--er-panel-divider);
+    }
+    @media ${narrow} {
       :host {
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
+        margin-top: 0;
+        border-top: none;
       }
-      .search {
-        display: flex;
-        gap: 8px;
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--er-panel-divider);
-      }
-      .field {
-        flex-grow: 1;
-        min-width: 0;
-        min-height: 40px;
-        font-size: 0.95em;
-      }
-      er-check-list,
-      er-check-results {
-        flex-grow: 1;
-      }
-      .empty {
-        margin: 0;
-        padding: 18px 16px;
-        color: var(--er-ink-muted);
-      }
-    `,
-  ];
+    }
+    er-check-list,
+    er-check-results {
+      flex-grow: 1;
+    }
+    .empty {
+      margin: 0;
+      padding: 18px 16px;
+      color: var(--er-ink-muted);
+    }
+  `;
 
   /** The room's store. */
   store: TrackerStore | undefined;
@@ -91,14 +76,15 @@ export class ErChecksView extends LitElement {
   region: string | undefined;
   /** The check picked, by id. */
   picked: number | undefined;
+  /** What's typed in the search. */
+  query = "";
   /** Which of the region's checks are shown. */
   filter: CheckFilter = "todo";
-  private query = "";
   // Draws the view again whenever the regions or what the checks held change.
   private watch: StoreController<TrackerState, unknown[]> | undefined;
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
 
-  protected override willUpdate(changed: PropertyValues<this>): void {
+  protected override willUpdate(): void {
     const { store, data } = this;
     if (store !== undefined && data !== undefined && this.watch === undefined) {
       this.watch = new StoreController(
@@ -107,10 +93,6 @@ export class ErChecksView extends LitElement {
         (state): unknown[] => [regionsOf(data, state), findingsOf(state)],
         shallow
       );
-    }
-    // A region or a check picked from elsewhere ends the search, to show it.
-    if (changed.has("region") || changed.has("picked")) {
-      this.query = "";
     }
   }
 
@@ -123,29 +105,12 @@ export class ErChecksView extends LitElement {
     if (this.isNarrow.matches) {
       return this.regionView(data, state);
     }
-    const isSearching = this.query.trim().length >= SEARCH_FROM;
-    return html`<div class="search">
-        <label class="sr" for="search">Search checks</label>
-        <input
-          id="search"
-          class="field"
-          type="search"
-          placeholder="Search checks, items, places"
-          .value=${this.query}
-          @input=${(event: Event) => {
-            this.query = (event.target as HTMLInputElement).value;
-          }}
-        />
-        <er-region-picker .groups=${pickerGroups(data, state)}></er-region-picker>
-      </div>
-      ${
-        isSearching
-          ? html`<er-check-results
-              .search=${searchChecks(data, state, this.query, MATCHES_SHOWN)}
-              .regionName=${(code: string) => data.regionName(code)}
-            ></er-check-results>`
-          : this.regionView(data, state)
-      }`;
+    return this.query.trim().length >= SEARCH_FROM
+      ? html`<er-check-results
+          .search=${searchChecks(data, state, this.query, MATCHES_SHOWN)}
+          .regionName=${(code: string) => data.regionName(code)}
+        ></er-check-results>`
+      : this.regionView(data, state);
   }
 
   private regionView(data: EldenRingData, state: TrackerState) {
