@@ -84,6 +84,13 @@ export class ToastQueue<T> {
     this.changed();
   }
 
+  /** Take every toast away at once, as the goal's screen comes up. */
+  clear(): void {
+    this.toasts = [];
+    this.stop();
+    this.onChange();
+  }
+
   /** Stop the clearing, as while a toast is being swiped. */
   hold(): void {
     this.isHeld = true;

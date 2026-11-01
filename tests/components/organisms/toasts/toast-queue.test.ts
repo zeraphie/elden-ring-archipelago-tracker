@@ -118,6 +118,18 @@ describe("ToastQueue", () => {
     expect(queue.shown.find(({ value }) => value === "first")?.leaving).toBe(1);
   });
 
+  test("clearing takes every toast away at once, and leaves nothing waiting", () => {
+    const clock = clockOf();
+    const queue = new ToastQueue<string>(() => {}, clock);
+    queue.add("a");
+    queue.add("b");
+    queue.clear();
+    expect(queue.shown).toEqual([]);
+    clock.pass(TOAST_MS);
+    queue.add("c");
+    expect(queue.shown.map(({ value }) => value)).toEqual(["c"]);
+  });
+
   test("a toast dismissed leaves its own way, and the rest are unchanged", () => {
     const clock = clockOf();
     const queue = new ToastQueue<string>(() => {}, clock);

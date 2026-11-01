@@ -11,7 +11,8 @@
  * obtained. Each can be closed, or swiped away either way. Only items that
  * arrive live toast: not those the room had already sent, nothing from a
  * tracker link, which has no websocket, and none of the slot's own once its
- * goal is done, when a release brings everything left at once.
+ * goal is done, when a release brings everything left at once. Reaching the
+ * goal takes every toast showing away, for the goal's screen.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -185,6 +186,8 @@ export class ErToasts extends LitElement {
   private watch: StoreController<TrackerState, unknown[]> | undefined;
   // Items the tracker saw arrive after this moment toast; what came before was already there.
   private since = Date.now();
+  // Whether the goal was done at the last look: the toasts showing go as it's reached.
+  private wasDone = false;
   // The toast being swiped, the pointer swiping it and where it went down, and how far it's gone.
   private swipe: { readonly id: number; readonly pointer: number; readonly x: number } | undefined;
   private dx = 0;
@@ -205,6 +208,7 @@ export class ErToasts extends LitElement {
       (state): unknown[] => [
         feedOf(data, state),
         state.received,
+        isGoalDone(state),
         state.link,
         goalMenuOf(data, state),
       ],
@@ -218,7 +222,12 @@ export class ErToasts extends LitElement {
     const others = feedOf(data, state).filter(
       (entry): entry is Received => entry.kind === "received" && isNew(entry)
     );
-    const found = isGoalDone(state)
+    const isDone = isGoalDone(state);
+    if (isDone && !this.wasDone) {
+      this.queue.clear();
+    }
+    this.wasDone = isDone;
+    const found = isDone
       ? []
       : ownFindsOf(data, state).filter(
           (find) =>
