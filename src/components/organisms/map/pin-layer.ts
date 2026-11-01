@@ -21,9 +21,9 @@ import { tileCentre } from "./map-paths.js";
 
 const SACK = iconUrl("sack");
 
-/** What the map is told of its pins: the pointer coming onto one or leaving it, and a click on one. */
+/** What the map is told of its pins: the pointer coming onto one, given its element, or leaving it, and a click on one. */
 export interface PinHandlers {
-  readonly onPoint: (tile: string, isOn: boolean) => void;
+  readonly onPoint: (tile: string, pin: Element | undefined) => void;
   readonly onPick: (pin: MapPin) => void;
 }
 
@@ -85,8 +85,9 @@ export function pinLayer(
           class="pin"
           ?data-picked=${pin === picked}
           transform=${`translate(${centre.x} ${centre.y})`}
-          @pointerenter=${() => onPoint(pin.tile, true)}
-          @pointerleave=${() => onPoint(pin.tile, false)}
+          @pointerenter=${({ currentTarget }: PointerEvent) =>
+            onPoint(pin.tile, currentTarget as Element)}
+          @pointerleave=${() => onPoint(pin.tile, undefined)}
           @click=${() => onPick(pin)}
         ><image class="sack" data-state=${pin.state} href=${SACK} x="-0.5" y="-0.5" width="1" height="1"></image></g>`;
       }

@@ -202,7 +202,7 @@ here first, then search the source, then write.
 **src/components/atoms/popover.ts** (src/components/molecules, src/components/organisms)
 - `popoverStyles`: A native popover floating over the page, under what opens it: `.popover` on an element with `popover`.
 
-**src/components/atoms/sack.ts** (src/components/organisms)
+**src/components/atoms/sack.ts** (src/components/molecules, src/components/organisms)
 - `sackStyles`: The sack a key check shows, as it stands: `.sack` with `data-state` "todo", "collected" or "locked".
 
 **src/components/atoms/scroller.ts** (src/components/organisms)
@@ -218,6 +218,11 @@ here first, then search the source, then write.
 - `visuallyHidden`: Text for a screen reader alone: `.sr` keeps it in the page, out of sight; `.sr-narrow` does so only at a tablet's width and below.
 
 ## src/components/molecules
+
+**src/components/molecules/check-row.ts** (src/components/organisms)
+- `checkRowStyles`: The rows' look: a two-column grid of marker and words, banded when hovered or picked.
+- `checkRow()`: A check's row, picked or not, with its region under its name when it's given, telling `onPick` when it's clicked.
+- `checkBlock()`: A check to read rather than click, with what each of its copies held.
 
 **src/components/molecules/er-ago.ts**
 - `ErAgo`: How long ago a moment was, as a `<time>`, current to the second.
@@ -383,10 +388,13 @@ here first, then search the source, then write.
 - `moveTo()`: Take the camera to `to`, gliding, or at once under reduced motion; returns a function that stops the move.
 
 **src/components/organisms/map/er-map-legend.ts**
-- `ErMapLegend`: The map's legend, and the line naming what's pointed at.
+- `ErMapLegend`: The map's legend, and the line under it.
 
 **src/components/organisms/map/er-map.ts**
 - `ErMap`: The map of the room's open-world regions, how each stands, and the one selected.
+
+**src/components/organisms/map/er-pin-tip.ts**
+- `ErPinTip`: The tooltip of the pin pointed at.
 
 **src/components/organisms/map/er-route-tools.ts**
 - `ErRouteTools`: The pen, and undo and clear once there's a line.
@@ -407,14 +415,21 @@ here first, then search the source, then write.
 - `boundsOf()`: The rect holding every tile given, such as a sheet's or a region's, in tile units, north up.
 
 **src/components/organisms/map/map-words.ts**
-- `pinLine()`: What's on a pin: its checks, a spot named once however many copies it holds, and how many are checked.
+- `pinCount()`: How many of a pin's checks are checked, as its tooltip's foot says it.
 - `DRAWING_LINE`: What the line under the legend says while the pen is on.
 
 **src/components/organisms/map/pin-layer.ts**
-- `PinHandlers`: What the map is told of its pins: the pointer coming onto one or leaving it, and a click on one.
+- `PinHandlers`: What the map is told of its pins: the pointer coming onto one, given its element, or leaving it, and a click on one.
 - `pinStyles`: The pins' look: the sack as it stands, sized on the screen from the camera's `--zoom`, enlarged when pointed at or picked, and the ring round a picked tile.
 - `pinLayer()`: A sheet's pins, for the map's world, the one picked drawn last.
 - `pickRing()`: A gold ring round a picked check's tile, at its middle in world units; nothing without one.
+
+**src/components/organisms/map/pin-tip.ts**
+- `PinSpot`: One spot on a pin: the row to show for it, with no copy number, and what its checks have held.
+- `TipBox`: A box on the screen, by its edges, in pixels.
+- `TipSize`: A width and a height, in pixels.
+- `pinSpots()`: A pin's spots, each once, in the order they first come.
+- `tipPlace()`: Where a tooltip goes, in the view: beside the pin, past it on the left where the right has no room, kept inside the view.
 
 **src/components/organisms/map/route-pen.ts**
 - `RouteAction`: What a route tool asks for: the pen on or off, the last line taken away, or every line.
@@ -436,10 +451,6 @@ here first, then search the source, then write.
 **src/components/organisms/panel/chat-words.ts**
 - `SPEAKERS`: Who a line is from when no player said it.
 - `hintLine()`: The hints over the input: how many the points buy, and how many points off the next is; undefined until the login says.
-
-**src/components/organisms/panel/check-row.ts**
-- `checkRowStyles`: The rows' look: a two-column grid of marker and words, banded when hovered or picked.
-- `checkRow()`: A check's row, picked or not, with its region under its name when it's given, telling `onPick` when it's clicked.
 
 **src/components/organisms/panel/er-chat-view.ts**
 - `ErChatView`: The chat log and its input.
@@ -474,11 +485,9 @@ here first, then search the source, then write.
 - `needsText()`: What a region still needs while it's locked, in English, its checks named in full; undefined once it's open.
 
 **src/components/organisms/panel/row-words.ts**
-- `spotLine()`: What follows a check's place: its encounter after a dash, and which copy it is: " – drop, 2 of 4".
 - `CheckFilter`: Which checks a list shows: those still to do, those done, or all.
 - `FILTERS`: Each filter, as its button names it, in order.
 - `NO_KEY_CHECKS`: What the key checks' list says when its filter leaves none.
-- `findingLine()`: What a checked check held, as its row says it: "Found: Rusty Key", or "Sent: Hookshot to Sam".
 - `matchesLine()`: How many checks a search found: "3 matches", or "The first 60 matches" when there were more.
 
 **src/components/organisms/toasts/er-toasts.ts**
@@ -504,15 +513,17 @@ here first, then search the source, then write.
 - `elapsed()`: How long before `now` the moment `at` was, both in milliseconds since the epoch.
 - `ago()`: `at` as said at `now`: "now", "12 seconds ago", "5 minutes ago", "yesterday", or "earlier" when it has no time.
 
-**src/components/utils/area-words.ts** (src/components/organisms)
+**src/components/utils/area-words.ts** (src/components/molecules, src/components/organisms)
 - `AREA_STATE_WORDS`: How a region stands, in words: on the map's titles, its legend and the panel's heading.
 - `PIN_STATE_WORDS`: How a key check stands, in words: on the map's legend and beside its sack in the panel.
 
 **src/components/utils/check-pick.ts** (src/components, src/components/organisms)
 - `CheckPick`: A check picked, on the map or in the panel: its region, by code, and its id.
 
-**src/components/utils/check-words.ts** (src/components/organisms)
+**src/components/utils/check-words.ts** (src/components/molecules, src/components/organisms)
 - `checkLine()`: A check's place and encounter on one line, the encounter after a dash where there is one.
+- `spotLine()`: What follows a check's place: its encounter after a dash, and which copy it is: " – drop, 2 of 4".
+- `findingLine()`: What a checked check held, as its row says it: "Found: Rusty Key", or "Sent: Hookshot to Sam".
 
 **src/components/utils/clock.ts** (src/components/molecules)
 - `Ticker`: How a clock reads the time and ticks: the browser's, or a test's.
@@ -539,7 +550,7 @@ here first, then search the source, then write.
 - `figure()`: A count as a person reads it, with its thousands set apart: "3,765".
 - `percentDone()`: How much of a whole is done, as a percentage; none of nothing.
 
-**src/components/utils/icons.ts** (src/components/organisms)
+**src/components/utils/icons.ts** (src/components/molecules, src/components/organisms)
 - `iconUrl()`: An icon's URL by its name, such as "sack"; undefined when there's no icon by that name.
 
 **src/components/utils/item-words.ts** (src/components/organisms)
@@ -603,10 +614,10 @@ here first, then search the source, then write.
 - `Edge`: A tile side on a border, as its two corners in tile units: [x1, y1, x2, y2].
 - `SheetTiles`: A sheet's regions, and its coastline: the sides of its tiles with no tile beyond.
 
-**src/data/names/key-spots.ts** (src/components/organisms, src/components/utils, src/state, tools)
+**src/data/names/key-spots.ts** (src/components/utils, src/state, tools)
 - `KeySpot`: A key spot's full name: where it is, and the encounter or object there.
 
-**src/data/names/location-name.ts** (src/components/organisms, src/state, tools)
+**src/data/names/location-name.ts** (src/components/utils, src/state, tools)
 - `readLocationName()`: An Elden Ring location's name in its parts, or undefined for a name not in that form.
 - `withoutExtra()`: A location name apart from the generator's ", extra item N", and that N, so a copy reads as the spot it copies.
 - `SpotCopy`: Which of a spot's checks this one is, the spot itself first and the generator's copies after it, and how many there are.
@@ -675,7 +686,8 @@ here first, then search the source, then write.
 - `TrackerState`: What the tracker knows of a room, and the ways the room's word comes in.
 - `TrackerStore`: A tracker store: subscribed to by selector, with zustand's persist controls, such as clearing what it kept.
 
-**src/state/utils/checks.ts** (src/components/organisms)
+**src/state/utils/checks.ts** (src/components/molecules, src/components/organisms)
+- `CheckRow`: One check as the panel lists it.
 - `regionChecksOf()`: A region's checks, by its code; none until slot_data and the data package are in.
 - `searchChecks()`: The checks whose row holds every word of the query, in any order and any case: its place, encounter, vanilla item and region, and once it's checked, what it held and who it went to.
 
@@ -686,7 +698,7 @@ here first, then search the source, then write.
 - `feedOf()`: The items received from the others and sent to them, newest last.
 - `ownFindsOf()`: The items the slot found for itself, in the order they came; the feed leaves these out, as they're its checks' own.
 
-**src/state/utils/findings.ts** (src/components/organisms)
+**src/state/utils/findings.ts** (src/components/molecules, src/components/organisms, src/components/utils)
 - `Finding`: What a check held: the item, and who it went to when that's another player.
 - `findingsOf()`: What each of this slot's checks held, by location id, for the checks it's known of.
 

@@ -41,6 +41,8 @@ export interface MapCameraParts {
   readonly coveredLeft: () => number;
   /** Where the view's strokes go, for a host that draws on it. */
   readonly pen?: Pen;
+  /** Told each time the world moves on the screen, for what follows it. */
+  readonly onPlace?: () => void;
 }
 
 // Screen pixels kept clear round what's shown when the view fits it.
@@ -168,6 +170,7 @@ export class MapCamera implements ReactiveController {
     const world = this.parts.world();
     world?.setAttribute("transform", `translate(${x} ${y}) scale(${zoom})`);
     world?.style.setProperty("--zoom", String(zoom));
+    this.parts.onPlace?.();
   }
 
   // What's newly shown goes back to where it was left, or is fitted.

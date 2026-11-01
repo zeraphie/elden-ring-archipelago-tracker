@@ -5,7 +5,7 @@
  * filled for how it stands (locked, open, or every key check done), with the
  * borders between regions, the coastline, the selected region's border in
  * gold, and a sack on each tile with key checks. Pointing at a sack enlarges
- * it and names its checks under the legend. Tabs switch between the Lands
+ * it and shows its checks in a tooltip. Tabs switch between the Lands
  * Between and the Realm of Shadow; a sheet the room has no tiles on gets no
  * tab. The wheel and a pinch zoom about the cursor, a left drag pans, a click
  * selects a region or a sack's region, and the buttons zoom by steps or show
@@ -16,20 +16,24 @@
  */
 
 import { LitElement, css, html, nothing, svg, type PropertyValues } from "lit";
+import type { MapPin } from "../../../data/checks/map-pins.js";
 import type { Sheet } from "../../../data/checks/map-tiles.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
+import { regionChecksOf } from "../../../state/utils/checks.js";
 import { mapOf, type MapView } from "../../../state/utils/map.js";
 import { narrow, NARROW_MEDIA } from "../../atoms/layout.js";
 import "./er-map-legend.js";
+import "./er-pin-tip.js";
 import "./er-route-tools.js";
 import "./er-sheet-tabs.js";
 import "./er-zoom-buttons.js";
 import { MapCamera, type ZoomTo } from "./camera/map-camera.js";
 import { pickRing, pinLayer, pinStyles } from "./pin-layer.js";
+import { pinSpots } from "./pin-tip.js";
 import { RoutePen, routeStyles, type RouteAction } from "./route-pen.js";
 import { boundsOf, edgesPath, tileCentre, tilesPath } from "./map-paths.js";
-import { DRAWING_LINE, pinLine } from "./map-words.js";
+import { DRAWING_LINE, pinCount } from "./map-words.js";
 import { AREA_STATE_WORDS } from "../../utils/area-words.js";
 import type { CheckPick } from "../../utils/check-pick.js";
 import { emit } from "../../utils/emit.js";
@@ -199,8 +203,9 @@ export class ErMap extends LitElement {
   selected: string | undefined;
   /** The check picked, by id: its sack enlarged, or its tile ringed, on its sheet. */
   picked: number | undefined;
-  // The pin pointed at, by its tile.
+  // The pin pointed at, by its tile, and its element, for its tooltip to sit beside.
   private pointed: string | undefined;
+  private pointedPin: Element | undefined;
   // Under the narrow layout, the camera fits the region selected rather than the whole sheet, and
   // glides to each one newly selected once it's drawn.
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
@@ -217,6 +222,7 @@ export class ErMap extends LitElement {
       world: () => this.renderRoot.querySelector<SVGGElement>(".world") ?? undefined,
       coveredLeft: () => this.coveredLeft,
       pen: this.route,
+      onPlace: () => this.renderRoot.querySelector("er-pin-tip")?.follow(),
     },
     ZOOM_LIMITS
   );
@@ -304,11 +310,10 @@ export class ErMap extends LitElement {
                 : nothing
             }
             ${pinLayer(pins, pickedPin, {
-              onPoint: (tile, isOn) => {
-                if (isOn) {
-                  this.pointed = tile;
-                } else if (this.pointed === tile) {
-                  this.pointed = undefined;
+              onPoint: (tile, pin) => {
+                if (pin !== undefined || this.pointed === tile) {
+                  this.pointed = pin === undefined ? undefined : tile;
+                  this.pointedPin = pin;
                 }
               },
               onPick: ({ region, opens }) =>
@@ -330,18 +335,8 @@ export class ErMap extends LitElement {
               }}
             ></er-sheet-tabs>`
       }
-      <er-map-legend
-        .readout=${
-          pointed !== undefined
-            ? pinLine(
-                pointed.ids.map((id) => data.checkName(map.names[String(id)] ?? "")),
-                pointed.done
-              )
-            : this.route.isOn()
-              ? DRAWING_LINE
-              : undefined
-        }
-      ></er-map-legend>
+      ${pointed === undefined || this.route.isOn() ? nothing : this.tip(pointed, data)}
+      <er-map-legend .readout=${this.route.isOn() ? DRAWING_LINE : undefined}></er-map-legend>
       <div class="tools">
         <er-route-tools
           .isOn=${this.route.isOn()}
@@ -363,6 +358,22 @@ export class ErMap extends LitElement {
           @er-zoom=${({ detail }: CustomEvent<ZoomTo>) => this.camera.zoom(detail)}
         ></er-zoom-buttons>
       </div>`;
+  }
+
+  // The tooltip of the pin pointed at, its checks as the panel lists them.
+  private tip(pin: MapPin, data: EldenRingData) {
+    const state = this.store?.getState();
+    if (state === undefined) {
+      return nothing;
+    }
+    const { key, other } = regionChecksOf(data, state, pin.region);
+    const rows = [...key, ...other].filter(({ id }) => pin.ids.includes(id));
+    return html`<er-pin-tip
+      .spots=${pinSpots(rows)}
+      .count=${pin.ids.length > 1 ? pinCount(pin.done, pin.ids.length) : undefined}
+      .pin=${this.pointedPin}
+      .frame=${this}
+    ></er-pin-tip>`;
   }
 
   private select(region: string): void {

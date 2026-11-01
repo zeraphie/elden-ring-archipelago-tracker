@@ -2,8 +2,8 @@
  * ─ Map legend ─
  *
  * What the map's colours and pins mean, on two lines: how a region stands,
- * then how a key check stands. Under them, a line that names what's on the
- * pin pointed at, or says to point at one.
+ * then how a key check stands. Under them, a line that says to point at one
+ * and how to draw, or what's happening while the pen is on.
  */
 
 import { LitElement, css, html } from "lit";
@@ -19,7 +19,7 @@ const AREAS: readonly AreaState[] = ["locked", "open", "done"];
 const PINS: readonly PinState[] = ["todo", "collected", "locked"];
 
 /**
- * The map's legend, and the line naming what's pointed at.
+ * The map's legend, and the line under it.
  */
 export class ErMapLegend extends LitElement {
   static override properties = { readout: { attribute: false } };
@@ -70,7 +70,7 @@ export class ErMapLegend extends LitElement {
     `,
   ];
 
-  /** What's on the pin pointed at; while none is, the line says to point at one. */
+  /** What the line says for now; left out, it says to point at a key check. */
   readout: string | undefined;
 
   override render() {

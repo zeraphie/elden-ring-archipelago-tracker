@@ -23,7 +23,7 @@ import type { CheckPick } from "../../utils/check-pick.js";
 import { emit } from "../../utils/emit.js";
 import { figure } from "../../utils/figure.js";
 import { MediaController } from "../../utils/media.js";
-import { checkRow, checkRowStyles } from "./check-row.js";
+import { checkRow, checkRowStyles } from "../../molecules/check-row.js";
 import { FILTERS, NO_KEY_CHECKS, type CheckFilter } from "./row-words.js";
 
 // How many other checks show before the list is asked for all of them.

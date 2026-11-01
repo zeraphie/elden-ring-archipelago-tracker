@@ -1,20 +1,22 @@
 /**
  * ─ Check row ─
  *
- * One check in the panel's lists: its marker, a key check's sack in its
- * three states or a small ring for any other, filled once checked; its place
- * with its encounter dimmed, and which copy it is of a spot the generator
- * copied; its region, in search results; the item it holds in the unrandomised
- * game; and once checked, what it held. The row picked carries the olive band.
+ * One check as the panel lists it and the map's tooltip shows it: its marker,
+ * a key check's sack in its three states or a small ring for any other, filled
+ * once checked; its place with its encounter dimmed, and which copy it is of a
+ * spot the generator copied; its region, in search results; the item it holds
+ * in the unrandomised game; and once checked, what it held. In a list it's a
+ * button, and the row picked carries the olive band.
  */
 
 import { css, html, nothing } from "lit";
-import type { CheckRow } from "../../../state/utils/checks.js";
-import { bandRowStyles } from "../../atoms/band.js";
-import { sackStyles } from "../../atoms/sack.js";
-import { PIN_STATE_WORDS } from "../../utils/area-words.js";
-import { iconUrl } from "../../utils/icons.js";
-import { findingLine, spotLine } from "./row-words.js";
+import type { CheckRow } from "../../state/utils/checks.js";
+import type { Finding } from "../../state/utils/findings.js";
+import { bandRowStyles } from "../atoms/band.js";
+import { sackStyles } from "../atoms/sack.js";
+import { PIN_STATE_WORDS } from "../utils/area-words.js";
+import { findingLine, spotLine } from "../utils/check-words.js";
+import { iconUrl } from "../utils/icons.js";
 
 const SACK = iconUrl("sack");
 
@@ -27,6 +29,7 @@ export const checkRowStyles = [
       display: grid;
       grid-template-columns: 26px minmax(0, 1fr);
       gap: 2px 12px;
+      box-sizing: border-box;
       width: 100%;
       padding: 9px 16px;
       background: transparent;
@@ -35,6 +38,8 @@ export const checkRowStyles = [
       color: var(--er-ink);
       font: inherit;
       text-align: left;
+    }
+    button.row {
       cursor: pointer;
     }
     .row:not([data-key]) {
@@ -93,17 +98,31 @@ export function checkRow(
   onPick: (row: CheckRow) => void,
   region?: string
 ) {
-  const { name, copy, vanilla, isKey, state, finding } = row;
-  const found = finding === undefined ? undefined : findingLine(finding);
-  const spot = spotLine(name.encounter, copy);
   return html`<button
     class="row band-row"
     id=${`check-${row.id}`}
-    ?data-key=${isKey}
+    ?data-key=${row.isKey}
     aria-current=${isPicked ? "true" : nothing}
     @click=${() => onPick(row)}
   >
-    ${
+    ${face(row, region === undefined ? nothing : html`<span class="region">${region}</span>`)}
+  </button>`;
+}
+
+/** A check to read rather than click, with what each of its copies held. */
+export function checkBlock(row: CheckRow, findings: readonly Finding[]) {
+  return html`<div class="row" ?data-key=${row.isKey}>${face(row, nothing, findings)}</div>`;
+}
+
+// A row's marker and words, what it held by its own finding unless it's told otherwise.
+function face(
+  row: CheckRow,
+  region: unknown,
+  findings: readonly Finding[] = row.finding === undefined ? [] : [row.finding]
+) {
+  const { name, copy, vanilla, isKey, state } = row;
+  const spot = spotLine(name.encounter, copy);
+  return html`${
       isKey
         ? html`<img class="sack" data-state=${state} src=${SACK} alt=${PIN_STATE_WORDS[state]} />`
         : html`<span class="mark" ?data-done=${state === "collected"} aria-hidden="true"></span>`
@@ -112,20 +131,17 @@ export function checkRow(
       <span class="title"
         >${name.place}${spot === "" ? nothing : html`<span class="spot">${spot}</span>`}</span
       >
-      ${region === undefined ? nothing : html`<span class="region">${region}</span>`}
+      ${region}
       ${
         vanilla === undefined
           ? nothing
           : html`<span class="line"><span class="label">Vanilla:</span> ${vanilla}</span>`
       }
-      ${
-        found === undefined
-          ? nothing
-          : html`<span class="line"
-              ><span class="label">${found.label}</span>
-              <span class="got">${found.text}</span></span
-            >`
-      }
-    </span>
-  </button>`;
+      ${findings.map((finding) => {
+        const found = findingLine(finding);
+        return html`<span class="line"
+          ><span class="label">${found.label}</span> <span class="got">${found.text}</span></span
+        >`;
+      })}
+    </span>`;
 }

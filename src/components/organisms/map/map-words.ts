@@ -1,19 +1,13 @@
 /**
  * ─ Map words ─
  *
- * What the map says under its legend: what's on the key-check pin pointed
- * at, each check by its place and encounter, and how many are checked, or how
- * to draw while the pen is on.
+ * What the map says of its pins: how many of a pin's checks are checked, on
+ * its tooltip, and how to draw, under the legend while the pen is on.
  */
 
-import type { KeySpot } from "../../../data/names/key-spots.js";
-import { listed } from "../../../data/words.js";
-import { checkLine } from "../../utils/check-words.js";
-
-/** What's on a pin: its checks, a spot named once however many copies it holds, and how many are checked. */
-export function pinLine(names: readonly KeySpot[], done: number): string {
-  const lines = [...new Set(names.map(checkLine))];
-  return `${listed(lines, "and")}: ${done} of ${names.length} checked`;
+/** How many of a pin's checks are checked, as its tooltip's foot says it. */
+export function pinCount(done: number, of: number): string {
+  return `${done} of ${of} checked`;
 }
 
 /** What the line under the legend says while the pen is on. */

@@ -11,7 +11,7 @@ import type { CheckRow, CheckSearch } from "../../../state/utils/checks.js";
 import { scrollerStyles } from "../../atoms/scroller.js";
 import type { CheckPick } from "../../utils/check-pick.js";
 import { emit } from "../../utils/emit.js";
-import { checkRow, checkRowStyles } from "./check-row.js";
+import { checkRow, checkRowStyles } from "../../molecules/check-row.js";
 import { matchesLine } from "./row-words.js";
 
 /**
