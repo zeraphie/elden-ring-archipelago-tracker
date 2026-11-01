@@ -12,6 +12,7 @@
 import { LitElement, css, html, type PropertyValues } from "lit";
 import { SETTINGS, type CheckLook, type SettingsState } from "../../../state/settings.js";
 import { buttonStyles } from "../../atoms/button.js";
+import { diamondStyles } from "../../atoms/diamond.js";
 import { focusRing } from "../../atoms/focus.js";
 import { panelTitleStyles } from "../../atoms/heading.js";
 import { narrow } from "../../atoms/layout.js";
@@ -52,6 +53,7 @@ export class ErSettings extends LitElement {
   static override styles = [
     buttonStyles,
     checkTipStyles,
+    diamondStyles,
     focusRing,
     panelTitleStyles,
     scrollerStyles,
@@ -119,13 +121,6 @@ export class ErSettings extends LitElement {
         gap: 8px;
         font-weight: 600;
       }
-      input {
-        flex-shrink: 0;
-        width: 16px;
-        height: 16px;
-        margin: 0;
-        accent-color: var(--er-gold);
-      }
       @media ${narrow} {
         .head {
           padding: 12px 16px;
@@ -187,6 +182,7 @@ export class ErSettings extends LitElement {
               html`<label class="look band-row ring-within">
                 <span class="choice">
                   <input
+                    class="diamond"
                     type="radio"
                     name="check-look"
                     .checked=${look === this.look.value}

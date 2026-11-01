@@ -200,6 +200,12 @@ export default {
       instead: "`segmentStyles`, with `.segment` on each button",
     },
     {
+      what: "a radio or a checkbox's diamond written by hand",
+      pattern: /rotate: 45de[g]/,
+      home: "src/components/atoms/diamond.ts",
+      instead: "`diamondStyles`, with `.diamond` on the input",
+    },
+    {
       what: "a heading's band written by hand",
       pattern: /background: var\(--er-heading-band\)/,
       home: "src/components/atoms/heading.ts",

@@ -186,6 +186,9 @@ here first, then search the source, then write.
 **src/components/atoms/button.ts** (src/components/molecules, src/components/organisms)
 - `buttonStyles`: A button in the game's menu style: square and raised, with an inner glow when hovered.
 
+**src/components/atoms/diamond.ts** (src/components/organisms)
+- `diamondStyles`: A radio or a checkbox as the game's own diamond: `.diamond` on the input.
+
 **src/components/atoms/dot.ts** (src/components/organisms)
 - `dotStyles`: A small square that says how a part stands: `.dot` with `data-state`.
 
