@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { DataPackage } from "../../../src/archipelago/web-responses.js";
 import * as data from "../../../src/data/elden-ring.js";
+import { ALL_BOSSES_OPTIONS } from "../../../src/data/presets/all-bosses.js";
 import {
   checkMade,
   itemSent,
@@ -71,7 +72,7 @@ describe("nextBossDefeat", () => {
 
 describe("withAllBosses", () => {
   const room = arrivingSlot(seed("Izzy's preset"));
-  const swapped = withAllBosses(data, room);
+  const swapped = withAllBosses(data, room, ALL_BOSSES_OPTIONS);
 
   test("takes the All Bosses preset's rules and every boss as the goal, keeping the room's checks", () => {
     expect(swapped["options"]).toMatchObject({

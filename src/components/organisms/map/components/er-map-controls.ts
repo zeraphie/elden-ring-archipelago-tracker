@@ -3,9 +3,9 @@
  *
  * What floats over the map, each held to its own edge: the sheet tabs top
  * left, the legend bottom left, the route tools top right, with the simulate
- * buttons under them in a development build, and the zoom buttons bottom right.
- * It has no box of its own, so each lies against the map's, and what they
- * send reaches the map as if they were its own.
+ * buttons under them where the room has them, and the zoom buttons bottom
+ * right. It has no box of its own, so each lies against the map's, and what
+ * they send reaches the map as if they were its own.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -13,16 +13,12 @@ import type { Sheet } from "../../../../data/checks/map-tiles.js";
 import type { EldenRingData } from "../../../../state/setup.js";
 import type { TrackerStore } from "../../../../state/store.js";
 import { narrow } from "../../../atoms/layout.js";
+import { canSimulate } from "../../../utils/can-simulate.js";
 import "./er-map-legend.js";
 import "./er-route-tools.js";
 import "./er-sheet-tabs.js";
 import "./er-zoom-buttons.js";
 import { DRAWING_LINE } from "../utils/map-words.js";
-
-// The simulate buttons are for a development build only, so a built page never loads them.
-if (import.meta.env.DEV) {
-  void import("./er-simulate.js");
-}
 
 /**
  * The map's tabs, legend, tools and zoom buttons, over its view.
@@ -62,7 +58,7 @@ export class ErMapControls extends LitElement {
       left: 16px;
       pointer-events: none;
     }
-    /* The top right: the route tools, and in a development build the simulate buttons under them. */
+    /* The top right: the route tools, and the simulate buttons under them where the room has them. */
     .tools {
       position: absolute;
       z-index: 3;
@@ -121,6 +117,18 @@ export class ErMapControls extends LitElement {
   /** Whether the map has no land in view. */
   isLost = false;
 
+  // Simulate's buttons load only for a room that has them, so a real room on the built site never does.
+  protected override willUpdate(): void {
+    if (this.hasSimulate()) {
+      void import("./er-simulate.js");
+    }
+  }
+
+  private hasSimulate(): boolean {
+    const link = this.store?.getState().link;
+    return link !== undefined && canSimulate(link, import.meta.env.DEV);
+  }
+
   override render() {
     return html`${
         this.sheets.length < 2
@@ -131,7 +139,7 @@ export class ErMapControls extends LitElement {
       <div class="tools">
         <er-route-tools .isOn=${this.isDrawing} .hasLines=${this.hasLines}></er-route-tools>
         ${
-          import.meta.env.DEV
+          this.hasSimulate()
             ? html`<er-simulate
                 .store=${this.store}
                 .data=${this.data}

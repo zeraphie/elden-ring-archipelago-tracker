@@ -1,25 +1,22 @@
 /**
  * ─ Simulate ─
  *
- * For a development build only: the events the websocket would send for a
- * check made, or an item another player sent, so the page reacts as it would
+ * For a demo and a development build: the events the websocket would send for
+ * a check made, or an item another player sent, so the page reacts as it would
  * live. A check is the next key check not yet checked in an open region, the
  * region given first, or the drop of the next goal boss still to defeat, and
  * it holds an item for this slot; an item sent comes from a slot other than
  * this one. A room's slot_data can also take the All Bosses preset's options
- * and goal in place of its own, on the page alone. The items are picked from a short list by
- * name, from those the Elden Ring data package names. What they add is put
- * right by the room: checks aren't kept on the device, and the next whole
- * list of items received replaces what was added.
+ * and goal in place of its own, on the page alone. The items are picked from a
+ * short list by name, from those the Elden Ring data package names. What they
+ * add to a real room is put right by the room: checks aren't kept on the
+ * device, and the next whole list of items received replaces what was added.
  */
 
 import type { RoomUpdatePacket } from "archipelago.js";
 import type { LiveEvent } from "../../archipelago/live-events.js";
 import { ELDEN_RING } from "../../archipelago/look-up.js";
 import { isRecord } from "../../archipelago/web-responses.js";
-// Taken straight from its module, not through the Elden Ring data the page loads, so it's in the
-// development build alone.
-import { ALL_BOSSES_OPTIONS } from "../../data/presets/all-bosses.js";
 import type { NetworkItem } from "../../archipelago/web-responses.js";
 import type { EldenRingData } from "../setup.js";
 import type { TrackerState } from "../store.js";
@@ -116,12 +113,13 @@ export function nextBossDefeat(
 /** slot_data with the All Bosses preset's options and goal, every boss a goal can name, in place of the room's own; its checks stay the room's. */
 export function withAllBosses(
   data: EldenRingData,
-  slotData: Readonly<Record<string, unknown>>
+  slotData: Readonly<Record<string, unknown>>,
+  preset: Readonly<Record<string, unknown>>
 ): Readonly<Record<string, unknown>> {
   const options = isRecord(slotData["options"]) ? slotData["options"] : {};
   return {
     ...slotData,
-    options: { ...options, ...ALL_BOSSES_OPTIONS },
+    options: { ...options, ...preset },
     goal: [...data.BOSSES.keys()],
   };
 }

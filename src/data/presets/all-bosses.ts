@@ -6,8 +6,8 @@
  * The options the apworld's "[Very Long] All Bosses" preset gave a seed made
  * with Archipelago 0.6.8 and the apworld 0.1.4, as its slot_data carries them:
  * its rules, and the locations its key checks are prioritised from and
- * excluded by. The development build's Simulate swaps a room's own for them,
- * and the tests read them as that preset's.
+ * excluded by. Simulate swaps a room's own for them, loading this file only
+ * when asked, and the tests read them as that preset's.
  */
 
 /** The All Bosses preset's options, as its seed's slot_data gave them. */

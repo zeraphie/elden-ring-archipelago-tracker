@@ -549,6 +549,9 @@ here first, then search the source, then write.
 - `AREA_STATE_WORDS`: How a region stands, in words: on the map's titles, its legend and the panel's heading.
 - `PIN_STATE_WORDS`: How a key check stands, in words: on the map's legend and beside its sack in the panel.
 
+**src/components/utils/can-simulate.ts** (src/components/organisms)
+- `canSimulate()`: Whether a room shows Simulate's buttons: a demo in any build, a real room in a development build, and a real room on the built site never.
+
 **src/components/utils/check-pick.ts** (src/components, src/components/organisms)
 - `CheckPick`: A check picked, on the map or in the panel: its region, by code, and its id.
 
@@ -663,9 +666,6 @@ here first, then search the source, then write.
 - `PLACE_NAMES`: Each place's full name, keyed by its location names' regions and code as written.
 - `DESCRIPTION_EXCEPTIONS`: The few descriptions whose code means something other than it does elsewhere in its region, by location name: each code's key, with the name it takes there.
 - `unnamedCodesIn()`: The codes in text with no name yet, each as the key it would be named under first: what a report of places still to name counts.
-
-**src/data/presets/all-bosses.ts** (src/state)
-- `ALL_BOSSES_OPTIONS`: The All Bosses preset's options, as its seed's slot_data gave them.
 
 **src/data/rules/apworld.ts** (src/archipelago, src/components/organisms, src/demo)
 - `RULES_APWORLD`: The Elden Ring apworld the rules are ported from: its release, and the Elden Ring data package checksum its rooms carry.

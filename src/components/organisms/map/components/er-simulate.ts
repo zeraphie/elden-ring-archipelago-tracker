@@ -1,8 +1,8 @@
 /**
  * ─ Simulate ─
  *
- * For a development build only, a column of icons under the map's pen, their
- * edges dashed as a tool that isn't part of the page. The sack makes the next
+ * For a demo and a development build, a column of icons under the map's pen,
+ * their edges dashed as a tool that isn't part of the page. The sack makes the next
  * key check left in an open region, the selected region first, and picks it;
  * the Rune of Death does the same for the next goal boss's drop, defeating
  * it; the backpack has another player send this slot an item. Those go
@@ -10,10 +10,11 @@
  * as it would live. The list swaps the room's options and goal for the All
  * Bosses preset's, its key checks worked out again, and back, in the store
  * alone, so the goal menu goes by region and the map reads its rules; the
- * room's own slot_data puts it right on the next visit. The sigil marks the
- * goal done on the page alone, never in the store, so its Release can't
- * reach the room. The map loads it only in a development build, so a built
- * page never has it.
+ * room's own slot_data puts it right on the next visit. The preset is a file
+ * of its own, loaded on that press. The sigil marks the goal done on the page
+ * alone, never in the store, so its Release can't reach the room. The map
+ * loads this only where the room has it, so a real room on the built site
+ * never does.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -172,14 +173,20 @@ export class ErSimulate extends LitElement {
   };
 
   // The room's options and goal swapped for the All Bosses preset's, or back for its own, the key checks worked out again.
-  private readonly allBosses = (): void => {
+  private readonly allBosses = async (): Promise<void> => {
     const { store, data } = this;
     const state = store?.getState();
     const slotData = state?.slotData;
     if (state === undefined || data === undefined || slotData === undefined) {
       return;
     }
-    const next = this.ownSlotData ?? withAllBosses(data, slotData);
+    const next =
+      this.ownSlotData ??
+      withAllBosses(
+        data,
+        slotData,
+        (await import("../../../../data/presets/all-bosses.js")).ALL_BOSSES_OPTIONS
+      );
     this.ownSlotData = this.ownSlotData === undefined ? slotData : undefined;
     state.takeSlotData(next);
     const locationNames = state.packages.get(ELDEN_RING)?.locationNames ?? new Map();

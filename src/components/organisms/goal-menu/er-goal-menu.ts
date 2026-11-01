@@ -233,7 +233,7 @@ export class ErGoalMenu extends LitElement {
   data: EldenRingData | undefined;
   /** Whether the goal's achieved, and its reaction gone, so the band takes the menu's top. */
   achieved = false;
-  /** Whether every row counts as done, its need met or its boss defeated, as when a development build simulates the goal. */
+  /** Whether every row counts as done, its need met or its boss defeated, as when Simulate marks the goal. */
   allDone = false;
   /** Says a command to the room, such as !release; undefined where there's no room to send to. */
   say: ((text: string) => void) | undefined;

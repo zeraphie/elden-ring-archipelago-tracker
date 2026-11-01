@@ -84,7 +84,7 @@ export class ErApp extends LitElement {
   private goalPhase: "none" | "reaction" | "settled" = "none";
   private goalStore: TrackerStore | undefined;
   private goalDone: StoreController<TrackerState, boolean> | undefined;
-  // A goal the development build's Simulate made, on the page alone: the goals left achieved
+  // A goal Simulate made, on the page alone: the goals left achieved
   // first, then the goal, shown, but with no room to release in.
   private isGoalSimulated = false;
   private isRestSimulated = false;
@@ -94,27 +94,25 @@ export class ErApp extends LitElement {
     if (!this.hasConnected) {
       this.hasConnected = true;
       holdCurtainFor(this.entry);
-      // The development build's Simulate marks a goal on the page alone, so no release can reach the room:
-      // the goals left are achieved first, one after another, as a run's last would be, then the goal.
-      if (import.meta.env.DEV) {
-        this.addEventListener("er-simulate-goal", () => {
-          const ready = this.ready.value;
-          const menu = ready && goalMenuOf(ready.data, ready.store.getState());
-          const left =
-            menu === undefined
-              ? 0
-              : menu.needed.length + menu.bosses.filter(({ state }) => state !== "defeated").length;
-          this.isRestSimulated = true;
-          this.requestUpdate();
-          setTimeout(
-            () => {
-              this.isGoalSimulated = true;
-              this.requestUpdate();
-            },
-            left === 0 ? 0 : LEAVE_MS + (left - 1) * STAGGER_MS
-          );
-        });
-      }
+      // Simulate marks a goal on the page alone, so no release can reach the room: the goals left
+      // are achieved first, one after another, as a run's last would be, then the goal.
+      this.addEventListener("er-simulate-goal", () => {
+        const ready = this.ready.value;
+        const menu = ready && goalMenuOf(ready.data, ready.store.getState());
+        const left =
+          menu === undefined
+            ? 0
+            : menu.needed.length + menu.bosses.filter(({ state }) => state !== "defeated").length;
+        this.isRestSimulated = true;
+        this.requestUpdate();
+        setTimeout(
+          () => {
+            this.isGoalSimulated = true;
+            this.requestUpdate();
+          },
+          left === 0 ? 0 : LEAVE_MS + (left - 1) * STAGGER_MS
+        );
+      });
       void curtain.whenDone().then(() => {
         this.isOpen = true;
       });
