@@ -4,6 +4,7 @@ import { figures } from "../../atoms/figures.js";
 import { focusRing } from "../../atoms/focus.js";
 import { frameStyles } from "../../atoms/frame.js";
 import { bandHeadingStyles } from "../../atoms/heading.js";
+import { narrow } from "../../atoms/layout.js";
 import { scrollerStyles } from "../../atoms/scroller.js";
 
 /** The run splits' look, in Compact and in Comfort, as the element's `data-look` says. */
@@ -184,6 +185,71 @@ export const runSplitsStyles = [
       gap: 8px;
       padding: 10px 12px 12px;
       background: var(--er-goal-band);
+    }
+    .chevron {
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 44px;
+      padding: 0;
+      background: none;
+      border: none;
+      color: var(--er-ink-muted);
+      cursor: pointer;
+    }
+    .chevron svg {
+      width: 10px;
+      height: 10px;
+    }
+    .chevron[aria-expanded="true"] svg {
+      rotate: 180deg;
+    }
+    /* At a tablet's width and below, it opens from the timer's bar, one list of tighter rows. */
+    @media ${narrow} {
+      :host {
+        display: flex;
+        flex-direction: column;
+      }
+      er-run-timer {
+        min-height: 0;
+      }
+      .heading {
+        flex: none;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 4px 10px;
+        border-top: 1px solid var(--er-line);
+        color: var(--er-ink-soft);
+      }
+      .name {
+        font: inherit;
+        color: inherit;
+      }
+      .rows {
+        padding: 2px 0;
+        border-top: 1px solid var(--er-divider);
+      }
+      .row {
+        grid-template-columns: minmax(0, 1fr) 62px 62px;
+        column-gap: 6px;
+        height: 24px;
+        padding: 0 10px;
+      }
+      .line {
+        margin: 2px 0;
+      }
+      .previous {
+        flex: none;
+        padding: 4px 10px 6px;
+        border-top: 1px solid var(--er-line);
+        font-size: 0.9em;
+      }
+      .release {
+        padding: 8px 10px 10px;
+      }
     }
   `,
 ];

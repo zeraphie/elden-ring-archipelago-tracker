@@ -8,12 +8,16 @@
  * right-aligned, and Comfort on the menu's shade, centred between gold rules.
  * With `column` it holds what's slotted in it, from the top of the page to the
  * foot: the buttons go up beside the top slot, and the timer stays at the foot.
+ * At a tablet's width and below, it's a bar in either look, the timer beside its
+ * buttons, with what's slotted under it.
  */
 
 import { LitElement, html, nothing } from "lit";
 import { SETTINGS, type SettingsState } from "../../../state/settings.js";
 import { runTimeOf, type Run } from "../../../state/slices/run.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
+import { NARROW_MEDIA } from "../../atoms/layout.js";
+import { MediaController } from "../../utils/media.js";
 import { replayIcon, timerPauseIcon, timerPlayIcon } from "../../utils/material-icons.js";
 import { StoreController } from "../../utils/store-controller.js";
 import { fullHeight } from "../../utils/column-height.js";
@@ -26,6 +30,7 @@ import { clockFace, typedTime } from "./run-words.js";
  * @slot top - What sits beside the buttons, in a column.
  * @slot - What sits between the buttons and the timer, in a column.
  * @slot foot - What sits under the timer, in a column.
+ * @slot bar - What sits at the end of the bar, at a tablet's width and below.
  */
 export class ErRunTimer extends LitElement {
   static override properties = {
@@ -50,6 +55,7 @@ export class ErRunTimer extends LitElement {
     SETTINGS,
     ({ timerLook }: SettingsState) => timerLook
   );
+  private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
   // The next frame's redraw, while the clock runs.
   private frame: number | undefined;
 
@@ -66,7 +72,7 @@ export class ErRunTimer extends LitElement {
     if (this.store !== undefined && this.run === undefined) {
       this.run = new StoreController(this, this.store, (state: TrackerState) => state.run);
     }
-    this.dataset.look = this.look.value;
+    this.dataset.look = this.isNarrow.matches ? "compact" : this.look.value;
   }
 
   protected override updated(): void {
@@ -83,21 +89,29 @@ export class ErRunTimer extends LitElement {
     if (run === undefined) {
       return nothing;
     }
-    const isRuled = this.look.value === "comfort";
+    const isRuled = this.dataset.look === "comfort";
     const rule = isRuled ? html`<div class="rule" aria-hidden="true"></div>` : nothing;
     const isColumn = this.hasAttribute("column");
+    const isBar = this.isNarrow.matches;
+    const foot = html`<slot name="foot"></slot>`;
     const face = html`<div class="face">
       ${rule} ${run.phase === "before" ? this.typed() : this.clock(runTimeOf(run, Date.now()))}
-      ${rule} ${isColumn ? html`<slot name="foot"></slot>` : nothing}
+      ${rule} ${isColumn && !isBar ? foot : nothing}
     </div>`;
     const buttons = html`<div class="buttons">
       ${this.press(run)} ${run.phase === "before" ? nothing : this.reset()}
     </div>`;
-    return isColumn
-      ? html`<div class="top"><slot name="top"></slot>${buttons}</div>
+    if (!isColumn) {
+      return html`${face}${buttons}`;
+    }
+    return isBar
+      ? html`<div class="bar">${face}${buttons}<slot name="bar"></slot></div>
+          <slot name="top"></slot>
           <slot></slot>
-          ${face}`
-      : html`${face}${buttons}`;
+          ${foot}`
+      : html`<div class="top"><slot name="top"></slot>${buttons}</div>
+          <slot></slot>
+          ${face}`;
   }
 
   private clock(ms: number) {

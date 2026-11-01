@@ -11,7 +11,8 @@
  * straight to the band. Either way, the run's clock stops there. A handle between the map and the panel resizes them,
  * as the page splits, and the settings lie over the panel while they're open.
  * With the timer on, it lies at the goal menu's foot, or in its column in the
- * menu's place where splits are on.
+ * menu's place where splits are on; on the stacked page it's a bar at the map's
+ * top left, and its column opens from that.
  */
 
 import { LitElement, html, nothing } from "lit";
@@ -78,7 +79,7 @@ export class ErApp extends LitElement {
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
   // How the page splits between the map and the panel, as dragged.
   private readonly split = new PanelSplit(this);
-  // Where the run's timer lies, which its accordion brings to the stacked page.
+  // Where the run's timer lies.
   private readonly timerPlace = new StoreController(this, SETTINGS, timerPlaceOf);
   private readonly timerLook = new StoreController(
     this,
@@ -193,7 +194,7 @@ export class ErApp extends LitElement {
   override render() {
     const ready = this.ready.value;
     const isNarrow = this.isNarrow.matches;
-    const timerPlace = isNarrow ? "none" : this.timerPlace.value;
+    const timerPlace = this.timerPlace.value;
     const coveredLeft = isNarrow
       ? 0
       : timerPlace === "column"
@@ -207,7 +208,7 @@ export class ErApp extends LitElement {
         ${
           ready === undefined
             ? nothing
-            : html`<div class="map" ?data-timer=${timerPlace !== "none"}>
+            : html`<div class="map" ?data-timer=${!isNarrow && timerPlace !== "none"}>
                   <er-map
                     .store=${ready.store}
                     .data=${ready.data}

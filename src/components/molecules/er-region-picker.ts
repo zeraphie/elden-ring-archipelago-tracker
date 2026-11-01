@@ -20,6 +20,7 @@ import { focusRing } from "../atoms/focus.js";
 import { bandHeadingStyles } from "../atoms/heading.js";
 import { popoverStyles } from "../atoms/popover.js";
 import { swatchStyles } from "../atoms/swatch.js";
+import { chevronIcon } from "../utils/chevron-icon.js";
 import { emit } from "../utils/emit.js";
 import { figure } from "../utils/figure.js";
 import { placeUnder } from "../utils/popover.js";
@@ -187,19 +188,16 @@ export class ErRegionPicker extends LitElement {
   }
 
   private button() {
-    const chevron = html`<svg viewBox="0 0 10 10" aria-hidden="true">
-      <path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4"></path>
-    </svg>`;
     switch (this.look) {
       case "title":
         return html`<button class="title" popovertarget="regions">
-          ${this.label} ${chevron}
+          ${this.label} ${chevronIcon}
         </button>`;
       case "select":
         return html`<button class="button select" popovertarget="regions">
           <span class="name">${this.label}</span>
           ${this.count === undefined ? nothing : html`<span class="count fig">${this.count}</span>`}
-          ${chevron}
+          ${chevronIcon}
         </button>`;
       default:
         return html`<button class="button" data-tone="quiet" popovertarget="regions">

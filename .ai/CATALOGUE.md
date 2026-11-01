@@ -542,9 +542,15 @@ here first, then search the source, then write.
 - `signedTime()`: A difference in milliseconds as a row shows it, to the second: "+0:06", or "-1:08:05" when it's ahead.
 - `typedTime()`: A typed time in milliseconds: "90", "1:30" or "1:02:03", each with hundredths if they're given.
 
+**src/components/organisms/timer/split-lists.ts**
+- `SplitLists`: The rows to lay out.
+- `oneList()`: Rows gotten over those left, scrolling as one, for the accordion.
+- `comfortLists()`: Each list under its band, and neither when it has no rows, for Comfort.
+- `compactLists()`: The lists with a line between them, for Compact.
+
 **src/components/organisms/timer/split-row.ts**
 - `DASH`: A time or a difference with nothing to show.
-- `RowFace`: A goal as its row shows it: its name, how it stands, and its icon, framed in Comfort.
+- `RowFace`: A goal as its row shows it: its name, in full and as it's written there, how it stands, and its icon, framed in Comfort.
 - `RowMarks`: What a row gotten shows beyond its goal: whether it's the latest, and its time and how it stands.
 - `splitLeft()`: A row left, with the time it came in the run compared with, and `line` beside it for a count.
 - `splitGotten()`: A row gotten, opening what it leads to where `onOpen` is given.
@@ -586,6 +592,9 @@ here first, then search the source, then write.
 - `checkLine()`: A check's place and encounter on one line, the encounter after a dash where there is one.
 - `spotLine()`: What follows a check's place: its encounter after a dash, and which copy it is: " – drop, 2 of 4".
 - `findingLine()`: What a checked check held, as its row says it: "Found: Rusty Key", or "Sent: Hookshot to Sam".
+
+**src/components/utils/chevron-icon.ts** (src/components/molecules, src/components/organisms)
+- `chevronIcon`: A chevron pointing down, for what opens below it, drawn in the colour it's given, its size set where it's used.
 
 **src/components/utils/clock.ts** (src/components/molecules)
 - `Ticker`: How a clock reads the time and ticks: the browser's, or a test's.
@@ -639,6 +648,7 @@ here first, then search the source, then write.
 - `needLine()`: How a need stands: a count's tally, or whether it's obtained, received or defeated.
 - `bossName()`: A goal boss's name, or its flag for one the Elden Ring data doesn't know.
 - `bossLine()`: How a goal boss stands.
+- `shortName()`: A goal's name where there's little room, up to its first comma: "Godfrey", for "Godfrey, First Elden Lord".
 - `rowWords()`: What a goal row says: its name, and how it stands.
 - `RELEASE_LINES`: What becomes of the items left in the slot's world, its goal achieved, as the goal menu's band says it.
 

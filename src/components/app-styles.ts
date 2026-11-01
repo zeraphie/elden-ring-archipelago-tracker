@@ -149,6 +149,19 @@ export const appStyles = css`
       left: 10px;
       width: auto;
     }
+    /* The timer's bar at the map's top left, its splits opening down over the map, clear of the
+       tools at the top right: one button, 10 px in, and a gap each side of it. */
+    er-run-timer,
+    er-run-splits {
+      top: 10px;
+      bottom: auto;
+      left: 10px;
+      z-index: 4;
+      width: min(320px, calc(100% - 74px));
+    }
+    er-run-splits {
+      max-height: calc(100% - 20px);
+    }
     er-toasts {
       top: 62px;
       right: 10px;

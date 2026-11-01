@@ -3,6 +3,7 @@ import { buttonStyles } from "../../atoms/button.js";
 import { figures } from "../../atoms/figures.js";
 import { focusRing } from "../../atoms/focus.js";
 import { panelTitleStyles } from "../../atoms/heading.js";
+import { narrow } from "../../atoms/layout.js";
 
 /** How long replay is held to end a run: long enough that it can't happen by accident. */
 export const HOLD_MS = 1000;
@@ -172,6 +173,53 @@ export const runTimerStyles = [
       .hold[data-holding] .edge {
         stroke-dashoffset: 0;
         animation: none;
+      }
+    }
+    /* At a tablet's width and below, a bar: the timer on the left and its buttons beside it, sized
+       for a finger, in either look. */
+    @media ${narrow} {
+      :host {
+        gap: 6px;
+        padding: 3px 4px 3px 10px;
+      }
+      :host([data-look="compact"]) {
+        border: 1px solid var(--er-line);
+      }
+      :host([column]) {
+        height: auto;
+        padding: 0;
+        overflow: hidden;
+      }
+      .bar {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 4px 3px 10px;
+      }
+      :host([column]) .face {
+        flex: 1 1 0;
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+      .buttons {
+        flex-direction: row;
+        min-width: 94px;
+        min-height: 0;
+      }
+      .clock {
+        justify-content: flex-start;
+      }
+      .whole,
+      .typed {
+        font-size: 28px;
+      }
+      .small {
+        font-size: 16px;
+      }
+      .typed {
+        text-align: left;
       }
     }
   `,

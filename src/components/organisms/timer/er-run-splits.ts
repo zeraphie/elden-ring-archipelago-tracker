@@ -13,7 +13,9 @@
  * a dash for each with nothing to compare. Once the goal's achieved, what becomes of the items left comes
  * under the rows. Where the rows don't all fit, the two lists scroll apart,
  * Done keeping to its latest, and Comfort's To do band or Compact's line drags
- * to give either more room; Compact holds the goal's last row apart too.
+ * to give either more room; Compact holds the goal's last row apart too. At a
+ * tablet's width and below it's an accordion in either look, shut to the timer's
+ * bar, and opening over the map on one list of rows, their names cut short.
  */
 
 import { LitElement, html, nothing } from "lit";
@@ -28,8 +30,10 @@ import type { Run } from "../../../state/slices/run.js";
 import { goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
 import { comparisonOf, previousSegment } from "../../../state/utils/run-compare.js";
 import { rowTimesOf } from "../../../state/utils/run-times.js";
+import { NARROW_MEDIA } from "../../atoms/layout.js";
 import "../../molecules/er-release.js";
 import "../../molecules/er-resize-handle.js";
+import { chevronIcon } from "../../utils/chevron-icon.js";
 import { slotName } from "../../utils/entry-words.js";
 import { figure } from "../../utils/figure.js";
 import {
@@ -44,14 +48,16 @@ import {
   type RowTarget,
   type RowView,
 } from "../../utils/goal-rows.js";
-import { rowWords } from "../../utils/goal-words.js";
+import { rowWords, shortName } from "../../utils/goal-words.js";
 import { iconUrl } from "../../utils/icons.js";
 import { listLimits } from "../../utils/list-limits.js";
+import { MediaController } from "../../utils/media.js";
 import { StickToBottom } from "../../utils/stick-to-bottom.js";
 import { StoreController } from "../../utils/store-controller.js";
 import "./er-run-timer.js";
 import { runSplitsStyles } from "./run-splits-styles.js";
 import { signedTime } from "./run-words.js";
+import { comfortLists, compactLists, oneList } from "./split-lists.js";
 import { DASH, splitGotten, splitLeft, type RowMarks } from "./split-row.js";
 
 // The least either list can be dragged to: about two rows.
@@ -73,6 +79,7 @@ export class ErRunSplits extends LitElement {
     say: { attribute: false },
     isLong: { state: true },
     doneHeight: { state: true },
+    isOpen: { state: true },
   };
 
   static override styles = runSplitsStyles;
@@ -108,6 +115,9 @@ export class ErRunSplits extends LitElement {
   private isLong = false;
   private doneHeight: number | undefined;
   private readonly doneStays = new StickToBottom(this, () => this.doneList());
+  // At a tablet's width and below it's an accordion, whichever look is set, and whether it's open.
+  private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
+  private isOpen = false;
   private readonly sized = new ResizeObserver(() => this.checkFit());
 
   override connectedCallback(): void {
@@ -121,7 +131,7 @@ export class ErRunSplits extends LitElement {
   }
 
   protected override willUpdate(): void {
-    this.dataset.look = this.look.value;
+    this.dataset.look = this.isComfort() ? "comfort" : "compact";
     this.toggleAttribute("data-long", this.isLong);
     const { store, data } = this;
     if (store !== undefined && data !== undefined && this.menu === undefined) {
@@ -144,6 +154,10 @@ export class ErRunSplits extends LitElement {
     if (menu !== undefined && data !== undefined) {
       this.place(menu, data, this.achieved || this.allDone);
     }
+  }
+
+  private isComfort(): boolean {
+    return this.look.value === "comfort" && !this.isNarrow.matches;
   }
 
   private place(menu: GoalMenu, data: EldenRingData, isAllDone: boolean): void {
@@ -171,7 +185,8 @@ export class ErRunSplits extends LitElement {
   private readonly checkFit = (): void => {
     const { obtained, toDo } = this.rows;
     const column = this.renderRoot.querySelector("er-run-timer");
-    this.isLong = obtained.length > 0 && toDo.length > 0 && column?.fitsColumn() === false;
+    const hasBoth = obtained.length > 0 && toDo.length > 0;
+    this.isLong = hasBoth && !this.isNarrow.matches && column?.fitsColumn() === false;
   };
 
   override render() {
@@ -180,6 +195,7 @@ export class ErRunSplits extends LitElement {
       return nothing;
     }
     const { toDo } = rows;
+    const isNarrow = this.isNarrow.matches;
     const times = rowTimesOf(data, store.getState());
     const timeOf = (key: string) => {
       const view = this.views.get(key);
@@ -212,91 +228,68 @@ export class ErRunSplits extends LitElement {
       .map((key) => paceOf(key)?.diffMs);
     const latestDiff = diffs.at(-1);
     const height = this.isLong ? this.doneHeight : undefined;
+    const lists = {
+      gotten,
+      doneCount: obtained.length,
+      toDo,
+      left,
+      handle: this.isLong ? this.handle : undefined,
+    };
     return html`<er-run-timer
       column
       .store=${store}
       data-pace=${latestDiff === undefined ? nothing : aheadOrBehind(latestDiff)}
       style=${height === undefined ? nothing : `--done-height: ${height}px`}
     >
-      <div slot="top">
-        <h2 class="name">${this.name?.value}</h2>
-        <p class="goal">
-          Goal: <span class="fig">${figure(obtained.length)}</span> of
-          <span class="fig">${figure(obtained.length + toDo.length)}</span>
-        </p>
-      </div>
+      ${isNarrow ? this.chevron() : nothing}
       ${
-        this.look.value === "comfort"
-          ? this.comfortRows(gotten, left(toDo), obtained.length, toDo.length)
-          : this.compactRows(gotten, left, obtained.length, toDo)
-      }
-      ${this.previous(previousSegment(diffs))}
-      ${
-        this.achieved
-          ? html`<div class="release">
-              <er-release
-                .release=${this.release?.value ?? "unknown"}
-                .say=${this.live?.value === true ? this.say : undefined}
-              ></er-release>
-            </div>`
-          : nothing
+        isNarrow && !this.isOpen
+          ? nothing
+          : html`<div slot="top" class="heading">
+                <h2 class="name">${this.name?.value}</h2>
+                <p class="goal">
+                  Goal: <span class="fig">${figure(obtained.length)}</span> of
+                  <span class="fig">${figure(obtained.length + toDo.length)}</span>
+                </p>
+              </div>
+              ${
+                isNarrow
+                  ? oneList(lists)
+                  : this.isComfort()
+                    ? comfortLists(lists)
+                    : compactLists(lists)
+              }
+              ${this.previous(previousSegment(diffs))}
+              ${
+                this.achieved
+                  ? html`<div class="release">
+                      <er-release
+                        .release=${this.release?.value ?? "unknown"}
+                        .say=${this.live?.value === true ? this.say : undefined}
+                      ></er-release>
+                    </div>`
+                  : nothing
+              }`
       }
     </er-run-timer>`;
   }
 
-  // Each list under its band, and neither when it has no rows. On a long goal the To do band is
-  // what moves the line between them.
-  private comfortRows(gotten: unknown, left: unknown, doneCount: number, leftCount: number) {
-    const words = (word: string, count: number) =>
-      html`${word} <span class="fig">${figure(count)}</span>`;
-    return html`${
-      doneCount === 0
-        ? nothing
-        : html`<h3 class="band band-heading">${words("Done", doneCount)}</h3>
-            <ul class="rows done scroller">
-              ${gotten}
-            </ul>`
-    }
-    ${
-      leftCount === 0
-        ? nothing
-        : html`${
-              this.isLong
-                ? html`<div class="band band-heading">
-                    ${this.handle("", html`<span class="band-words">${words("To do", leftCount)}</span>`)}
-                  </div>`
-                : html`<h3 class="band band-heading">${words("To do", leftCount)}</h3>`
-            }
-            <ul class="rows left scroller">
-              ${left}
-            </ul>`
-    }`;
+  // What opens the accordion, at the end of the timer's bar.
+  private chevron() {
+    return html`<button
+      slot="bar"
+      class="chevron"
+      aria-label="Splits"
+      aria-expanded=${String(this.isOpen)}
+      @click=${this.flip}
+    >
+      ${chevronIcon}
+    </button>`;
   }
 
-  // The lists with a line between them, which moves on a long goal, and the goal's last row then
-  // held apart under them.
-  private compactRows(
-    gotten: unknown,
-    left: (keys: readonly string[]) => unknown,
-    doneCount: number,
-    toDo: readonly string[]
-  ) {
-    const line = html`<div class="line" aria-hidden="true"></div>`;
-    return html`<ul class="rows done scroller" aria-label="Goal rows done">
-        ${gotten}
-      </ul>
-      ${doneCount === 0 || toDo.length === 0 ? nothing : this.isLong ? this.handle("divider", line) : line}
-      <ul class="rows left scroller" aria-label="Goal rows left">
-        ${left(this.isLong ? toDo.slice(0, -1) : toDo)}
-      </ul>
-      ${
-        this.isLong
-          ? html`<ul class="rows last">
-              ${left(toDo.slice(-1))}
-            </ul>`
-          : nothing
-      }`;
-  }
+  private readonly flip = (): void => {
+    this.isOpen = !this.isOpen;
+  };
 
   // How much the latest row gained or lost on the one before it.
   private previous(gainedMs: number | undefined) {
@@ -309,8 +302,8 @@ export class ErRunSplits extends LitElement {
   }
 
   // What moves the line between the lists, dragged by `by`.
-  private handle(handleClass: string, by: unknown) {
-    return html`<er-resize-handle
+  private readonly handle = (handleClass: string, by: unknown) =>
+    html`<er-resize-handle
       class=${handleClass}
       .axis=${"y"}
       .grows=${1}
@@ -320,7 +313,6 @@ export class ErRunSplits extends LitElement {
       @er-resize=${this.setDoneHeight}
       >${by}</er-resize-handle
     >`;
-  }
 
   private doneList(): HTMLElement | null {
     return this.renderRoot.querySelector(".done");
@@ -345,10 +337,12 @@ export class ErRunSplits extends LitElement {
     if (view === undefined) {
       return nothing;
     }
+    const words = rowWords(view, data, this.ownFinds);
     const face = {
-      ...rowWords(view, data, this.ownFinds),
+      ...words,
+      shown: this.isNarrow.matches ? shortName(words.label) : words.label,
       icon: iconUrl(rowIcon(view, data)),
-      isFramed: this.look.value === "comfort",
+      isFramed: this.isComfort(),
     };
     if (!view.isGotten) {
       return splitLeft(face, marks.time, view.kind === "need" && view.need.kind === "count");

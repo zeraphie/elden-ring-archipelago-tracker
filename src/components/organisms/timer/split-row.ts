@@ -13,9 +13,10 @@ import { signedTime, splitTime } from "./run-words.js";
 /** A time or a difference with nothing to show. */
 export const DASH = "-";
 
-/** A goal as its row shows it: its name, how it stands, and its icon, framed in Comfort. */
+/** A goal as its row shows it: its name, in full and as it's written there, how it stands, and its icon, framed in Comfort. */
 export interface RowFace {
   readonly label: string;
+  readonly shown: string;
   readonly line: string;
   readonly icon: string | undefined;
   readonly isFramed: boolean;
@@ -31,13 +32,13 @@ export interface RowMarks {
 const timeText = (time: number | undefined): string =>
   time === undefined ? DASH : splitTime(time);
 
-function goalCells({ label, icon, isFramed }: RowFace) {
+function goalCells({ label, shown, icon, isFramed }: RowFace) {
   const frame = isFramed
     ? html`<span class="frame" aria-hidden="true">
         ${icon === undefined ? nothing : html`<img src=${icon} alt="" />`}
       </span>`
     : nothing;
-  return html`${frame}<span class="label" title=${label}>${label}</span>`;
+  return html`${frame}<span class="label" title=${label}>${shown}</span>`;
 }
 
 /** A row left, with the time it came in the run compared with, and `line` beside it for a count. */

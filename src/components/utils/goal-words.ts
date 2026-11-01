@@ -77,6 +77,11 @@ export function bossLine({ state }: GoalBoss): string {
   return BOSS_LINES[state];
 }
 
+/** A goal's name where there's little room, up to its first comma: "Godfrey", for "Godfrey, First Elden Lord". */
+export function shortName(name: string): string {
+  return name.split(",", 1)[0] ?? name;
+}
+
 /** What a goal row says: its name, and how it stands. */
 export function rowWords(
   view: RowView,
