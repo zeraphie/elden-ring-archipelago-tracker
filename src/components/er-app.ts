@@ -16,7 +16,7 @@ import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import { styleMap } from "lit/directives/style-map.js";
 import { createEntryStore, type EntryPhase, type EntryState } from "../state/entry.js";
 import type { TrackerState, TrackerStore } from "../state/store.js";
-import { goalMenuOf, isGoalDone } from "../state/utils/goal.js";
+import { goalMenuOf, isGoalReached } from "../state/utils/goal.js";
 import { regionsOf } from "../state/utils/regions.js";
 import type { CheckPick } from "./utils/check-pick.js";
 import "./organisms/goal-achieved/er-goal-achieved.js";
@@ -237,11 +237,12 @@ export class ErApp extends LitElement {
       this.region = regions === undefined ? undefined : ready.data.firstToDo(regions);
       this.picked = undefined;
     }
-    this.followGoal(ready?.store);
+    this.followGoal(ready);
   }
 
   // A room just ready with its goal done goes straight to the band; a goal done after marks it first.
-  private followGoal(store: TrackerStore | undefined): void {
+  private followGoal(ready: ReturnType<typeof readyPhase>): void {
+    const store = ready?.store;
     if (store !== this.goalStore) {
       if (this.goalDone !== undefined) {
         this.goalDone.hostDisconnected();
@@ -249,7 +250,10 @@ export class ErApp extends LitElement {
       }
       this.goalStore = store;
       this.goalDone =
-        store && new StoreController(this, store, (state: TrackerState) => isGoalDone(state));
+        ready &&
+        new StoreController(this, ready.store, (state: TrackerState) =>
+          isGoalReached(ready.data, state)
+        );
       this.isGoalSimulated = false;
       this.isRestSimulated = false;
       this.goalPhase = this.goalDone?.value === true ? "settled" : "none";

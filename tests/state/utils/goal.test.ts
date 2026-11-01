@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import * as data from "../../../src/data/elden-ring.js";
 import type { RosterEntry } from "../../../src/state/slices/roster.js";
-import { goalMenuOf, isGoalDone, releaseOf } from "../../../src/state/utils/goal.js";
+import { goalMenuOf, isGoalDone, isGoalReached, releaseOf } from "../../../src/state/utils/goal.js";
 import { item } from "../../fixtures/rooms.js";
-import { idOf, inputs, MORGOTT, received } from "../../fixtures/slots.js";
+import { GODFREY, idOf, inputs, MORGOTT, received } from "../../fixtures/slots.js";
 
 describe("goalMenuOf", () => {
   test("names the items received by the data package, and what they meet", () => {
@@ -50,6 +50,17 @@ const entry = (slot: number, status: number): RosterEntry => ({
 const releaseOfSlot = (slot: number) => ({
   value: { kind: "release" as const, team: 0, slot, parts: [] },
   at: 1,
+});
+
+describe("isGoalReached", () => {
+  test("holds once the room says so, or once every goal boss's drop is checked", () => {
+    const room = inputs();
+    expect(isGoalReached(data, room)).toBe(false);
+    expect(isGoalReached(data, { ...room, roster: [entry(1, 30)] })).toBe(true);
+    const drops = [GODFREY, MORGOTT].flatMap((flag) => data.BOSSES.get(flag)?.drops ?? []);
+    const checked = drops.map(idOf).filter((id) => !Number.isNaN(id));
+    expect(isGoalReached(data, inputs({ checked }))).toBe(true);
+  });
 });
 
 describe("isGoalDone", () => {

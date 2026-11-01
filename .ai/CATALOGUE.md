@@ -675,7 +675,7 @@ here first, then search the source, then write.
 
 **src/state/utils/goal.ts** (src/components, src/components/organisms)
 - `goalMenuOf()`: The goal menu for the store's room; undefined until slot_data is in, or when it can't be read.
-- `isGoalDone()`: Whether the slot's goal is done: the room announced it, or the web API gives the slot the goal's status.
+- `isGoalReached()`: Whether the goal is reached: done as the room says, or every goal boss defeated, which a release can show before the game does.
 - `releaseOf()`: What becomes of the items left in the slot's world, its goal done: by the room's permission, or a release it announced.
 
 **src/state/utils/key-checks.ts** (src/components/organisms)

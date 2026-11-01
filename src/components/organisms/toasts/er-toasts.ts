@@ -22,7 +22,7 @@ import type { Need } from "../../../data/rules/rules.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
 import { feedOf, ownFindsOf, type FeedEntry, type OwnFind } from "../../../state/utils/feed.js";
-import { goalMenuOf, isGoalDone } from "../../../state/utils/goal.js";
+import { goalMenuOf, isGoalReached } from "../../../state/utils/goal.js";
 import { buttonStyles } from "../../atoms/button.js";
 import { narrow } from "../../atoms/layout.js";
 import { focusRing } from "../../atoms/focus.js";
@@ -214,7 +214,7 @@ export class ErToasts extends LitElement {
       (state): unknown[] => [
         feedOf(data, state),
         state.received,
-        isGoalDone(state),
+        isGoalReached(data, state),
         state.link,
         goalMenuOf(data, state),
       ],
@@ -228,7 +228,7 @@ export class ErToasts extends LitElement {
     const others = feedOf(data, state).filter(
       (entry): entry is Received => entry.kind === "received" && isNew(entry)
     );
-    const isDone = isGoalDone(state);
+    const isDone = isGoalReached(data, state);
     if (isDone && !this.wasDone) {
       this.queue.clear();
     }

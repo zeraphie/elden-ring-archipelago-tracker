@@ -41,6 +41,14 @@ export function isGoalDone({ roster, team, slot }: GoalDoneInputs): boolean {
   );
 }
 
+/** Whether the goal is reached: done as the room says, or every goal boss defeated, which a release can show before the game does. */
+export function isGoalReached(data: EldenRingData, state: RoomInputs & GoalDoneInputs): boolean {
+  const bosses = goalMenuOf(data, state)?.bosses ?? [];
+  return (
+    isGoalDone(state) || (bosses.length > 0 && bosses.every((boss) => boss.state === "defeated"))
+  );
+}
+
 /** What telling what became of the slot's items left reads, in the store. */
 export type ReleaseInputs = Pick<TrackerState, "log" | "team" | "slot" | "releasePermission">;
 
