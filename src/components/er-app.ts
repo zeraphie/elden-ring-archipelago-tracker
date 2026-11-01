@@ -12,7 +12,7 @@
  * as the page splits, and the settings lie over the panel while they're open.
  */
 
-import { LitElement, css, html, nothing, unsafeCSS } from "lit";
+import { LitElement, html, nothing } from "lit";
 import { styleMap } from "lit/directives/style-map.js";
 import { roomInQuery } from "../archipelago/room-link.js";
 import { createEntryStore, type EntryPhase, type EntryState } from "../state/entry.js";
@@ -32,18 +32,13 @@ import "./organisms/toasts/er-toasts.js";
 import "./organisms/version-notice/er-version-notice.js";
 import { curtain } from "./organisms/intro/curtain.js";
 import { holdCurtainFor } from "./organisms/intro/entry-curtain.js";
-import { NARROW_MEDIA, narrow } from "./atoms/layout.js";
+import { appStyles, GOAL_MENU_PX } from "./app-styles.js";
+import { NARROW_MEDIA } from "./atoms/layout.js";
 import "./molecules/er-resize-handle.js";
-import { MAP_MIN_PX, PANEL_MIN_HEIGHT_PX, PanelSplit } from "./panel-split.js";
+import { PanelSplit } from "./panel-split.js";
 import { SettingsOpen } from "./settings-open.js";
 import { MediaController } from "./utils/media.js";
 import { StoreController } from "./utils/store-controller.js";
-
-// How wide the goal menu lies over the map's left side, in CSS pixels.
-const GOAL_MENU_PX = 440;
-// How high the map's legend lies over the goal menu's foot, in CSS pixels: its two lines, and the
-// line naming what's pointed at, which takes two at most.
-const MAP_LEGEND_PX = 116;
 
 // Seeing locally only: a development build reads it from .env.development.local, and a built page has none.
 const PART_DELAY_MS = import.meta.env.DEV ? import.meta.env.VITE_PART_DELAY_MS : undefined;
@@ -59,118 +54,7 @@ export class ErApp extends LitElement {
     goalPhase: { state: true },
   };
 
-  static override styles = css`
-    /* The page is the window's height, so the panel's lists scroll in it rather than the page. */
-    :host {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    /* The map, with the goal menu over its left side, and the panel beside it. */
-    .stage {
-      display: flex;
-      flex: 1 1 0;
-      min-height: 480px;
-    }
-    /* Clipped, so a toast leaving off its right edge goes under the panel without widening the page. */
-    .map {
-      position: relative;
-      flex: 999 1 560px;
-      min-width: 0;
-      overflow: clip;
-    }
-    /* Over the map's lower right, above its zoom buttons. */
-    er-toasts {
-      position: absolute;
-      z-index: 3;
-      right: 16px;
-      bottom: 72px;
-      width: min(380px, calc(100% - 32px));
-    }
-    /* Its width its border included, as the handle measures it. It keeps the width it's dragged
-       to as the window narrows, the map giving way, but never so wide the map is too narrow to use. */
-    er-panel {
-      box-sizing: border-box;
-      flex: 0 0 var(--er-panel-width, 380px);
-      min-width: 0;
-      max-width: calc(100% - ${unsafeCSS(MAP_MIN_PX)}px);
-    }
-    /* Between the map and the panel, over the edge of each, the panel's border its line. */
-    er-resize-handle {
-      position: relative;
-      z-index: 5;
-      flex: none;
-      width: 12px;
-      margin: 0 -6px;
-    }
-    er-map {
-      position: absolute;
-      inset: 0;
-    }
-    er-goal-menu {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: min(${unsafeCSS(GOAL_MENU_PX)}px, 100%);
-      --er-goal-menu-foot: ${unsafeCSS(MAP_LEGEND_PX)}px;
-    }
-    /* Across the top of the map, under its sheet tabs and route tools. */
-    er-version-notice {
-      position: absolute;
-      top: 72px;
-      left: 0;
-      right: 0;
-      z-index: 3;
-    }
-    /* At a tablet's width and below, the map on top and the panel under it, the goal menu a strip
-       along the map's foot clear of its zoom buttons, and the toasts and notice under its tabs. */
-    @media ${narrow} {
-      .stage {
-        flex-direction: column;
-        min-height: 0;
-      }
-      /* As tall as it's dragged to, but never so tall the panel under it is too short to use. */
-      .map {
-        flex: none;
-        height: var(--er-map-height, clamp(300px, 46vh, 520px));
-        max-height: calc(100% - ${unsafeCSS(PANEL_MIN_HEIGHT_PX)}px);
-      }
-      er-panel {
-        flex: 1 1 auto;
-        max-width: none;
-        min-height: 0;
-        border-top: none;
-      }
-      /* A bar along the panel's top edge, as a sheet's grip, taking the panel's border. */
-      er-resize-handle {
-        width: auto;
-        height: 24px;
-        margin: 0;
-        background: var(--er-panel);
-        border-top: 1px solid var(--er-divider);
-      }
-      /* Clear of the zoom buttons: three of 44 px, 6 px apart, 10 px in, and a gap. */
-      er-goal-menu {
-        top: auto;
-        right: 164px;
-        bottom: 10px;
-        left: 10px;
-        width: auto;
-        --er-goal-menu-foot: 0px;
-      }
-      er-toasts {
-        top: 62px;
-        right: 10px;
-        bottom: auto;
-        left: 10px;
-        width: auto;
-      }
-      er-version-notice {
-        top: 62px;
-      }
-    }
-  `;
+  static override styles = appStyles;
 
   private readonly entry = createEntryStore({
     version: import.meta.env.TRACKER_VERSION,
