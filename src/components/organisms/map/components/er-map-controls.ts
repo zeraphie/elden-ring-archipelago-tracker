@@ -2,18 +2,21 @@
  * ─ Map controls ─
  *
  * What floats over the map, each held to its own edge: the sheet tabs top
- * left, the route tools top right, with the simulate buttons under them where
- * the room has them, and the legend's button and the zoom buttons bottom right.
- * It has no box of its own, so each lies against the map's, and what they send
- * reaches the map as if they were its own.
+ * left, unless the timer's on, when picking a region opens its sheet, the route
+ * tools top right, with the simulate buttons under them where the room has them,
+ * and the legend's button and the zoom buttons bottom right. It has no box of
+ * its own, so each lies against the map's, and what they send reaches the map as
+ * if they were its own.
  */
 
 import { LitElement, css, html, nothing } from "lit";
 import type { Sheet } from "../../../../data/checks/map-tiles.js";
+import { SETTINGS, type SettingsState } from "../../../../state/settings.js";
 import type { EldenRingData } from "../../../../state/setup.js";
 import type { TrackerStore } from "../../../../state/store.js";
 import { narrow } from "../../../atoms/layout.js";
 import { canSimulate } from "../../../utils/can-simulate.js";
+import { StoreController } from "../../../utils/store-controller.js";
 import "./er-map-legend.js";
 import "./er-route-tools.js";
 import "./er-sheet-tabs.js";
@@ -103,6 +106,11 @@ export class ErMapControls extends LitElement {
   hasLines = false;
   /** Whether the map has no land in view. */
   isLost = false;
+  private readonly isTimerOn = new StoreController(
+    this,
+    SETTINGS,
+    ({ isTimerOn }: SettingsState) => isTimerOn
+  );
 
   // Simulate's buttons load only for a room that has them, so a real room on the built site never does.
   protected override willUpdate(): void {
@@ -118,7 +126,7 @@ export class ErMapControls extends LitElement {
 
   override render() {
     return html`${
-        this.sheets.length < 2
+        this.sheets.length < 2 || this.isTimerOn.value
           ? nothing
           : html`<er-sheet-tabs .sheets=${this.sheets} .shown=${this.shown}></er-sheet-tabs>`
       }

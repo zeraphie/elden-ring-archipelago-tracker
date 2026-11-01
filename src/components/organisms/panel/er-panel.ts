@@ -3,13 +3,15 @@
  *
  * The right-hand panel: tabs for Checks, Items and Chat, and the view of the
  * one chosen. The tabs follow the usual keys: the arrows move between them,
- * and Home and End go to the first and the last. At a tablet's width and
- * below, the region picked is a line over every tab, and the tabs are a rail
- * on the right edge: the one chosen stands out with its icon and name, and the others
- * peek in, dimmed, as icons. What's laid over it goes in its `over` slot.
+ * and Home and End go to the first and the last. Checks picks its own region
+ * on a desktop, and Items and Chat have the region picked as a line over them,
+ * so the map can change from any tab. At a tablet's width and below, that line
+ * is over every tab, and the tabs are a rail on the right edge: the one chosen
+ * stands out with its icon and name, and the others peek in, dimmed, as icons.
+ * What's laid over it goes in its `over` slot.
  */
 
-import { LitElement, css, html, type TemplateResult } from "lit";
+import { LitElement, css, html, nothing, type TemplateResult } from "lit";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerStore } from "../../../state/store.js";
 import { focusRing } from "../../atoms/focus.js";
@@ -205,11 +207,7 @@ export class ErPanel extends LitElement {
 
   override render() {
     if (this.isNarrow.matches) {
-      return html`<er-region-line
-          .store=${this.store}
-          .data=${this.data}
-          .region=${this.region}
-        ></er-region-line>
+      return html`${this.regionLine()}
         <div class="body">
           <div
             role="tablist"
@@ -233,8 +231,16 @@ export class ErPanel extends LitElement {
     return html`<div role="tablist" class="tabs" aria-label="Panel" @keydown=${this.onTabKey}>
         ${VIEWS.map(([view, name]) => this.tab(view, "segment", name))}
       </div>
-      ${this.tabPanel()}
+      ${this.view === "checks" ? nothing : this.regionLine()} ${this.tabPanel()}
       <slot name="over"></slot>`;
+  }
+
+  private regionLine() {
+    return html`<er-region-line
+      .store=${this.store}
+      .data=${this.data}
+      .region=${this.region}
+    ></er-region-line>`;
   }
 
   // A tab: joined to the others as a segment, or a plate on the rail.

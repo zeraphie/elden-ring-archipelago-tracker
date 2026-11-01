@@ -78,7 +78,9 @@ export const appStyles = css`
     left: 0;
     width: 396px;
   }
+  /* With no sheet tabs over it, the goal menu starts nearer the top. */
   .map[data-timer] er-goal-menu {
+    padding-top: 16px;
     --er-goal-menu-foot: ${unsafeCSS(RUN_TIMER_PX)}px;
   }
   /* Across the top of the map, under its sheet tabs and route tools. */
