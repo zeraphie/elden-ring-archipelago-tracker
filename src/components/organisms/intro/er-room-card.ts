@@ -382,8 +382,9 @@ export class ErRoomCard extends LitElement {
       <div class="head">
         <span class="title">Pick your slot</span>
         <span class="muted small"
-          >${isTracker ? "From the tracker page" : "In the room"},
-          <span class="fig">${slots.length}</span>
+          >${isTracker ? "From the tracker page, " : nothing}<span class="fig"
+            >${slots.length}</span
+          >
           ${slots.length === 1 ? "player" : "players"}</span
         >
       </div>
