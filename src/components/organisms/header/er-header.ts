@@ -107,15 +107,9 @@ export class ErHeader extends LitElement {
           display: inline;
         }
       }
-      .small {
-        font-size: 0.9em;
-      }
-      /* A button with no edge until it's hovered, so its words sit level with what's around it. */
+      /* A small button with no edge or fill until it's hovered. */
       .live {
         gap: 6px;
-        min-height: 0;
-        margin-inline: -8px;
-        padding: 3px 8px;
         background: transparent;
         border-color: transparent;
         color: var(--er-ink-soft);
@@ -188,10 +182,10 @@ export class ErHeader extends LitElement {
         .bar[data-room] er-progress {
           grid-area: 3 / 1 / 4 / -1;
         }
+        /* Its words level with the name over them. */
         .bar[data-room] .live {
           justify-self: start;
-          min-height: 34px;
-          padding-block: 0;
+          margin-left: -12px;
         }
         .bar[data-room] er-progress {
           justify-self: end;
@@ -259,7 +253,8 @@ export class ErHeader extends LitElement {
   private live(phase: ConnectionPhase, link: RoomLink) {
     const { kind, text, detail } = liveState(phase);
     return html`<a
-      class="button small live"
+      class="button live"
+      data-size="small"
       data-kind=${kind}
       title=${detail ?? nothing}
       href=${linkPage(link)}
