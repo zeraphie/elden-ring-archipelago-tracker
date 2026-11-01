@@ -5,7 +5,9 @@
  * connection, the seed's names and options, the slot's standing, the items
  * received and sent, the log, the roster of every slot, and the run's clock. A live event goes to the slices it changes, the
  * latest word replacing what was held; the web API's history fills in what
- * the websocket didn't see, and never overrules it. What persists is what's
+ * the websocket didn't see, and never overrules it. The run keeps its time for
+ * what a live message brings, and what a poll after the first finds, never for
+ * what a login or a first history tells of. What persists is what's
  * stamped, the items and the whole log, with the run's clock, per room in the
  * tracker's database, written once the room goes quiet; the password is never
  * part of it. The
@@ -95,8 +97,9 @@ export function createTrackerStore(
           ...createRosterSlice(...slice),
           ...createRunSlice(now)(...slice),
           take: (event) => {
+            const before = slice[1]();
             const { takeStanding, takeSlotData, takeItems, takeSent, takeMessage, markGoal } =
-              slice[1]();
+              before;
             switch (event.kind) {
               case "connected":
                 takeStanding(event);
@@ -106,9 +109,13 @@ export function createTrackerStore(
                 return;
               case "room update":
                 takeStanding(event);
+                before.stampArrivals(before);
                 return;
               case "items received":
                 takeItems(event);
+                if (!event.isWholeList) {
+                  before.stampArrivals(before);
+                }
                 return;
               default:
                 takeMessage(event);
@@ -121,10 +128,13 @@ export function createTrackerStore(
             }
           },
           takeHistory: (history) => {
-            const { takeItemHistory, takeCheckHistory, takeRoster } = slice[1]();
-            takeItemHistory(history);
-            takeCheckHistory(history);
-            takeRoster(history);
+            const before = slice[1]();
+            before.takeItemHistory(history);
+            before.takeCheckHistory(history);
+            before.takeRoster(history);
+            if (before.hasPolled) {
+              before.stampArrivals(before);
+            }
           },
         })),
         {

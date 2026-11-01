@@ -8,7 +8,7 @@
  * panel: a room starts on its first open region with key checks left. And it holds where the goal stands: a goal
  * done while the page watches is marked over the map until dismissed, then
  * the goal menu's band keeps it; one done before the page opened goes
- * straight to the band. A handle between the map and the panel resizes them,
+ * straight to the band. Either way, the run's clock stops there. A handle between the map and the panel resizes them,
  * as the page splits, and the settings lie over the panel while they're open.
  * With the timer on, it lies at the goal menu's foot, or in Compact's column
  * in the menu's place where splits are on.
@@ -159,12 +159,16 @@ export class ErApp extends LitElement {
       this.isGoalSimulated = false;
       this.isRestSimulated = false;
       this.goalPhase = this.goalDone?.value === true ? "settled" : "none";
+      if (this.goalPhase === "settled") {
+        store?.getState().endRun();
+      }
     }
     const isDone = this.goalDone?.value === true || this.isGoalSimulated;
     if (!isDone) {
       this.goalPhase = "none";
     } else if (this.goalPhase === "none") {
       this.goalPhase = "reaction";
+      store?.getState().endRun();
     }
   }
 

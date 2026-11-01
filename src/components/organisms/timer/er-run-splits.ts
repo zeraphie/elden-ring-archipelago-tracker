@@ -4,7 +4,8 @@
  * The goal menu's place on a desktop where splits are on: the slot's name and
  * how far the goal has got over a row for each goal, those gotten over those
  * left, the latest banded, in the timer's column. A row gotten sorts up at
- * once, and opens its check, or the items for what came from elsewhere. Once
+ * once, by the time it came, a dash for one the tracker didn't see come, and
+ * opens its check, or the items for what came from elsewhere. Once
  * the goal's achieved, what becomes of the items left comes under the rows.
  */
 
@@ -14,7 +15,9 @@ import type { ReleaseState } from "../../../archipelago/release.js";
 import type { GoalMenu } from "../../../data/bosses/goal-menu.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
+import type { Run } from "../../../state/slices/run.js";
 import { goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
+import { rowTimesOf } from "../../../state/utils/run-times.js";
 import { bandRowStyles } from "../../atoms/band.js";
 import { figures } from "../../atoms/figures.js";
 import { focusRing } from "../../atoms/focus.js";
@@ -23,6 +26,7 @@ import "../../molecules/er-release.js";
 import { slotName } from "../../utils/entry-words.js";
 import { figure } from "../../utils/figure.js";
 import {
+  byTimeCame,
   openRow,
   ownFindChecks,
   rowTarget,
@@ -35,6 +39,7 @@ import {
 import { rowWords } from "../../utils/goal-words.js";
 import { StoreController } from "../../utils/store-controller.js";
 import "./er-run-timer.js";
+import { clockFace } from "./run-words.js";
 
 // A time or a difference with nothing to show.
 const DASH = "-";
@@ -110,6 +115,9 @@ export class ErRunSplits extends LitElement {
       .row > .fig {
         text-align: right;
       }
+      .row:not([data-left]) > :last-child {
+        color: var(--er-ink-bright);
+      }
       .line {
         height: 1px;
         margin: 3px 0;
@@ -140,6 +148,7 @@ export class ErRunSplits extends LitElement {
   private release: StoreController<TrackerState, ReleaseState> | undefined;
   private live: StoreController<TrackerState, boolean> | undefined;
   private name: StoreController<TrackerState, string | undefined> | undefined;
+  private run: StoreController<TrackerState, Run> | undefined;
   // Where the rows stand, each row as it now reads by its key, and what they were placed from.
   private rows: GoalRows = { toDo: [], leaving: [], obtained: [] };
   private views = new Map<string, RowView>();
@@ -158,6 +167,7 @@ export class ErRunSplits extends LitElement {
         (state) => state.connection.phase === "connected"
       );
       this.name = new StoreController(this, store, ownName);
+      this.run = new StoreController(this, store, ({ run }: TrackerState) => run);
     }
     const menu = this.menu?.value;
     if (menu !== undefined && data !== undefined) {
@@ -187,7 +197,16 @@ export class ErRunSplits extends LitElement {
     if (store === undefined || data === undefined) {
       return nothing;
     }
-    const { obtained, toDo } = rows;
+    const { toDo } = rows;
+    const times = rowTimesOf(data, store.getState());
+    const timeOf = (key: string) => {
+      const view = this.views.get(key);
+      if (view === undefined) {
+        return undefined;
+      }
+      return view.kind === "need" ? times.need(view.need) : times.boss(view.boss);
+    };
+    const obtained = byTimeCame(rows.obtained, timeOf);
     const latest = obtained.at(-1);
     return html`<er-run-timer column .store=${store}>
       <div slot="top">
@@ -201,7 +220,7 @@ export class ErRunSplits extends LitElement {
         ${repeat(
           obtained,
           (key) => key,
-          (key) => this.row(key, data, key === latest)
+          (key) => this.row(key, data, key === latest, timeOf(key))
         )}
         ${
           obtained.length > 0 && toDo.length > 0
@@ -211,7 +230,7 @@ export class ErRunSplits extends LitElement {
         ${repeat(
           toDo,
           (key) => key,
-          (key) => this.row(key, data, false)
+          (key) => this.row(key, data, false, undefined)
         )}
       </ul>
       ${
@@ -227,7 +246,7 @@ export class ErRunSplits extends LitElement {
     </er-run-timer>`;
   }
 
-  private row(key: string, data: EldenRingData, isLatest: boolean) {
+  private row(key: string, data: EldenRingData, isLatest: boolean, time: number | undefined) {
     const view = this.views.get(key);
     if (view === undefined) {
       return nothing;
@@ -243,7 +262,7 @@ export class ErRunSplits extends LitElement {
     }
     const target = rowTarget(view, this.ownFinds);
     const cells = html`<span title=${label}>${label}</span><span class="fig">${DASH}</span
-      ><span class="fig">${DASH}</span>`;
+      ><span class="fig">${time === undefined ? DASH : clockFace(time).whole}</span>`;
     return html`<li>
       ${
         target === undefined

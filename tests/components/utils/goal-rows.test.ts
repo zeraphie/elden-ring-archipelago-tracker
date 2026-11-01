@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  byTimeCame,
   placeRows,
   rowLeft,
   rowTarget,
@@ -9,6 +10,30 @@ import {
 } from "../../../src/components/utils/goal-rows.js";
 import type { GoalMenu } from "../../../src/data/bosses/goal-menu.js";
 import type { Need } from "../../../src/data/rules/rules.js";
+
+describe("byTimeCame", () => {
+  const TIMES = new Map([
+    ["a", 300],
+    ["b", 100],
+  ]);
+  const timeOf = (key: string) => TIMES.get(key);
+
+  test("the latest comes last", () => {
+    expect(byTimeCame(["a", "b"], timeOf)).toEqual(["b", "a"]);
+  });
+
+  test("a row with no time comes before any with one, and those with none stay as they were", () => {
+    expect(byTimeCame(["a", "x", "b", "y"], timeOf)).toEqual(["x", "y", "b", "a"]);
+  });
+
+  test("rows at the same time stay as they were", () => {
+    expect(byTimeCame(["y", "x"], () => 5)).toEqual(["y", "x"]);
+  });
+
+  test("a time of nought comes after no time at all", () => {
+    expect(byTimeCame(["a", "x"], (key) => (key === "a" ? 0 : undefined))).toEqual(["x", "a"]);
+  });
+});
 
 describe("settleRows", () => {
   test("a row done goes straight to the end of what's obtained, with nothing leaving", () => {

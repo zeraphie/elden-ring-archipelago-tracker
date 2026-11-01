@@ -3,8 +3,8 @@
  *
  * The large timer, with its buttons stacked on its right. It never starts by
  * itself: before the run a long run's time can be typed into it, and timer play
- * starts it. Reset takes holding replay for a second, with its edge filling, as
- * it ends a run of hours. It follows the look set: Compact on a solid ground,
+ * starts it, and reaching the goal stops it for good. Reset takes holding replay
+ * for a second, with its edge filling, as it ends a run of hours. It follows the look set: Compact on a solid ground,
  * right-aligned, and Comfort on the menu's shade, centred between gold rules.
  * With `column` it holds what's slotted in it, from the top of the page to the
  * foot: the buttons go up beside the top slot, and the timer stays at the foot.
@@ -159,9 +159,11 @@ export class ErRunTimer extends LitElement {
       :host([data-look="comfort"]) .typed {
         text-align: center;
       }
-      /* A press held rather than a click, by mouse, finger or key. */
+      /* A press held rather than a click, by mouse, finger or key. It keeps to its end of the
+         buttons, whether or not the other is there. */
       .hold {
         position: relative;
+        margin: auto 0 0 auto;
         touch-action: none;
         user-select: none;
         -webkit-touch-callout: none;
@@ -281,6 +283,9 @@ export class ErRunTimer extends LitElement {
   }
 
   private press({ phase }: Run) {
+    if (phase === "finished") {
+      return nothing;
+    }
     const [label, icon, action] =
       phase === "before"
         ? (["Start", timerPlayIcon, this.start] as const)

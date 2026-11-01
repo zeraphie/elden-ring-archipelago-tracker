@@ -9,7 +9,7 @@
 
 export { bossIcon, needIcon } from "./bosses/boss-icons.js";
 export { BOSSES } from "./bosses/bosses.js";
-export { bossDropping } from "./bosses/goal.js";
+export { bossDropping, dropsBeside } from "./bosses/goal.js";
 export { goalItems, goalMenu, goalNeedOf, needKey } from "./bosses/goal-menu.js";
 export { keyChecks } from "./checks/key-checks.js";
 export { mapPins } from "./checks/map-pins.js";

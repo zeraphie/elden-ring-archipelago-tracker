@@ -39,6 +39,11 @@ export function bossDropping(
   return found && { flag: found[0], name: found[1].name };
 }
 
+/** The drops of the boss whose defeat drops this location; the location alone when none does. */
+export function dropsBeside(location: string): readonly string[] {
+  return [...DROPPING.values()].find(({ drops }) => drops.includes(location))?.drops ?? [location];
+}
+
 /**
  * The goal's bosses in slot_data's order, each with its state, given the
  * names of the room's checks and of those done.

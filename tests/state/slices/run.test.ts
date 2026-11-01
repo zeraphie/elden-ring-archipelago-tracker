@@ -133,3 +133,77 @@ describe("the run's clock over a closed page", () => {
     expect(store.getState().run.phase).toBe("before");
   });
 });
+
+describe("a finished run", () => {
+  test("stops the clock where the goal was reached", () => {
+    const { clock, store, time } = setUp();
+    store.getState().startRun(0);
+    clock.now += 5_000;
+    store.getState().endRun();
+    clock.now += 60_000;
+    expect(store.getState().run.phase).toBe("finished");
+    expect(time()).toBe(5_000);
+  });
+
+  test("stops a paused clock where it was", () => {
+    const { clock, store, time } = setUp();
+    store.getState().startRun(0);
+    clock.now += 5_000;
+    store.getState().pauseRun();
+    clock.now += 60_000;
+    store.getState().endRun();
+    expect(store.getState().run.phase).toBe("finished");
+    expect(time()).toBe(5_000);
+  });
+
+  test("leaves a run not started as it is", () => {
+    const { store } = setUp();
+    store.getState().endRun();
+    expect(store.getState().run.phase).toBe("before");
+  });
+
+  test("banking changes nothing about it", () => {
+    const { clock, store, time } = setUp();
+    store.getState().startRun(0);
+    clock.now += 5_000;
+    store.getState().endRun();
+    clock.now += 5_000;
+    store.getState().bankRun();
+    expect(store.getState().run.phase).toBe("finished");
+    expect(time()).toBe(5_000);
+  });
+
+  test("stays finished over a closed page", async () => {
+    const before = setUp();
+    before.store.getState().startRun(0);
+    before.clock.now += 5_000;
+    before.store.getState().endRun();
+    before.leave();
+    const after = setUp(before.kept);
+    after.clock.now += 3_600_000;
+    await after.store.persist.rehydrate();
+    expect(after.store.getState().run.phase).toBe("finished");
+    expect(after.time()).toBe(5_000);
+  });
+
+  test("goes back to the start on a reset", () => {
+    const { store, time } = setUp();
+    store.getState().startRun(0);
+    store.getState().endRun();
+    store.getState().resetRun();
+    expect(store.getState().run.phase).toBe("before");
+    expect(time()).toBe(0);
+  });
+});
+
+describe("a run kept before it had times", () => {
+  test("comes back with none, and takes them from there", async () => {
+    const kept = memory();
+    const state = { run: { phase: "paused", bankedMs: 5_000 } };
+    await kept.setItem("room:run-room", JSON.stringify({ state, version: 1 }));
+    const { store, time } = setUp(kept);
+    await store.persist.rehydrate();
+    expect(time()).toBe(5_000);
+    expect(store.getState().run).toMatchObject({ checkTimes: {}, itemTimes: {} });
+  });
+});

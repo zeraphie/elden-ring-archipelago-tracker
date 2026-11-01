@@ -92,6 +92,14 @@ export function settleRows(
   return started.reduce(rowLeft, rows);
 }
 
+/** Rows gotten in the order they came: those with no time first, the rest by their times. */
+export function byTimeCame(
+  keys: readonly string[],
+  timeOf: (key: string) => number | undefined
+): readonly string[] {
+  return [...keys].sort((a, b) => (timeOf(a) ?? -1) - (timeOf(b) ?? -1));
+}
+
 /** A goal row as the menu shows it: a need or a boss, by its key, and whether it's gotten. */
 export type RowView = { readonly key: string; readonly isGotten: boolean } & (
   | { readonly kind: "need"; readonly need: Need }

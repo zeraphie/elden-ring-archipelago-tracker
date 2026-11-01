@@ -334,3 +334,156 @@ describe("the seed", () => {
     expect(storage.items.has(`room:${ROOM}`)).toBe(false);
   });
 });
+
+describe("the run's times", () => {
+  const update = (...ids: number[]): LiveEvent => ({
+    kind: "room update",
+    update: { cmd: "RoomUpdate", checked_locations: ids } as unknown as RoomUpdatePacket,
+  });
+
+  // A store logged in, its run 5 seconds in.
+  async function running(storage = memory()) {
+    const time = clock();
+    const store = await loaded(ROOM, { now: time.now, storage });
+    store.getState().take(LOGIN);
+    store.getState().startRun(0);
+    time.tick(5_000);
+    return { store, time, storage };
+  }
+
+  test("a check made live takes the run's time", async () => {
+    const { store } = await running();
+    store.getState().take(update(3));
+    expect(store.getState().run.checkTimes).toEqual({ 3: 5_000 });
+  });
+
+  test("the run's time counts from what was typed in", async () => {
+    const time = clock();
+    const store = await loaded(ROOM, { now: time.now, storage: memory() });
+    store.getState().take(LOGIN);
+    store.getState().startRun(60_000);
+    time.tick(5_000);
+    store.getState().take(update(3));
+    expect(store.getState().run.checkTimes).toEqual({ 3: 65_000 });
+  });
+
+  test("a check the login tells of has no time, though the run's under way", async () => {
+    const { store } = await running();
+    store.getState().take(LOGIN);
+    expect(store.getState().run.checkTimes).toEqual({});
+  });
+
+  test("a check made while the tracker wasn't connected has no time when the login tells of it", async () => {
+    const { store } = await running();
+    const again = { ...LOGIN, connected: { ...LOGIN.connected, checked_locations: [1, 2, 3] } };
+    store.getState().take(again as LiveEvent);
+    expect(store.getState().run.checkTimes).toEqual({});
+  });
+
+  test("a check said again keeps the time it first came", async () => {
+    const { store, time } = await running();
+    store.getState().take(update(3));
+    time.tick(5_000);
+    store.getState().take(update(3));
+    expect(store.getState().run.checkTimes).toEqual({ 3: 5_000 });
+  });
+
+  test("an item arriving live takes the run's time, by its place in the list", async () => {
+    const { store } = await running();
+    store.getState().take(whole(item(1)));
+    store.getState().take(arriving([item(1)], item(2)));
+    expect(store.getState().run.itemTimes).toEqual({ 1: 5_000 });
+  });
+
+  test("the whole list has no times, for what it adds as well", async () => {
+    const { store } = await running();
+    store.getState().take(whole(item(1)));
+    store.getState().take(whole(item(1), item(2)));
+    expect(store.getState().run.itemTimes).toEqual({});
+  });
+
+  test("nothing takes a time before the run starts", async () => {
+    const store = await loaded(ROOM, { storage: memory() });
+    store.getState().take(LOGIN);
+    store.getState().take(update(3));
+    store.getState().take(arriving([], item(1)));
+    expect(store.getState().run).toMatchObject({ checkTimes: {}, itemTimes: {} });
+  });
+
+  test("a paused run stamps what comes with the time it stopped at", async () => {
+    const { store, time } = await running();
+    store.getState().pauseRun();
+    time.tick(60_000);
+    store.getState().take(update(3));
+    expect(store.getState().run.checkTimes).toEqual({ 3: 5_000 });
+  });
+
+  test("a finished run stamps nothing more", async () => {
+    const { store } = await running();
+    store.getState().endRun();
+    store.getState().take(update(3));
+    expect(store.getState().run.checkTimes).toEqual({});
+  });
+
+  test("pausing, resuming and finishing keep the times", async () => {
+    const { store } = await running();
+    store.getState().take(update(3));
+    store.getState().pauseRun();
+    store.getState().resumeRun();
+    store.getState().endRun();
+    expect(store.getState().run.checkTimes).toEqual({ 3: 5_000 });
+  });
+
+  test("a reset forgets them, and so does starting again", async () => {
+    const { store } = await running();
+    store.getState().take(update(3));
+    store.getState().resetRun();
+    expect(store.getState().run.checkTimes).toEqual({});
+    store.getState().startRun(0);
+    expect(store.getState().run.checkTimes).toEqual({});
+  });
+
+  test("they're kept over a closed page", async () => {
+    const { store, storage } = await running();
+    store.getState().take(update(3));
+    const after = await loaded(ROOM, { storage });
+    expect(after.getState().run.checkTimes).toEqual({ 3: 5_000 });
+  });
+
+  describe("on a tracker link, with no websocket", () => {
+    // A store on the slot, its run 5 seconds in, and what its first history told of.
+    async function polled(first: History) {
+      const time = clock();
+      const store = await loaded(ROOM, { now: time.now, storage: memory() });
+      store.getState().chooseSlot(0, 1);
+      store.getState().startRun(0);
+      time.tick(5_000);
+      store.getState().takeHistory(first);
+      return store;
+    }
+
+    test("the first history of a visit tells of what came before, so it has no times", async () => {
+      const store = await polled(twoPlayers({ 1: [item(1)] }, undefined, { 1: 2, 2: 0 }));
+      expect(store.getState().checked).toEqual([0, 1]);
+      expect(store.getState().run).toMatchObject({ checkTimes: {}, itemTimes: {} });
+    });
+
+    test("a later history's checks and items take the run's time as the poll sees them", async () => {
+      const store = await polled(twoPlayers({ 1: [item(1)] }, undefined, { 1: 2, 2: 0 }));
+      store
+        .getState()
+        .takeHistory(twoPlayers({ 1: [item(1), item(2)] }, undefined, { 1: 3, 2: 0 }));
+      expect(store.getState().run).toMatchObject({
+        checkTimes: { 2: 5_000 },
+        itemTimes: { 1: 5_000 },
+      });
+    });
+
+    test("a history that brings nothing new stamps nothing", async () => {
+      const history = twoPlayers({ 1: [item(1)] }, undefined, { 1: 2, 2: 0 });
+      const store = await polled(history);
+      store.getState().takeHistory(history);
+      expect(store.getState().run).toMatchObject({ checkTimes: {}, itemTimes: {} });
+    });
+  });
+});

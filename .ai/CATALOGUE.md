@@ -605,6 +605,7 @@ here first, then search the source, then write.
 - `placeRows()`: Where the rows stand once the menu has the rows to do and done: a row done that was to do starts leaving, and stays in its place until it's left.
 - `rowLeft()`: The rows once `key` has left: gone from the list, and last in Done; as they were when it isn't leaving.
 - `settleRows()`: Where the rows stand with none leaving: a row done goes straight to the end of what's obtained.
+- `byTimeCame()`: Rows gotten in the order they came: those with no time first, the rest by their times.
 - `RowView`: A goal row as the menu shows it: a need or a boss, by its key, and whether it's gotten.
 - `RowTarget`: Where a finished row leads: a check, by its name or its id, or the items, for what came from elsewhere.
 - `rowTarget()`: Where a finished row leads, given the check each of the slot's own finds was in, by the item's name; undefined for a boss with no drop in the room.
@@ -673,7 +674,7 @@ here first, then search the source, then write.
 **src/data/bosses/goal-menu.ts** (src/components/organisms, src/components/utils, src/state)
 - `GoalMenu`: What the goal menu holds: what's still needed, what's met, and the goal's bosses.
 
-**src/data/bosses/goal.ts** (src/components/organisms, src/components/utils)
+**src/data/bosses/goal.ts** (src/components/organisms, src/components/utils, src/state)
 - `GoalState`: How a goal boss stands: defeated, still to do, or not knowable from the room's checks.
 - `GoalBoss`: One of a room's goal bosses, and how it stands.
 
@@ -724,7 +725,7 @@ here first, then search the source, then write.
 **src/data/rules/room-reach.ts** (src/state)
 - `Room`: A room as its rules read it: its options, the bosses forced into arenas, its goal, and every check it has, by name.
 
-**src/data/rules/rules.ts** (src/components/organisms, src/components/utils)
+**src/data/rules/rules.ts** (src/components/organisms, src/components/utils, src/state)
 - `Need`: What a rule still needs: the parts of it not yet met, with a count's progress.
 
 **src/data/rules/world-rules.ts** (src/archipelago)
@@ -815,6 +816,9 @@ here first, then search the source, then write.
 
 **src/state/utils/regions.ts** (src/components, src/components/organisms, src/components/utils, src/demo)
 - `regionsOf()`: Each region of the store's room, by its code; undefined until slot_data and the data package are in, or when they can't be read.
+
+**src/state/utils/run-times.ts** (src/components/organisms)
+- `rowTimesOf()`: When the store's goal rows came.
 
 **src/state/utils/simulate.ts** (src/components/organisms, src/demo)
 - `SimulateInputs`: What simulating reads, in the store.
