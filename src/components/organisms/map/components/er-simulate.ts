@@ -17,25 +17,25 @@
  */
 
 import { LitElement, css, html, nothing } from "lit";
-import { ELDEN_RING } from "../../../archipelago/look-up.js";
-import type { EldenRingData } from "../../../state/setup.js";
-import type { TrackerStore } from "../../../state/store.js";
-import { keyChecksFrom } from "../../../state/utils/key-checks.js";
+import { ELDEN_RING } from "../../../../archipelago/look-up.js";
+import type { EldenRingData } from "../../../../state/setup.js";
+import type { TrackerStore } from "../../../../state/store.js";
+import { keyChecksFrom } from "../../../../state/utils/key-checks.js";
 import {
   checkMade,
   itemSent,
   nextBossDefeat,
   nextCheck,
   withAllBosses,
-} from "../../../state/utils/simulate.js";
-import { buttonStyles } from "../../atoms/button.js";
-import { focusRing } from "../../atoms/focus.js";
-import { sackStyles } from "../../atoms/sack.js";
-import "../../molecules/er-sigil.js";
-import type { CheckPick } from "../../utils/check-pick.js";
-import { emit } from "../../utils/emit.js";
-import { iconUrl } from "../../utils/icons.js";
-import { backpackIcon } from "../../utils/material-icons.js";
+} from "../../../../state/utils/simulate.js";
+import { buttonStyles } from "../../../atoms/button.js";
+import { focusRing } from "../../../atoms/focus.js";
+import { sackStyles } from "../../../atoms/sack.js";
+import "../../../molecules/er-sigil.js";
+import type { CheckPick } from "../../../utils/check-pick.js";
+import { emit } from "../../../utils/emit.js";
+import { iconUrl } from "../../../utils/icons.js";
+import { backpackIcon } from "../../../utils/material-icons.js";
 
 // A list, for the long goal: three lines, each by a square, drawn in the button's own colour.
 const listIcon = html`<svg

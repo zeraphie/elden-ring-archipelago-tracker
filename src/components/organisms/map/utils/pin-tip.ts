@@ -6,8 +6,8 @@
  * beside its pin, on the far side when there's no room, and stays in the view.
  */
 
-import type { CheckRow } from "../../../state/utils/checks.js";
-import type { Finding } from "../../../state/utils/findings.js";
+import type { CheckRow } from "../../../../state/utils/checks.js";
+import type { Finding } from "../../../../state/utils/findings.js";
 
 /** One spot on a pin: the row to show for it, with no copy number, and what its checks have held. */
 export interface PinSpot {

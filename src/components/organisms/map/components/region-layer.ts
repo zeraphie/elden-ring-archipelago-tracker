@@ -10,7 +10,7 @@ import { css, nothing, svg } from "lit";
 import type { RegionTiles, SheetTiles } from "../../../../data/checks/map-tiles.js";
 import type { AreaState } from "../../../../data/rules/area-status.js";
 import { AREA_STATE_WORDS } from "../../../utils/area-words.js";
-import { edgesPath, tilesPath } from "../map-paths.js";
+import { edgesPath, tilesPath } from "../utils/map-paths.js";
 
 /** What the layer reads of its regions, by code: how each stands and its name; and a click on one. */
 export interface RegionHandlers {

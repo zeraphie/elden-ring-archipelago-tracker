@@ -14,14 +14,14 @@ import type { EldenRingData } from "../../../../state/setup.js";
 import type { TrackerStore } from "../../../../state/store.js";
 import { narrow } from "../../../atoms/layout.js";
 import "./er-map-legend.js";
-import "../er-route-tools.js";
-import "../er-sheet-tabs.js";
-import "../er-zoom-buttons.js";
-import { DRAWING_LINE } from "../map-words.js";
+import "./er-route-tools.js";
+import "./er-sheet-tabs.js";
+import "./er-zoom-buttons.js";
+import { DRAWING_LINE } from "../utils/map-words.js";
 
 // The simulate buttons are for a development build only, so a built page never loads them.
 if (import.meta.env.DEV) {
-  void import("../er-simulate.js");
+  void import("./er-simulate.js");
 }
 
 /**

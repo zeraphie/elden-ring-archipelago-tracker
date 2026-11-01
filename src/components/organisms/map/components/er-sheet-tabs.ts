@@ -6,11 +6,11 @@
  */
 
 import { LitElement, css, html } from "lit";
-import type { Sheet } from "../../../data/checks/map-tiles.js";
-import { buttonStyles } from "../../atoms/button.js";
-import { narrow } from "../../atoms/layout.js";
-import { focusRing } from "../../atoms/focus.js";
-import { emit } from "../../utils/emit.js";
+import type { Sheet } from "../../../../data/checks/map-tiles.js";
+import { buttonStyles } from "../../../atoms/button.js";
+import { narrow } from "../../../atoms/layout.js";
+import { focusRing } from "../../../atoms/focus.js";
+import { emit } from "../../../utils/emit.js";
 
 /**
  * A tab for each of the map's sheets, the one shown pressed.

@@ -24,7 +24,7 @@ import "./organisms/goal-achieved/er-goal-achieved.js";
 import "./organisms/goal-menu/er-goal-menu.js";
 import { LEAVE_MS, STAGGER_MS } from "./organisms/goal-menu/goal-rows.js";
 import "./organisms/header/er-header.js";
-import "./organisms/map/map/er-map.js";
+import "./organisms/map/components/er-map.js";
 import "./organisms/intro/er-room-card.js";
 import "./organisms/panel/er-panel.js";
 import "./organisms/toasts/er-toasts.js";

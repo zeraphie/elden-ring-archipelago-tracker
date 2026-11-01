@@ -7,13 +7,13 @@
  */
 
 import { LitElement, css, html } from "lit";
-import { buttonStyles } from "../../atoms/button.js";
-import { focusRing } from "../../atoms/focus.js";
-import { NARROW_MEDIA } from "../../atoms/layout.js";
-import { visuallyHidden } from "../../atoms/visually-hidden.js";
-import type { ZoomTo } from "./camera/map-camera.js";
-import { emit } from "../../utils/emit.js";
-import { MediaController } from "../../utils/media.js";
+import { buttonStyles } from "../../../atoms/button.js";
+import { focusRing } from "../../../atoms/focus.js";
+import { NARROW_MEDIA } from "../../../atoms/layout.js";
+import { visuallyHidden } from "../../../atoms/visually-hidden.js";
+import type { ZoomTo } from "../camera/map-camera.js";
+import { emit } from "../../../utils/emit.js";
+import { MediaController } from "../../../utils/media.js";
 
 /**
  * Zoom in, zoom out, and fit: the whole map, or the region selected.

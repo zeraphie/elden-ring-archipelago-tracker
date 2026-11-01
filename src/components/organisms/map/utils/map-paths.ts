@@ -7,8 +7,8 @@
  * tile's centre; the bounds of a sheet or a region are its tiles' outer edges, for the camera to fit.
  */
 
-import type { Edge } from "../../../data/checks/map-tiles.js";
-import type { Point, WorldRect } from "./camera/camera-math.js";
+import type { Edge } from "../../../../data/checks/map-tiles.js";
+import type { Point, WorldRect } from "../camera/camera-math.js";
 
 /** A region's tiles as one path of squares. */
 export function tilesPath(tiles: readonly (readonly [number, number])[]): string {

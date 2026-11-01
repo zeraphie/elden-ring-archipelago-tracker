@@ -5,7 +5,7 @@ import {
   edgesPath,
   tileCentre,
   tilesPath,
-} from "../../../../src/components/organisms/map/map-paths.js";
+} from "../../../../../src/components/organisms/map/utils/map-paths.js";
 
 describe("map paths", () => {
   test("a tile is a unit square, its row counted northward up the page", () => {

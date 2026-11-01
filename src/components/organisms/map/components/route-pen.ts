@@ -9,9 +9,9 @@
  */
 
 import { css, svg, type ReactiveControllerHost } from "lit";
-import type { Point } from "./camera/camera-math.js";
-import type { Pen } from "./camera/map-input.js";
-import { routePath, RouteSketch } from "./route.js";
+import type { Point } from "../camera/camera-math.js";
+import type { Pen } from "../camera/map-input.js";
+import { routePath, RouteSketch } from "../utils/route.js";
 
 /** What a route tool asks for: the pen on or off, the last line taken away, or every line. */
 export type RouteAction = "pen" | "undo" | "clear";

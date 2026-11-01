@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { routePath, RouteSketch } from "../../../../src/components/organisms/map/route.js";
+import { routePath, RouteSketch } from "../../../../../src/components/organisms/map/utils/route.js";
 
 const LINE = [
   { x: 36, y: -45.5 },

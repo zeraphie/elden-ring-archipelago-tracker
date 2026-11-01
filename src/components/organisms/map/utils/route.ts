@@ -7,7 +7,7 @@
  * them all.
  */
 
-import type { Point } from "./camera/camera-math.js";
+import type { Point } from "../camera/camera-math.js";
 
 /** One line of a route, as world points in the order drawn. */
 export type RouteLine = readonly Point[];

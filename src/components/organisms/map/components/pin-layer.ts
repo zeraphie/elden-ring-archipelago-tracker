@@ -13,11 +13,11 @@
 
 import { css, nothing, svg } from "lit";
 import { repeat } from "lit/directives/repeat.js";
-import type { MapPin } from "../../../data/checks/map-pins.js";
-import { sackStyles } from "../../atoms/sack.js";
-import { iconUrl } from "../../utils/icons.js";
-import type { Point } from "./camera/camera-math.js";
-import { tileCentre } from "./map-paths.js";
+import type { MapPin } from "../../../../data/checks/map-pins.js";
+import { sackStyles } from "../../../atoms/sack.js";
+import { iconUrl } from "../../../utils/icons.js";
+import type { Point } from "../camera/camera-math.js";
+import { tileCentre } from "../utils/map-paths.js";
 
 const SACK = iconUrl("sack");
 

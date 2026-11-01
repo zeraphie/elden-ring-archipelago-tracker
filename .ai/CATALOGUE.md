@@ -391,65 +391,65 @@ here first, then search the source, then write.
 - `ZOOM_STEP`: A quarter per press of a zoom button, the step Figma's zoom buttons take.
 - `moveTo()`: Take the camera to `to`, gliding, or at once under reduced motion; returns a function that stops the move.
 
-**src/components/organisms/map/er-pin-tip.ts**
+**src/components/organisms/map/components/er-map-controls.ts**
+- `ErMapControls`: The map's tabs, legend, tools and zoom buttons, over its view.
+
+**src/components/organisms/map/components/er-map-legend.ts**
+- `ErMapLegend`: The map's legend, and the line under it.
+
+**src/components/organisms/map/components/er-map.ts**
+- `ErMap`: The map of the room's open-world regions, how each stands, and the one selected.
+
+**src/components/organisms/map/components/er-pin-tip.ts**
 - `ErPinTip`: The tooltip of the pin pointed at.
 
-**src/components/organisms/map/er-route-tools.ts**
+**src/components/organisms/map/components/er-route-tools.ts**
 - `ErRouteTools`: The pen, and undo and clear once there's a line.
 
-**src/components/organisms/map/er-sheet-tabs.ts**
+**src/components/organisms/map/components/er-sheet-tabs.ts**
 - `ErSheetTabs`: A tab for each of the map's sheets, the one shown pressed.
 
-**src/components/organisms/map/er-simulate.ts**
+**src/components/organisms/map/components/er-simulate.ts**
 - `ErSimulate`: Buttons that make a check, defeat a goal boss, send an item, or swap in the All Bosses preset, as the room would.
 
-**src/components/organisms/map/er-zoom-buttons.ts**
+**src/components/organisms/map/components/er-zoom-buttons.ts**
 - `ErZoomButtons`: Zoom in, zoom out, and fit: the whole map, or the region selected.
 
-**src/components/organisms/map/map-paths.ts**
+**src/components/organisms/map/components/pin-layer.ts**
+- `PinHandlers`: What the map is told of its pins: the pointer coming onto one, given its element, or leaving it, and a click on one.
+- `pinStyles`: The pins' look: the sack as it stands, sized on the screen from the camera's `--zoom`, enlarged when pointed at or picked, and the ring round a picked tile.
+- `pinLayer()`: A sheet's pins, for the map's world, the one picked drawn last.
+- `pickRing()`: A gold ring round a picked check's tile, at its middle in world units; nothing without one.
+
+**src/components/organisms/map/components/region-layer.ts**
+- `RegionHandlers`: What the layer reads of its regions, by code: how each stands and its name; and a click on one.
+- `regionStyles`: The regions' look: each filled for how it stands, lighter when hovered, and the lines over them.
+- `regionLayer()`: A sheet's regions and their lines, for the map's world.
+
+**src/components/organisms/map/components/route-pen.ts**
+- `RouteAction`: What a route tool asks for: the pen on or off, the last line taken away, or every line.
+- `routeStyles`: The route's look: its lines over the map, and a crosshair while the pen is on.
+- `RoutePen`: The map's pen: where its strokes go, and the lines it keeps for each sheet.
+
+**src/components/organisms/map/utils/map-paths.ts**
 - `tilesPath()`: A region's tiles as one path of squares.
 - `edgesPath()`: Tile sides as one path of lines.
 - `tileCentre()`: A tile's centre, in tile units, north up.
 - `boundsOf()`: The rect holding every tile given, such as a sheet's or a region's, in tile units, north up.
 - `anyTileIn()`: Whether any tile given lies at least partly inside `rect`, in tile units, north up.
 
-**src/components/organisms/map/map-words.ts**
+**src/components/organisms/map/utils/map-words.ts**
 - `pinCount()`: How many of a pin's checks are checked, as its tooltip's foot says it.
 - `DRAWING_LINE`: What the line under the legend says while the pen is on.
 
-**src/components/organisms/map/map/er-map-controls.ts**
-- `ErMapControls`: The map's tabs, legend, tools and zoom buttons, over its view.
-
-**src/components/organisms/map/map/er-map-legend.ts**
-- `ErMapLegend`: The map's legend, and the line under it.
-
-**src/components/organisms/map/map/er-map.ts**
-- `ErMap`: The map of the room's open-world regions, how each stands, and the one selected.
-
-**src/components/organisms/map/map/region-layer.ts**
-- `RegionHandlers`: What the layer reads of its regions, by code: how each stands and its name; and a click on one.
-- `regionStyles`: The regions' look: each filled for how it stands, lighter when hovered, and the lines over them.
-- `regionLayer()`: A sheet's regions and their lines, for the map's world.
-
-**src/components/organisms/map/pin-layer.ts**
-- `PinHandlers`: What the map is told of its pins: the pointer coming onto one, given its element, or leaving it, and a click on one.
-- `pinStyles`: The pins' look: the sack as it stands, sized on the screen from the camera's `--zoom`, enlarged when pointed at or picked, and the ring round a picked tile.
-- `pinLayer()`: A sheet's pins, for the map's world, the one picked drawn last.
-- `pickRing()`: A gold ring round a picked check's tile, at its middle in world units; nothing without one.
-
-**src/components/organisms/map/pin-tip.ts**
+**src/components/organisms/map/utils/pin-tip.ts**
 - `PinSpot`: One spot on a pin: the row to show for it, with no copy number, and what its checks have held.
 - `TipBox`: A box on the screen, by its edges, in pixels.
 - `TipSize`: A width and a height, in pixels.
 - `pinSpots()`: A pin's spots, each once, in the order they first come.
 - `tipPlace()`: Where a tooltip goes, in the view: beside the pin, past it on the left where the right has no room, kept inside the view.
 
-**src/components/organisms/map/route-pen.ts**
-- `RouteAction`: What a route tool asks for: the pen on or off, the last line taken away, or every line.
-- `routeStyles`: The route's look: its lines over the map, and a crosshair while the pen is on.
-- `RoutePen`: The map's pen: where its strokes go, and the lines it keeps for each sheet.
-
-**src/components/organisms/map/route.ts**
+**src/components/organisms/map/utils/route.ts**
 - `RouteLine`: One line of a route, as world points in the order drawn.
 - `routePath()`: A line as an SVG path through its points.
 - `RouteSketch`: The lines sketched on each sheet, by its key.

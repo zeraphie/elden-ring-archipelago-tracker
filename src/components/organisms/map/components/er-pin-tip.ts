@@ -8,9 +8,9 @@
  */
 
 import { LitElement, css, html, nothing } from "lit";
-import { popoverStyles } from "../../atoms/popover.js";
-import { checkBlock, checkRowStyles } from "../../molecules/check-row.js";
-import { tipPlace, type PinSpot } from "./pin-tip.js";
+import { popoverStyles } from "../../../atoms/popover.js";
+import { checkBlock, checkRowStyles } from "../../../molecules/check-row.js";
+import { tipPlace, type PinSpot } from "../utils/pin-tip.js";
 
 /**
  * The tooltip of the pin pointed at.

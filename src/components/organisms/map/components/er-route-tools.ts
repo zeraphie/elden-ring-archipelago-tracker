@@ -6,9 +6,9 @@
  */
 
 import { LitElement, css, html, nothing } from "lit";
-import { buttonStyles } from "../../atoms/button.js";
-import { focusRing } from "../../atoms/focus.js";
-import { emit } from "../../utils/emit.js";
+import { buttonStyles } from "../../../atoms/button.js";
+import { focusRing } from "../../../atoms/focus.js";
+import { emit } from "../../../utils/emit.js";
 import type { RouteAction } from "./route-pen.js";
 
 /**

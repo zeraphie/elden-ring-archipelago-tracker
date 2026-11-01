@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { pinSpots, tipPlace } from "../../../../src/components/organisms/map/pin-tip.js";
-import type { CheckRow } from "../../../../src/state/utils/checks.js";
+import { pinSpots, tipPlace } from "../../../../../src/components/organisms/map/utils/pin-tip.js";
+import type { CheckRow } from "../../../../../src/state/utils/checks.js";
 
 const row = (id: number, overrides: Partial<CheckRow> = {}): CheckRow => ({
   id,
