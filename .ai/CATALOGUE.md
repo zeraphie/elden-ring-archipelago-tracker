@@ -543,9 +543,10 @@ here first, then search the source, then write.
 - `playerName()`: A player as an item's sender or receiver is named; slot 0 is the room's server, which hands out starting items.
 - `foundIn()`: Where a received item was found: in which game, at which of its locations, as far as they're known.
 
-**src/components/utils/material-icons.ts** (src/components/organisms)
+**src/components/utils/material-icons.ts** (src/components/molecules, src/components/organisms)
 - `backpackIcon`: A backpack, for items: the Items tab, and the simulated item.
 - `forumIcon`: Two speech bubbles, for the Chat tab.
+- `arrowDownIcon`: An arrow pointing down, for going to the foot of a list.
 - `logoutIcon`: An arrow out of a door, for leaving the room: the header's Disconnect.
 
 **src/components/utils/media.ts** (src/components, src/components/organisms)

@@ -1,7 +1,7 @@
 /**
  * ─ To bottom ─
  *
- * A button floating over the foot of a list that's been scrolled up from its
+ * An arrow floating over the foot of a list that's been scrolled up from its
  * newest line, as a `.scroller-frame` holds it. It only says it was pressed;
  * the list is the element's that shows it.
  */
@@ -10,6 +10,7 @@ import { LitElement, css, html } from "lit";
 import { buttonStyles } from "../atoms/button.js";
 import { focusRing } from "../atoms/focus.js";
 import { emit } from "../utils/emit.js";
+import { arrowDownIcon } from "../utils/material-icons.js";
 
 /**
  * A button over a list's foot that takes it back to the bottom.
@@ -28,8 +29,9 @@ export class ErToBottom extends LitElement {
         left: 50%;
         transform: translateX(-50%);
       }
-      .button {
-        white-space: nowrap;
+      svg {
+        width: 24px;
+        height: 24px;
       }
     `,
   ];
@@ -38,10 +40,12 @@ export class ErToBottom extends LitElement {
     return html`<button
       class="button"
       data-tone="overlay"
-      data-size="small"
+      data-shape="icon"
+      aria-label="Scroll to bottom"
+      title="Scroll to bottom"
       @click=${() => emit<undefined>(this, "er-to-bottom", undefined)}
     >
-      Scroll to bottom
+      ${arrowDownIcon}
     </button>`;
   }
 }

@@ -1,12 +1,12 @@
-/*! The backpack, forum and logout icons are Material Symbols, copyright Google LLC, under the Apache License 2.0, https://www.apache.org/licenses/LICENSE-2.0 */
+/*! The backpack, forum, logout and keyboard arrow down icons are Material Symbols, copyright Google LLC, under the Apache License 2.0, https://www.apache.org/licenses/LICENSE-2.0 */
 
 /**
  * ─ Material icons ─
  *
  * The page's icons from Material Symbols, each one path on its view box,
  * filled in the text's colour and sized where they're used: a backpack for
- * items, speech for the chat, and a door to leave by. Checks keep the game's
- * own sack.
+ * items, speech for the chat, a door to leave by, and an arrow down to a list's
+ * foot. Checks keep the game's own sack.
  */
 
 import { html } from "lit";
@@ -25,6 +25,11 @@ export const forumIcon = html`<svg viewBox="0 -960 960 960" aria-hidden="true">
     fill="currentColor"
     d="M880-80 720-240H320q-33 0-56.5-23.5T240-320v-40h440q33 0 56.5-23.5T760-440v-280h40q33 0 56.5 23.5T880-640v560ZM160-473l47-47h393v-280H160v327ZM80-280v-520q0-33 23.5-56.5T160-880h440q33 0 56.5 23.5T680-800v280q0 33-23.5 56.5T600-440H240L80-280Zm80-240v-280 280Z"
   ></path>
+</svg>`;
+
+/** An arrow pointing down, for going to the foot of a list. */
+export const arrowDownIcon = html`<svg viewBox="0 -960 960 960" aria-hidden="true">
+  <path fill="currentColor" d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"></path>
 </svg>`;
 
 /** An arrow out of a door, for leaving the room: the header's Disconnect. */

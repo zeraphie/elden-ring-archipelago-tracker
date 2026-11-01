@@ -352,7 +352,7 @@ export default {
       pattern: /viewBox="0 -960 960 96[0]"/,
       home: "src/components/utils/material-icons.ts",
       instead:
-        "`backpackIcon`, `forumIcon` or `logoutIcon`, or a new icon beside them under the same notice",
+        "`backpackIcon`, `forumIcon`, `arrowDownIcon` or `logoutIcon`, or a new icon beside them under the same notice",
     },
     {
       what: "a bar slid under a row of filters by hand",
