@@ -2,14 +2,16 @@
  * ─ Pin tip ─
  *
  * The tooltip beside a pin pointed at: each spot on it as the panel lists it,
- * and how many of its checks are checked, where it holds more than one. It
- * follows its pin as the map moves. A touch points at nothing, so it never
- * shows there.
+ * or under a heading band, as the settings say, and how many of its checks are
+ * checked, where it holds more than one. It follows its pin as the map moves. A
+ * touch points at nothing, so it never shows there.
  */
 
 import { LitElement, css, html, nothing } from "lit";
+import { SETTINGS, type SettingsState } from "../../../../state/settings.js";
 import { popoverStyles } from "../../../atoms/popover.js";
-import { checkBlock, checkRowStyles } from "../../../molecules/check-row.js";
+import { checkBand, checkBlock, checkRowStyles } from "../../../molecules/check-row.js";
+import { StoreController } from "../../../utils/store-controller.js";
 import { tipPlace, type PinSpot } from "../utils/pin-tip.js";
 
 /**
@@ -64,6 +66,11 @@ export class ErPinTip extends LitElement {
   pin: Element | undefined;
   /** What it's placed within, which it stays inside. */
   frame: Element | undefined;
+  private readonly look = new StoreController(
+    this,
+    SETTINGS,
+    ({ checkLook }: SettingsState) => checkLook
+  );
 
   protected override updated(): void {
     this.follow();
@@ -90,8 +97,9 @@ export class ErPinTip extends LitElement {
   }
 
   override render() {
+    const spot = this.look.value === "comfort" ? checkBand : checkBlock;
     return html`<div class="popover">
-      ${this.spots.map(({ row, findings }) => checkBlock(row, findings))}
+      ${this.spots.map(({ row, findings }) => spot(row, findings))}
       ${this.count === undefined ? nothing : html`<p>${this.count}</p>`}
     </div>`;
   }

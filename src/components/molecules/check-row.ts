@@ -6,13 +6,15 @@
  * once checked; its place with its encounter dimmed, and which copy it is of a
  * spot the generator copied; its region, in search results; the item it holds
  * in the unrandomised game; and once checked, what it held. In a list it's a
- * button, and the row picked carries the olive band.
+ * button, and the row picked carries the olive band. To read rather than click,
+ * it can also sit under a heading band, with its place on the band.
  */
 
 import { css, html, nothing } from "lit";
 import type { CheckRow } from "../../state/utils/checks.js";
 import type { Finding } from "../../state/utils/findings.js";
 import { bandRowStyles } from "../atoms/band.js";
+import { bandHeadingStyles } from "../atoms/heading.js";
 import { sackStyles } from "../atoms/sack.js";
 import { PIN_STATE_WORDS } from "../utils/area-words.js";
 import { findingLine, spotLine } from "../utils/check-words.js";
@@ -22,6 +24,7 @@ const SACK = iconUrl("sack");
 
 /** The rows' look: a two-column grid of marker and words, banded when hovered or picked. */
 export const checkRowStyles = [
+  bandHeadingStyles,
   bandRowStyles,
   sackStyles,
   css`
@@ -88,6 +91,12 @@ export const checkRowStyles = [
     .got {
       color: var(--er-gold);
     }
+    .band-place {
+      padding: 7px 16px;
+    }
+    .beneath {
+      padding: 8px 16px 10px;
+    }
   `,
 ];
 
@@ -114,13 +123,22 @@ export function checkBlock(row: CheckRow, findings: readonly Finding[]) {
   return html`<div class="row" ?data-key=${row.isKey}>${face(row, nothing, findings)}</div>`;
 }
 
+/** A check to read under a heading band: its place on the band, its encounter and the rest beneath. */
+export function checkBand({ name, vanilla }: CheckRow, findings: readonly Finding[]) {
+  return html`<div class="band-heading band-place">${name.place}</div>
+    <div class="words beneath">
+      ${name.encounter === "" ? nothing : html`<span>${name.encounter}</span>`}
+      ${lines(vanilla, findings)}
+    </div>`;
+}
+
 // A row's marker and words, what it held by its own finding unless it's told otherwise.
 function face(
   row: CheckRow,
   region: unknown,
   findings: readonly Finding[] = row.finding === undefined ? [] : [row.finding]
 ) {
-  const { name, copy, vanilla, isKey, state } = row;
+  const { name, copy, isKey, state } = row;
   const spot = spotLine(name.encounter, copy);
   return html`${
       isKey
@@ -131,17 +149,21 @@ function face(
       <span class="title"
         >${name.place}${spot === "" ? nothing : html`<span class="spot">${spot}</span>`}</span
       >
-      ${region}
-      ${
-        vanilla === undefined
-          ? nothing
-          : html`<span class="line"><span class="label">Vanilla:</span> ${vanilla}</span>`
-      }
-      ${findings.map((finding) => {
-        const found = findingLine(finding);
-        return html`<span class="line"
-          ><span class="label">${found.label}</span> <span class="got">${found.text}</span></span
-        >`;
-      })}
+      ${region} ${lines(row.vanilla, findings)}
     </span>`;
+}
+
+// What a check holds in the unrandomised game, and what it's been found to hold.
+function lines(vanilla: string | undefined, findings: readonly Finding[]) {
+  return html`${
+    vanilla === undefined
+      ? nothing
+      : html`<span class="line"><span class="label">Vanilla:</span> ${vanilla}</span>`
+  }
+  ${findings.map((finding) => {
+    const found = findingLine(finding);
+    return html`<span class="line"
+      ><span class="label">${found.label}</span> <span class="got">${found.text}</span></span
+    >`;
+  })}`;
 }
