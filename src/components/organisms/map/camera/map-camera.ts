@@ -18,6 +18,7 @@ import { Camera } from "./camera.js";
 import {
   fitToRect,
   screenToWorld,
+  worldInView,
   type CameraState,
   type Point,
   type ViewSize,
@@ -41,7 +42,7 @@ export interface MapCameraParts {
   readonly coveredLeft: () => number;
   /** Where the view's strokes go, for a host that draws on it. */
   readonly pen?: Pen;
-  /** Told each time the world moves on the screen, for what follows it. */
+  /** Told each time the world moves on the screen, or the view changes size, for what follows it. */
   readonly onPlace?: () => void;
 }
 
@@ -80,6 +81,7 @@ export class MapCamera implements ReactiveController {
     if (box !== undefined) {
       this.size = { width: box.width, height: box.height };
       this.placeNew();
+      this.parts.onPlace?.();
     }
   });
 
@@ -130,6 +132,13 @@ export class MapCamera implements ReactiveController {
     this.stopMove();
     this.stopMove = moveTo(this.camera, state, this.size);
     this.isFitted = to === "whole";
+  }
+
+  /** The part of the world in view, by the same uncovered part a fit keeps to; undefined until it has a size. */
+  seen(): WorldRect | undefined {
+    return this.size.width === 0
+      ? undefined
+      : worldInView(this.camera.current, this.size, this.inset());
   }
 
   hostConnected(): void {

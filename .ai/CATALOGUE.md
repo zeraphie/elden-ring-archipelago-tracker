@@ -351,6 +351,7 @@ here first, then search the source, then write.
 - `ViewSize`: The view's size in CSS pixels.
 - `worldToScreen()`: Project a world point onto the screen.
 - `screenToWorld()`: Unproject a screen point into the world.
+- `worldInView()`: The part of the world a view of `size` shows, leaving out `inset` screen pixels on its left.
 - `pan()`: Shift the view by a screen-space delta.
 - `clampZoom()`: Bring a zoom value inside the limits.
 - `zoomAbout()`: Scale the view by `factor` while the world point under `anchor`, a screen point, stays put.
@@ -372,6 +373,9 @@ here first, then search the source, then write.
 - `centredOn()`: The camera that puts `point` at the centre of a view of `size` at `zoom`.
 - `between()`: The state `t` of the way from `from` to `to`, 0 to 1, for a view of `size`.
 - `glide()`: Move `camera` to `to` over `ms`.
+
+**src/components/organisms/map/camera/lost-watch.ts**
+- `LostWatch`: Tells when a view stops moving with no land in it, and when land is back.
 
 **src/components/organisms/map/camera/map-camera.ts**
 - `ZoomTo`: Where a zoom button takes the camera: in or out a step, or the fit, the whole of what's shown or its focus.
@@ -413,6 +417,7 @@ here first, then search the source, then write.
 - `edgesPath()`: Tile sides as one path of lines.
 - `tileCentre()`: A tile's centre, in tile units, north up.
 - `boundsOf()`: The rect holding every tile given, such as a sheet's or a region's, in tile units, north up.
+- `anyTileIn()`: Whether any tile given lies at least partly inside `rect`, in tile units, north up.
 
 **src/components/organisms/map/map-words.ts**
 - `pinCount()`: How many of a pin's checks are checked, as its tooltip's foot says it.

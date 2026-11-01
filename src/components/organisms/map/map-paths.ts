@@ -37,6 +37,14 @@ export function boundsOf(tiles: readonly (readonly [number, number])[]): WorldRe
   };
 }
 
+/** Whether any tile given lies at least partly inside `rect`, in tile units, north up. */
+export function anyTileIn(tiles: readonly (readonly [number, number])[], rect: WorldRect): boolean {
+  return tiles.some(
+    ([x, y]) =>
+      x < rect.right && x + 1 > rect.left && flip(y + 1) < rect.bottom && flip(y) > rect.top
+  );
+}
+
 // A row's line, north up; zero is kept unsigned, so a path never reads "-0".
 function flip(y: number): number {
   return y === 0 ? 0 : -y;

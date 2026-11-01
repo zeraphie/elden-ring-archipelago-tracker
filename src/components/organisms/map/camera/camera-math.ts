@@ -50,6 +50,13 @@ export function screenToWorld(camera: CameraState, point: Point): Point {
   return { x: (point.x - camera.x) / camera.zoom, y: (point.y - camera.y) / camera.zoom };
 }
 
+/** The part of the world a view of `size` shows, leaving out `inset` screen pixels on its left. */
+export function worldInView(camera: CameraState, size: ViewSize, inset = 0): WorldRect {
+  const { x: left, y: top } = screenToWorld(camera, { x: inset, y: 0 });
+  const { x: right, y: bottom } = screenToWorld(camera, { x: size.width, y: size.height });
+  return { left, top, right, bottom };
+}
+
 /** Shift the view by a screen-space delta. */
 export function pan(camera: CameraState, dx: number, dy: number): CameraState {
   return { x: camera.x + dx, y: camera.y + dy, zoom: camera.zoom };

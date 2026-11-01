@@ -4,6 +4,7 @@ import {
   fitToRect,
   pan,
   screenToWorld,
+  worldInView,
   worldToScreen,
   zoomAbout,
   type CameraState,
@@ -109,5 +110,22 @@ describe("fitToRect", () => {
   test("the zoom is clamped to the limits", () => {
     const fitted = fitToRect(size, { left: 0, top: 0, right: 10, bottom: 10 }, wide);
     expect(fitted.zoom).toBe(wide.max);
+  });
+});
+
+describe("the world in view", () => {
+  const view = { width: 800, height: 600 };
+
+  test("is the whole view's corners, in world units", () => {
+    expect(worldInView(camera, view)).toEqual({ left: -50, top: -25, right: 350, bottom: 275 });
+  });
+
+  test("leaves out the inset on the left alone", () => {
+    expect(worldInView(camera, view, 300)).toEqual({
+      left: 100,
+      top: -25,
+      right: 350,
+      bottom: 275,
+    });
   });
 });

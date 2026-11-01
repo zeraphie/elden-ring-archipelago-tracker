@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  anyTileIn,
   boundsOf,
   edgesPath,
   tileCentre,
@@ -31,5 +32,40 @@ describe("map paths", () => {
         [36, 49],
       ])
     ).toEqual({ left: 36, top: -50, right: 41, bottom: -38 });
+  });
+
+  describe("whether a tile lies in a rect", () => {
+    // Column 36, row 49: 36 to 37 across and -50 to -49 down.
+    const tiles = [[36, 49]] as const;
+
+    test("one partly inside counts, on any side", () => {
+      expect(anyTileIn(tiles, { left: 36.5, top: -60, right: 50, bottom: -40 })).toBe(true);
+      expect(anyTileIn(tiles, { left: 20, top: -60, right: 36.5, bottom: -40 })).toBe(true);
+      expect(anyTileIn(tiles, { left: 20, top: -49.5, right: 50, bottom: -40 })).toBe(true);
+      expect(anyTileIn(tiles, { left: 20, top: -60, right: 50, bottom: -49.5 })).toBe(true);
+    });
+
+    test("a rect inside one tile still finds it", () => {
+      expect(anyTileIn(tiles, { left: 36.2, top: -49.8, right: 36.4, bottom: -49.6 })).toBe(true);
+    });
+
+    test("one only touching the rect's edge doesn't count", () => {
+      expect(anyTileIn(tiles, { left: 37, top: -60, right: 50, bottom: -40 })).toBe(false);
+      expect(anyTileIn(tiles, { left: 20, top: -60, right: 36, bottom: -40 })).toBe(false);
+      expect(anyTileIn(tiles, { left: 20, top: -49, right: 50, bottom: -40 })).toBe(false);
+      expect(anyTileIn(tiles, { left: 20, top: -60, right: 50, bottom: -50 })).toBe(false);
+    });
+
+    test("a rect in the gap between tiles finds none, though the sheet's bounds hold it", () => {
+      const apart = [
+        [0, 0],
+        [10, 10],
+      ] as const;
+      expect(anyTileIn(apart, { left: 4, top: -6, right: 6, bottom: -4 })).toBe(false);
+    });
+
+    test("no tiles means none in view", () => {
+      expect(anyTileIn([], { left: 0, top: 0, right: 10, bottom: 10 })).toBe(false);
+    });
   });
 });

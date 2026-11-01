@@ -5,7 +5,8 @@ import { narrow } from "./layout.js";
  * A button in the game's menu style: square and raised, with an inner glow
  * when hovered. `.button` on a button or a link; `data-tone="primary"` for the
  * way on, `data-tone="quiet"` for leaving, `data-tone="overlay"` for a control
- * floating over the map, lit and edged in gold with `aria-pressed="true"`,
+ * floating over the map, lit and edged in gold with `aria-pressed="true"`, that
+ * light breathing with `data-attention` while it asks to be pressed,
  * `data-size="small"` for a bar, and `data-shape="icon"` for a square holding
  * an icon alone.
  */
@@ -44,10 +45,27 @@ export const buttonStyles = css`
     background: var(--er-overlay);
     border-color: var(--er-line);
   }
+  .button[data-tone="overlay"][data-attention],
   .button[data-tone="overlay"][aria-pressed="true"] {
     background: var(--er-glow-fill);
     box-shadow: var(--er-glow);
     border-color: var(--er-gold-edge);
+  }
+  .button[data-tone="overlay"][data-attention] {
+    animation: breathe 2s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    50% {
+      background: var(--er-overlay);
+      box-shadow: none;
+      border-color: var(--er-line);
+    }
+  }
+  /* Under reduced motion the light holds still. */
+  @media (prefers-reduced-motion: reduce) {
+    .button[data-tone="overlay"][data-attention] {
+      animation: none;
+    }
   }
   .button[data-shape="icon"] {
     width: 44px;

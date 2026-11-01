@@ -3,7 +3,7 @@
  *
  * The map's zoom by button, for whoever has no wheel or pinch to hand: in,
  * out, and the fit, a frame's corners: the whole map, or at a tablet's width
- * and below the region selected.
+ * and below the region selected. The fit breathes while the map is lost.
  */
 
 import { LitElement, css, html } from "lit";
@@ -21,6 +21,10 @@ import { MediaController } from "../../utils/media.js";
  * @fires er-zoom - A button was pressed; `detail` is its `ZoomTo`: "in", "out" or "whole".
  */
 export class ErZoomButtons extends LitElement {
+  static override properties = {
+    isLost: { attribute: false },
+  };
+
   static override styles = [
     buttonStyles,
     focusRing,
@@ -44,6 +48,8 @@ export class ErZoomButtons extends LitElement {
     `,
   ];
 
+  /** Whether the map has no land in view, so the fit asks to be pressed. */
+  isLost = false;
   // Whether the fit is the region selected, for its button's name.
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
 
@@ -71,6 +77,7 @@ export class ErZoomButtons extends LitElement {
         class="button whole"
         data-tone="overlay"
         data-shape="icon"
+        ?data-attention=${this.isLost}
         title=${fit}
         @click=${() => this.zoom("whole")}
       >

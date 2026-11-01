@@ -11,8 +11,8 @@
  * selects a region or a sack's region, and the buttons zoom by steps or show
  * the whole map. Under the narrow layout the map frames the selected region
  * instead, gliding to each one selected, and the last button frames it again.
- * A right drag draws a route, and so does a left one while the pen top right
- * is on.
+ * That last button breathes once the map is left with no land in view. A right
+ * drag draws a route, and so does a left one while the pen top right is on.
  */
 
 import { LitElement, css, html, nothing, svg, type PropertyValues } from "lit";
@@ -28,11 +28,12 @@ import "./er-pin-tip.js";
 import "./er-route-tools.js";
 import "./er-sheet-tabs.js";
 import "./er-zoom-buttons.js";
+import { LostWatch } from "./camera/lost-watch.js";
 import { MapCamera, type ZoomTo } from "./camera/map-camera.js";
 import { pickRing, pinLayer, pinStyles } from "./pin-layer.js";
 import { pinSpots } from "./pin-tip.js";
 import { RoutePen, routeStyles, type RouteAction } from "./route-pen.js";
-import { boundsOf, edgesPath, tileCentre, tilesPath } from "./map-paths.js";
+import { anyTileIn, boundsOf, edgesPath, tileCentre, tilesPath } from "./map-paths.js";
 import { DRAWING_LINE, pinCount } from "./map-words.js";
 import { AREA_STATE_WORDS } from "../../utils/area-words.js";
 import type { CheckPick } from "../../utils/check-pick.js";
@@ -64,6 +65,7 @@ export class ErMap extends LitElement {
     picked: { attribute: false },
     sheet: { state: true },
     pointed: { state: true },
+    isLost: { state: true },
   };
 
   static override styles = [
@@ -206,6 +208,15 @@ export class ErMap extends LitElement {
   // The pin pointed at, by its tile, and its element, for its tooltip to sit beside.
   private pointed: string | undefined;
   private pointedPin: Element | undefined;
+  // The sheet's tiles, and whether the view has been left with none of them in it.
+  private land: readonly (readonly [number, number])[] = [];
+  private isLost = false;
+  private readonly lost = new LostWatch(
+    () => this.hasLand(),
+    (isLost) => {
+      this.isLost = isLost;
+    }
+  );
   // Under the narrow layout, the camera fits the region selected rather than the whole sheet, and
   // glides to each one newly selected once it's drawn.
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
@@ -222,7 +233,10 @@ export class ErMap extends LitElement {
       world: () => this.renderRoot.querySelector<SVGGElement>(".world") ?? undefined,
       coveredLeft: () => this.coveredLeft,
       pen: this.route,
-      onPlace: () => this.renderRoot.querySelector("er-pin-tip")?.follow(),
+      onPlace: () => {
+        this.renderRoot.querySelector("er-pin-tip")?.follow();
+        this.lost.moved();
+      },
     },
     ZOOM_LIMITS
   );
@@ -269,9 +283,10 @@ export class ErMap extends LitElement {
       return nothing;
     }
     const selected = tiles.regions.find(({ region }) => region === this.selected);
+    this.land = tiles.regions.flatMap((region) => region.tiles);
     this.camera.show(
       sheet,
-      boundsOf(tiles.regions.flatMap((region) => region.tiles)),
+      boundsOf(this.land),
       this.isNarrow.matches && selected !== undefined ? boundsOf(selected.tiles) : undefined
     );
     this.route.show(sheet);
@@ -355,6 +370,7 @@ export class ErMap extends LitElement {
       </div>
       <div class="corner">
         <er-zoom-buttons
+          .isLost=${this.isLost}
           @er-zoom=${({ detail }: CustomEvent<ZoomTo>) => this.camera.zoom(detail)}
         ></er-zoom-buttons>
       </div>`;
@@ -378,6 +394,12 @@ export class ErMap extends LitElement {
 
   private select(region: string): void {
     emit<string>(this, "er-region", region);
+  }
+
+  // Land under what covers the view's left isn't in view, as the fit keeps clear of it too.
+  private hasLand(): boolean {
+    const seen = this.camera.seen();
+    return seen === undefined || anyTileIn(this.land, seen);
   }
 }
 
