@@ -2,10 +2,10 @@
  * ─ Map controls ─
  *
  * What floats over the map, each held to its own edge: the sheet tabs top
- * left, the legend bottom left, the route tools top right, with the simulate
- * buttons under them where the room has them, and the zoom buttons bottom
- * right. It has no box of its own, so each lies against the map's, and what
- * they send reaches the map as if they were its own.
+ * left, the route tools top right, with the simulate buttons under them where
+ * the room has them, and the legend's button and the zoom buttons bottom right.
+ * It has no box of its own, so each lies against the map's, and what they send
+ * reaches the map as if they were its own.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -18,10 +18,9 @@ import "./er-map-legend.js";
 import "./er-route-tools.js";
 import "./er-sheet-tabs.js";
 import "./er-zoom-buttons.js";
-import { DRAWING_LINE } from "../utils/map-words.js";
 
 /**
- * The map's tabs, legend, tools and zoom buttons, over its view.
+ * The map's tabs, tools, legend and zoom buttons, over its view.
  *
  * @fires er-sheet - From the tabs: a sheet was chosen; `detail` is its `Sheet`.
  * @fires er-route - From the route tools; `detail` is a `RouteAction`.
@@ -43,20 +42,12 @@ export class ErMapControls extends LitElement {
     :host {
       display: contents;
     }
-    /* The tabs and the legend sit above the goal menu, which runs under them. */
+    /* The tabs sit above the goal menu, which runs under them. */
     er-sheet-tabs {
       position: absolute;
       z-index: 2;
       top: 14px;
       left: 16px;
-    }
-    er-map-legend {
-      position: absolute;
-      z-index: 2;
-      right: 240px;
-      bottom: 14px;
-      left: 16px;
-      pointer-events: none;
     }
     /* The top right: the route tools, and the simulate buttons under them where the room has them. */
     .tools {
@@ -69,7 +60,7 @@ export class ErMapControls extends LitElement {
       align-items: flex-end;
       gap: 12px;
     }
-    /* The bottom right: the zoom buttons. */
+    /* The bottom right: the legend's button and the zoom buttons, as one row. */
     .corner {
       position: absolute;
       z-index: 3;
@@ -77,10 +68,9 @@ export class ErMapControls extends LitElement {
       bottom: 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 6px;
     }
-    /* At a tablet's width and below the controls sit closer to the edges, and the legend goes:
-       the goal strip has the map's foot, and a touch points at nothing. */
+    /* At a tablet's width and below the controls sit closer to the edges. */
     @media ${narrow} {
       er-sheet-tabs {
         top: 10px;
@@ -89,9 +79,6 @@ export class ErMapControls extends LitElement {
       .tools {
         top: 10px;
         right: 10px;
-      }
-      er-map-legend {
-        display: none;
       }
       .corner {
         right: 10px;
@@ -135,7 +122,6 @@ export class ErMapControls extends LitElement {
           ? nothing
           : html`<er-sheet-tabs .sheets=${this.sheets} .shown=${this.shown}></er-sheet-tabs>`
       }
-      <er-map-legend .readout=${this.isDrawing ? DRAWING_LINE : undefined}></er-map-legend>
       <div class="tools">
         <er-route-tools .isOn=${this.isDrawing} .hasLines=${this.hasLines}></er-route-tools>
         ${
@@ -149,6 +135,7 @@ export class ErMapControls extends LitElement {
         }
       </div>
       <div class="corner">
+        <er-map-legend></er-map-legend>
         <er-zoom-buttons .isLost=${this.isLost}></er-zoom-buttons>
       </div>`;
   }

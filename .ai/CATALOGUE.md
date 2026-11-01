@@ -415,10 +415,10 @@ here first, then search the source, then write.
 - `moveTo()`: Take the camera to `to`, gliding, or at once under reduced motion; returns a function that stops the move.
 
 **src/components/organisms/map/components/er-map-controls.ts**
-- `ErMapControls`: The map's tabs, legend, tools and zoom buttons, over its view.
+- `ErMapControls`: The map's tabs, tools, legend and zoom buttons, over its view.
 
 **src/components/organisms/map/components/er-map-legend.ts**
-- `ErMapLegend`: The map's legend, and the line under it.
+- `ErMapLegend`: The map's legend, behind the button that opens it.
 
 **src/components/organisms/map/components/er-map.ts**
 - `ErMap`: The map of the room's open-world regions, how each stands, and the one selected.
@@ -463,7 +463,6 @@ here first, then search the source, then write.
 
 **src/components/organisms/map/utils/map-words.ts**
 - `pinCount()`: How many of a pin's checks are checked, as its tooltip's foot says it.
-- `DRAWING_LINE`: What the line under the legend says while the pen is on.
 
 **src/components/organisms/map/utils/pin-tip.ts**
 - `TipBox`: A box on the screen, by its edges, in pixels.
@@ -613,6 +612,7 @@ here first, then search the source, then write.
 - `forumIcon`: Two speech bubbles, for the Chat tab.
 - `arrowDownIcon`: An arrow pointing down, for going to the foot of a list.
 - `logoutIcon`: An arrow out of a door, for leaving the room: the header's Disconnect.
+- `infoIcon`: An i in a ring, for the map's legend.
 - `settingsIcon`: A cog, for the header's settings button.
 
 **src/components/utils/media.ts** (src/components, src/components/organisms)
@@ -623,6 +623,7 @@ here first, then search the source, then write.
 
 **src/components/utils/popover.ts** (src/components/molecules, src/components/organisms)
 - `placeUnder()`: Places a popover under what opens it, as it opens: `--top` under the anchor, or flush with the foot of `foot` when one is given, and `--left` and `--right` on the anchor's edges, for its styles to pick from.
+- `placeOver()`: Places a popover above what opens it, as it opens: `--bottom` over the anchor, and `--left` and `--right` on the anchor's edges, for its styles to pick from.
 
 **src/components/utils/region-groups.ts** (src/components/molecules, src/components/organisms)
 - `PickerRegion`: One region of a picker group: its code and name, how it stands, and how much of what's counted in it is done.

@@ -1,4 +1,4 @@
-/*! The backpack, forum, logout, keyboard arrow down and settings icons are Material Symbols, copyright Google LLC, under the Apache License 2.0, https://www.apache.org/licenses/LICENSE-2.0 */
+/*! The backpack, forum, logout, keyboard arrow down, settings and info icons are Material Symbols, copyright Google LLC, under the Apache License 2.0, https://www.apache.org/licenses/LICENSE-2.0 */
 
 /**
  * ─ Material icons ─
@@ -6,7 +6,8 @@
  * The page's icons from Material Symbols, each one path on its view box,
  * filled in the text's colour and sized where they're used: a backpack for
  * items, speech for the chat, a door to leave by, an arrow down to a list's
- * foot, and a cog for the settings. Checks keep the game's own sack.
+ * foot, a cog for the settings, and an i for the legend. Checks keep the
+ * game's own sack.
  */
 
 import { html } from "lit";
@@ -37,6 +38,14 @@ export const logoutIcon = html`<svg viewBox="0 -960 960 960" aria-hidden="true">
   <path
     fill="currentColor"
     d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"
+  ></path>
+</svg>`;
+
+/** An i in a ring, for the map's legend. */
+export const infoIcon = html`<svg viewBox="0 -960 960 960" aria-hidden="true">
+  <path
+    fill="currentColor"
+    d="M453-280h60v-240h-60v240Zm50.5-323.2q9.5-9.2 9.5-22.8 0-14.45-9.48-24.22-9.48-9.78-23.5-9.78t-23.52 9.78Q447-640.45 447-626q0 13.6 9.48 22.8 9.48 9.2 23.5 9.2t23.52-9.2ZM480.27-80q-82.74 0-155.5-31.5Q252-143 197.5-197.5t-86-127.34Q80-397.68 80-480.5t31.5-155.66Q143-709 197.5-763t127.34-85.5Q397.68-880 480.5-880t155.66 31.5Q709-817 763-763t85.5 127Q880-563 880-480.27q0 82.74-31.5 155.5Q817-252 763-197.68q-54 54.31-127 86Q563-80 480.27-80Zm.23-60Q622-140 721-239.5t99-241Q820-622 721.19-721T480-820q-141 0-240.5 98.81T140-480q0 141 99.5 240.5t241 99.5Zm-.5-340Z"
   ></path>
 </svg>`;
 

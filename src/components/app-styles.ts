@@ -11,9 +11,6 @@ import { MAP_MIN_PX, PANEL_MIN_HEIGHT_PX } from "./panel-split.js";
 
 /** How wide the goal menu lies over the map's left side, in CSS pixels. */
 export const GOAL_MENU_PX = 440;
-// How high the map's legend lies over the goal menu's foot, in CSS pixels: its two lines, and the
-// line naming what's pointed at, which takes two at most.
-const MAP_LEGEND_PX = 116;
 
 /** The page's layout, for its root element. */
 export const appStyles = css`
@@ -70,7 +67,6 @@ export const appStyles = css`
     bottom: 0;
     left: 0;
     width: min(${unsafeCSS(GOAL_MENU_PX)}px, 100%);
-    --er-goal-menu-foot: ${unsafeCSS(MAP_LEGEND_PX)}px;
   }
   /* Across the top of the map, under its sheet tabs and route tools. */
   er-version-notice {
@@ -107,14 +103,13 @@ export const appStyles = css`
       background: var(--er-panel);
       border-top: 1px solid var(--er-divider);
     }
-    /* Clear of the zoom buttons: three of 44 px, 6 px apart, 10 px in, and a gap. */
+    /* Clear of the legend's and zoom buttons: four of 44 px, 6 px apart, 10 px in, and a gap. */
     er-goal-menu {
       top: auto;
-      right: 164px;
+      right: 214px;
       bottom: 10px;
       left: 10px;
       width: auto;
-      --er-goal-menu-foot: 0px;
     }
     er-toasts {
       top: 62px;
