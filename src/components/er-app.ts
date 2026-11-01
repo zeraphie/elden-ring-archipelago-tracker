@@ -10,8 +10,8 @@
  * the goal menu's band keeps it; one done before the page opened goes
  * straight to the band. Either way, the run's clock stops there. A handle between the map and the panel resizes them,
  * as the page splits, and the settings lie over the panel while they're open.
- * With the timer on, it lies at the goal menu's foot, or in Compact's column
- * in the menu's place where splits are on.
+ * With the timer on, it lies at the goal menu's foot, or in its column in the
+ * menu's place where splits are on.
  */
 
 import { LitElement, html, nothing } from "lit";
@@ -36,7 +36,7 @@ import "./organisms/toasts/er-toasts.js";
 import "./organisms/version-notice/er-version-notice.js";
 import { curtain } from "./organisms/intro/curtain.js";
 import { holdCurtainFor } from "./organisms/intro/entry-curtain.js";
-import { appStyles, GOAL_MENU_PX, RUN_TIMER_WIDTH_PX } from "./app-styles.js";
+import { appStyles, GOAL_MENU_PX, RUN_COLUMN_PX } from "./app-styles.js";
 import { NARROW_MEDIA } from "./atoms/layout.js";
 import "./molecules/er-resize-handle.js";
 import { PanelSplit } from "./panel-split.js";
@@ -79,6 +79,11 @@ export class ErApp extends LitElement {
   private readonly split = new PanelSplit(this);
   // Where the run's timer lies, which its accordion brings to the stacked page.
   private readonly timerPlace = new StoreController(this, SETTINGS, timerPlaceOf);
+  private readonly timerLook = new StoreController(
+    this,
+    SETTINGS,
+    ({ timerLook }: SettingsState) => timerLook
+  );
   // Whether the settings panel is open, and the cog to go back to as it closes.
   private readonly settings = new SettingsOpen(this, () =>
     this.renderRoot.querySelector("er-header")?.focusCog()
@@ -176,7 +181,11 @@ export class ErApp extends LitElement {
     const ready = this.ready.value;
     const isNarrow = this.isNarrow.matches;
     const timerPlace = isNarrow ? "none" : this.timerPlace.value;
-    const coveredLeft = isNarrow ? 0 : timerPlace === "column" ? RUN_TIMER_WIDTH_PX : GOAL_MENU_PX;
+    const coveredLeft = isNarrow
+      ? 0
+      : timerPlace === "column"
+        ? RUN_COLUMN_PX[this.timerLook.value]
+        : GOAL_MENU_PX;
     return html`<er-header
         .store=${ready?.store}
         .isSettingsOpen=${this.settings.isOpen}
@@ -306,12 +315,11 @@ export class ErApp extends LitElement {
   };
 }
 
-// Compact's column stands in for the goal menu where splits are on; Comfort's has yet to.
-function timerPlaceOf({ isTimerOn, hasSplits, timerLook }: SettingsState): TimerPlace {
+function timerPlaceOf({ isTimerOn, hasSplits }: SettingsState): TimerPlace {
   if (!isTimerOn) {
     return "none";
   }
-  return hasSplits && timerLook === "compact" ? "column" : "foot";
+  return hasSplits ? "column" : "foot";
 }
 
 function readyPhase({ phase }: EntryState): Extract<EntryPhase, { phase: "ready" }> | undefined {

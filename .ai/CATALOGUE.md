@@ -528,6 +528,13 @@ here first, then search the source, then write.
 **src/components/organisms/timer/er-run-timer.ts**
 - `ErRunTimer`: The run's large timer and its buttons.
 
+**src/components/organisms/timer/run-splits-styles.ts**
+- `runSplitsStyles`: The run splits' look, in Compact and in Comfort, as the element's `data-look` says.
+
+**src/components/organisms/timer/run-timer-styles.ts**
+- `HOLD_MS`: How long replay is held to end a run: long enough that it can't happen by accident.
+- `runTimerStyles`: The run timer's look, in Compact and in Comfort, as the element's `data-look` says, at the goal menu's foot or with `column`.
+
 **src/components/organisms/timer/run-words.ts**
 - `ClockFace`: A run's time on the large timer: the whole seconds, and the hundredths, which show smaller.
 - `clockFace()`: A time in milliseconds as the large timer shows it: "0", "8:05" or "1:08:05", then ".20".
@@ -611,6 +618,7 @@ here first, then search the source, then write.
 - `RowView`: A goal row as the menu shows it: a need or a boss, by its key, and whether it's gotten.
 - `RowTarget`: Where a finished row leads: a check, by its name or its id, or the items, for what came from elsewhere.
 - `rowTarget()`: Where a finished row leads, given the check each of the slot's own finds was in, by the item's name; undefined for a boss with no drop in the room.
+- `rowIcon()`: A goal row's icon, by name.
 - `ownFindChecks()`: The check each item the slot found in its own world was in, by the item's name.
 - `openRow()`: Sends where a finished row leads from `host`: `er-check` with its check, or `er-items` for what came from elsewhere, which has no check here.
 - `rowViewsOf()`: The menu's rows to do and done, needs before bosses.

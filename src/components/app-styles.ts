@@ -6,13 +6,21 @@
  */
 
 import { css, unsafeCSS } from "lit";
+import type { Look } from "../state/settings.js";
 import { narrow } from "./atoms/layout.js";
 import { MAP_MIN_PX, PANEL_MIN_HEIGHT_PX } from "./panel-split.js";
 
 /** How wide the goal menu lies over the map's left side, in CSS pixels. */
 export const GOAL_MENU_PX = 440;
-/** How wide the run's timer lies over the map's left side, in CSS pixels. */
-export const RUN_TIMER_WIDTH_PX = 396;
+// How wide the run's timer lies over the goal menu's foot, in CSS pixels.
+const RUN_TIMER_WIDTH_PX = 396;
+/** How wide the run's column lies over the map's left side, in each look, in CSS pixels. */
+export const RUN_COLUMN_PX: Readonly<Record<Look, number>> = {
+  compact: RUN_TIMER_WIDTH_PX,
+  comfort: 436,
+};
+// How wide Comfort's shade spreads, past its column, as the goal menu's does.
+const RUN_SHADE_PX = 520;
 // How high the run's timer lies over the goal menu's foot, in CSS pixels: 78 for its two buttons,
 // and its 20 of room around them.
 const RUN_TIMER_PX = 98;
@@ -87,7 +95,11 @@ export const appStyles = css`
     top: 0;
     bottom: 0;
     left: 0;
-    width: min(${unsafeCSS(RUN_TIMER_WIDTH_PX)}px, 100%);
+    width: min(${unsafeCSS(RUN_COLUMN_PX.compact)}px, 100%);
+  }
+  er-run-splits[data-look="comfort"] {
+    width: min(${unsafeCSS(RUN_SHADE_PX)}px, 100%);
+    --er-run-column-width: ${unsafeCSS(RUN_COLUMN_PX.comfort)}px;
   }
   /* With no sheet tabs over it, the goal menu starts nearer the top. */
   .map[data-timer] er-goal-menu {

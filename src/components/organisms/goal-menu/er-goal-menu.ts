@@ -49,6 +49,7 @@ import {
   openRow,
   ownFindChecks,
   placeRows,
+  rowIcon,
   rowLeft,
   rowTarget,
   rowViewsOf,
@@ -555,13 +556,12 @@ export class ErGoalMenu extends LitElement {
       return nothing;
     }
     const delay = isLeaving ? (this.delays.get(key) ?? 0) : 0;
-    const icon = view.kind === "need" ? data.needIcon(view.need) : data.bossIcon(view.boss.flag);
     const { label, line } = rowWords(view, data, this.ownFinds);
     const row = html`<er-goal-row
       ?data-gotten=${view.isGotten}
       ?data-leaving=${isLeaving}
       style=${delay > 0 ? `--er-goal-row-delay: ${delay}ms` : nothing}
-      .icon=${iconUrl(icon)}
+      .icon=${iconUrl(rowIcon(view, data))}
       .label=${label}
       .line=${line}
     ></er-goal-row>`;

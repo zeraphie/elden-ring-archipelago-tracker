@@ -132,6 +132,11 @@ export function rowTarget(
   return id === undefined ? { kind: "items" } : { kind: "check", id };
 }
 
+/** A goal row's icon, by name. */
+export function rowIcon(view: RowView, data: EldenRingData) {
+  return view.kind === "need" ? data.needIcon(view.need) : data.bossIcon(view.boss.flag);
+}
+
 /** The check each item the slot found in its own world was in, by the item's name. */
 export function ownFindChecks(
   data: EldenRingData,

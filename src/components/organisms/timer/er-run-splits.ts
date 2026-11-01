@@ -3,25 +3,25 @@
  *
  * The goal menu's place on a desktop where splits are on: the slot's name and
  * how far the goal has got over a row for each goal, those gotten over those
- * left, the latest banded, in the timer's column. A row gotten sorts up at
- * once, by the time it came, a dash for one the tracker didn't see come, and
- * opens its check, or the items for what came from elsewhere. Once
- * the goal's achieved, what becomes of the items left comes under the rows.
+ * left, the latest banded, in the timer's column. It follows the look set:
+ * Compact's rows are text on a solid ground, with a line between the two, and
+ * Comfort's are framed, under Done and To do bands, on the menu's shade. A row
+ * gotten sorts up at once, by the time it came, a dash for one the tracker
+ * didn't see come, and opens its check, or the items for what came from
+ * elsewhere. Once the goal's achieved, what becomes of the items left comes
+ * under the rows.
  */
 
-import { LitElement, css, html, nothing } from "lit";
+import { LitElement, html, nothing } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import type { ReleaseState } from "../../../archipelago/release.js";
 import type { GoalMenu } from "../../../data/bosses/goal-menu.js";
+import { SETTINGS, type SettingsState } from "../../../state/settings.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
 import type { Run } from "../../../state/slices/run.js";
 import { goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
 import { rowTimesOf } from "../../../state/utils/run-times.js";
-import { bandRowStyles } from "../../atoms/band.js";
-import { figures } from "../../atoms/figures.js";
-import { focusRing } from "../../atoms/focus.js";
-import { scrollerStyles } from "../../atoms/scroller.js";
 import "../../molecules/er-release.js";
 import { slotName } from "../../utils/entry-words.js";
 import { figure } from "../../utils/figure.js";
@@ -29,6 +29,7 @@ import {
   byTimeCame,
   openRow,
   ownFindChecks,
+  rowIcon,
   rowTarget,
   rowViewsOf,
   settleRows,
@@ -37,8 +38,10 @@ import {
   type RowView,
 } from "../../utils/goal-rows.js";
 import { rowWords } from "../../utils/goal-words.js";
+import { iconUrl } from "../../utils/icons.js";
 import { StoreController } from "../../utils/store-controller.js";
 import "./er-run-timer.js";
+import { runSplitsStyles } from "./run-splits-styles.js";
 import { splitTime } from "./run-words.js";
 
 // A time or a difference with nothing to show.
@@ -49,6 +52,7 @@ const DASH = "-";
  *
  * @fires er-check - A row gotten was clicked; `detail` is a `CheckPick`, the check it opens.
  * @fires er-items - A row gotten was clicked whose item has no check here, as it came from elsewhere.
+ * @cssproperty --er-run-column-width - How wide the column is, where the host is wider, for a shade spreading past it; the host's width by default.
  */
 export class ErRunSplits extends LitElement {
   static override properties = {
@@ -59,80 +63,7 @@ export class ErRunSplits extends LitElement {
     say: { attribute: false },
   };
 
-  static override styles = [
-    bandRowStyles,
-    figures,
-    focusRing,
-    scrollerStyles,
-    css`
-      :host {
-        display: block;
-      }
-      .name {
-        margin: 0;
-        font-size: 1.15em;
-        font-weight: 600;
-        line-height: 1.2;
-        color: var(--er-ink-bright);
-      }
-      .goal {
-        margin: 0;
-        color: var(--er-ink-soft);
-      }
-      .rows {
-        flex: 0 1 auto;
-        min-height: 0;
-        margin: 0;
-        padding: 4px 0;
-        list-style: none;
-      }
-      .row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 58px 70px;
-        align-items: center;
-        column-gap: 8px;
-        box-sizing: border-box;
-        width: 100%;
-        height: 28px;
-        padding: 0 12px;
-        background: none;
-        border: none;
-        color: var(--er-ink);
-        font: inherit;
-        text-align: left;
-      }
-      button.row {
-        cursor: pointer;
-      }
-      .row[data-left] {
-        color: var(--er-ink-muted);
-      }
-      .row > span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .row > .fig {
-        text-align: right;
-      }
-      .row:not([data-left]) > :last-child {
-        color: var(--er-ink-bright);
-      }
-      .line {
-        height: 1px;
-        margin: 3px 0;
-        background: var(--er-line);
-      }
-      .release {
-        flex: none;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 10px 12px 12px;
-        background: var(--er-goal-band);
-      }
-    `,
-  ];
+  static override styles = runSplitsStyles;
 
   /** The room's store. */
   store: TrackerStore | undefined;
@@ -149,6 +80,11 @@ export class ErRunSplits extends LitElement {
   private live: StoreController<TrackerState, boolean> | undefined;
   private name: StoreController<TrackerState, string | undefined> | undefined;
   private run: StoreController<TrackerState, Run> | undefined;
+  private readonly look = new StoreController(
+    this,
+    SETTINGS,
+    ({ timerLook }: SettingsState) => timerLook
+  );
   // Where the rows stand, each row as it now reads by its key, and what they were placed from.
   private rows: GoalRows = { toDo: [], leaving: [], obtained: [] };
   private views = new Map<string, RowView>();
@@ -157,6 +93,7 @@ export class ErRunSplits extends LitElement {
   private placedFrom: { readonly menu: GoalMenu; readonly isAllDone: boolean } | undefined;
 
   protected override willUpdate(): void {
+    this.dataset.look = this.look.value;
     const { store, data } = this;
     if (store !== undefined && data !== undefined && this.menu === undefined) {
       this.menu = new StoreController(this, store, (state) => goalMenuOf(data, state));
@@ -208,6 +145,16 @@ export class ErRunSplits extends LitElement {
     };
     const obtained = byTimeCame(rows.obtained, timeOf);
     const latest = obtained.at(-1);
+    const gotten = repeat(
+      obtained,
+      (key) => key,
+      (key) => this.row(key, data, key === latest, timeOf(key))
+    );
+    const left = repeat(
+      toDo,
+      (key) => key,
+      (key) => this.row(key, data, false, undefined)
+    );
     return html`<er-run-timer column .store=${store}>
       <div slot="top">
         <h2 class="name">${this.name?.value}</h2>
@@ -216,23 +163,20 @@ export class ErRunSplits extends LitElement {
           <span class="fig">${figure(obtained.length + toDo.length)}</span>
         </p>
       </div>
-      <ul class="rows scroller" aria-label="Goal">
-        ${repeat(
-          obtained,
-          (key) => key,
-          (key) => this.row(key, data, key === latest, timeOf(key))
-        )}
-        ${
-          obtained.length > 0 && toDo.length > 0
-            ? html`<li class="line" aria-hidden="true"></li>`
-            : nothing
-        }
-        ${repeat(
-          toDo,
-          (key) => key,
-          (key) => this.row(key, data, false, undefined)
-        )}
-      </ul>
+      ${
+        this.look.value === "comfort"
+          ? html`${this.banded("Done", "rows done scroller", gotten, obtained.length)}
+            ${this.banded("To do", "rows scroller", left, toDo.length)}`
+          : html`<ul class="rows scroller" aria-label="Goal">
+              ${gotten}
+              ${
+                obtained.length > 0 && toDo.length > 0
+                  ? html`<li class="line" aria-hidden="true"></li>`
+                  : nothing
+              }
+              ${left}
+            </ul>`
+      }
       ${
         this.achieved
           ? html`<div class="release">
@@ -246,22 +190,40 @@ export class ErRunSplits extends LitElement {
     </er-run-timer>`;
   }
 
+  // A list under its band, and neither when it has no rows.
+  private banded(word: string, listClass: string, rows: unknown, count: number) {
+    return count === 0
+      ? nothing
+      : html`<h3 class="band band-heading">${word} <span class="fig">${figure(count)}</span></h3>
+          <ul class=${listClass}>
+            ${rows}
+          </ul>`;
+  }
+
   private row(key: string, data: EldenRingData, isLatest: boolean, time: number | undefined) {
     const view = this.views.get(key);
     if (view === undefined) {
       return nothing;
     }
     const { label, line } = rowWords(view, data, this.ownFinds);
+    const icon = iconUrl(rowIcon(view, data));
+    const frame =
+      this.look.value === "comfort"
+        ? html`<span class="frame" aria-hidden="true">
+            ${icon === undefined ? nothing : html`<img src=${icon} alt="" />`}
+          </span>`
+        : nothing;
     if (!view.isGotten) {
       // A count's tally has this column to itself, as a row left has no difference.
       const tally = view.kind === "need" && view.need.kind === "count" ? line : nothing;
       return html`<li class="row" data-left aria-label=${`${label}: ${line}`}>
-        <span title=${label}>${label}</span><span class="fig">${tally}</span
+        ${frame}<span class="label" title=${label}>${label}</span><span class="fig">${tally}</span
         ><span class="fig">${DASH}</span>
       </li>`;
     }
     const target = rowTarget(view, this.ownFinds);
-    const cells = html`<span title=${label}>${label}</span><span class="fig">${DASH}</span
+    const cells = html`${frame}<span class="label" title=${label}>${label}</span
+      ><span class="fig">${DASH}</span
       ><span class="fig">${time === undefined ? DASH : splitTime(time)}</span>`;
     return html`<li>
       ${
