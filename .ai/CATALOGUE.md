@@ -224,7 +224,7 @@ here first, then search the source, then write.
 - `checkRowStyles`: The rows' look: a two-column grid of marker and words, banded when hovered or picked.
 - `checkRow()`: A check's row, picked or not, with its region under its name when it's given, telling `onPick` when it's clicked.
 - `checkBlock()`: A check to read rather than click, with what each of its copies held.
-- `checkBand()`: A check to read under a heading band: its place on the band, its encounter and the rest beneath.
+- `checkBand()`: A check to read under a heading band: its marker and place on the band, its encounter and the rest beneath.
 
 **src/components/molecules/er-ago.ts**
 - `ErAgo`: How long ago a moment was, as a `<time>`, current to the second.

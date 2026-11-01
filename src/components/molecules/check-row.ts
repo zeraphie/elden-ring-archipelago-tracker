@@ -92,7 +92,19 @@ export const checkRowStyles = [
       color: var(--er-gold);
     }
     .band-place {
-      padding: 7px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 16px;
+    }
+    .band-place img {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+    }
+    .band-place .mark {
+      flex-shrink: 0;
+      margin-top: 0;
     }
     .beneath {
       padding: 8px 16px 10px;
@@ -123,9 +135,10 @@ export function checkBlock(row: CheckRow, findings: readonly Finding[]) {
   return html`<div class="row" ?data-key=${row.isKey}>${face(row, nothing, findings)}</div>`;
 }
 
-/** A check to read under a heading band: its place on the band, its encounter and the rest beneath. */
-export function checkBand({ name, vanilla }: CheckRow, findings: readonly Finding[]) {
-  return html`<div class="band-heading band-place">${name.place}</div>
+/** A check to read under a heading band: its marker and place on the band, its encounter and the rest beneath. */
+export function checkBand(row: CheckRow, findings: readonly Finding[]) {
+  const { name, vanilla } = row;
+  return html`<div class="band-heading band-place">${marker(row)}${name.place}</div>
     <div class="words beneath">
       ${name.encounter === "" ? nothing : html`<span>${name.encounter}</span>`}
       ${lines(vanilla, findings)}
@@ -138,19 +151,22 @@ function face(
   region: unknown,
   findings: readonly Finding[] = row.finding === undefined ? [] : [row.finding]
 ) {
-  const { name, copy, isKey, state } = row;
+  const { name, copy } = row;
   const spot = spotLine(name.encounter, copy);
-  return html`${
-      isKey
-        ? html`<img class="sack" data-state=${state} src=${SACK} alt=${PIN_STATE_WORDS[state]} />`
-        : html`<span class="mark" ?data-done=${state === "collected"} aria-hidden="true"></span>`
-    }
+  return html`${marker(row)}
     <span class="words">
       <span class="title"
         >${name.place}${spot === "" ? nothing : html`<span class="spot">${spot}</span>`}</span
       >
       ${region} ${lines(row.vanilla, findings)}
     </span>`;
+}
+
+// A check's marker: a key check's sack as it stands, or a small ring for any other.
+function marker({ isKey, state }: CheckRow) {
+  return isKey
+    ? html`<img class="sack" data-state=${state} src=${SACK} alt=${PIN_STATE_WORDS[state]} />`
+    : html`<span class="mark" ?data-done=${state === "collected"} aria-hidden="true"></span>`;
 }
 
 // What a check holds in the unrandomised game, and what it's been found to hold.
