@@ -65,8 +65,9 @@ export default {
     },
     // The state takes the protocol's events, the domain and the database; never the UI.
     { from: "src/state", mayTake: ["src/state", "src/archipelago", "src/data", "src/storage"] },
-    // The demo is mock data, made from the static domain, for the page and the tests to take.
-    { from: "src/demo", mayTake: ["src/demo", "src/data"] },
+    // The demo is mock data for the page and the tests to take: it speaks the protocol from the
+    // static domain, and takes the state's way of making events.
+    { from: "src/demo", mayTake: ["src/demo", "src/state", "src/archipelago", "src/data"] },
     // The database stands alone.
     { from: "src/storage", mayTake: ["src/storage"] },
     // The protocol takes from the static domain and from itself; it never reaches back into the UI or the state.

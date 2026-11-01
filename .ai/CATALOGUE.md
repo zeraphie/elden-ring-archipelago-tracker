@@ -124,7 +124,7 @@ here first, then search the source, then write.
 - `MessagePart`: One part of a message's text: plain, or an id to name, with what's known of it.
 - `LiveEvent`: Something the room said, as the tracker reads it.
 
-**src/archipelago/look-up.ts** (src/components/organisms, src/components/utils, src/state, tools)
+**src/archipelago/look-up.ts** (src/components/organisms, src/components/utils, src/demo, src/state, tools)
 - `ELDEN_RING`: Elden Ring's name as Archipelago gives a slot's game.
 
 **src/archipelago/release.ts** (src/components/organisms, src/state)
@@ -160,7 +160,7 @@ here first, then search the source, then write.
 - `isNewer()`: Whether a room's version is newer than the release the tracker is tested against, by its own version.
 - `versionText()`: A version as a person reads it: "0.6.8".
 
-**src/archipelago/web-api.ts** (src/state)
+**src/archipelago/web-api.ts** (src/demo, src/state)
 - `Fetcher`: How a request is sent: the browser's fetch, or one a test hands in.
 - `getDataPackage()`: A game's data package, by its checksum: the game's item and location names.
 - `getSlotData()`: Each slot's slot_data, by tracker id.
@@ -665,7 +665,7 @@ here first, then search the source, then write.
 **src/data/presets/all-bosses.ts** (src/state)
 - `ALL_BOSSES_OPTIONS`: The All Bosses preset's options, as its seed's slot_data gave them.
 
-**src/data/rules/apworld.ts** (src/archipelago, src/components/organisms)
+**src/data/rules/apworld.ts** (src/archipelago, src/components/organisms, src/demo)
 - `RULES_APWORLD`: The Elden Ring apworld the rules are ported from: its release, and the Elden Ring data package checksum its rooms carry.
 - `APWORLD_RELEASE_PAGE`: The supported release's page, with its notes and downloads.
 - `isApworldSupported()`: Whether the tracker can read a room, by its Elden Ring data package checksum; a room with none has no Elden Ring slot to read wrongly.
@@ -758,7 +758,8 @@ here first, then search the source, then write.
 **src/state/utils/regions.ts** (src/components, src/components/organisms, src/components/utils)
 - `regionsOf()`: Each region of the store's room, by its code; undefined until slot_data and the data package are in, or when they can't be read.
 
-**src/state/utils/simulate.ts** (src/components/organisms)
+**src/state/utils/simulate.ts** (src/components/organisms, src/demo)
+- `SIMULATED_ITEMS`: Every item the lists can give, by name, for a data package to name.
 - `nextCheck()`: The next key check left in an open region, the region given first; undefined when none is left.
 - `nextBossDefeat()`: The next goal boss still to defeat, the region given first, as its drop's check and that check's region; undefined when none is left.
 - `withAllBosses()`: slot_data with the All Bosses preset's options and goal, every boss a goal can name, in place of the room's own; its checks stay the room's.
