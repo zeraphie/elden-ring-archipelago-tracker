@@ -56,11 +56,13 @@ export class ErRunTimer extends LitElement {
         flex: 1 1 0;
         min-width: 0;
       }
+      /* The height of both buttons before there are two, so starting moves nothing. */
       .buttons {
         flex: none;
         display: flex;
         flex-direction: column;
         gap: 6px;
+        min-height: 78px;
       }
       .button svg {
         width: 24px;
@@ -80,21 +82,25 @@ export class ErRunTimer extends LitElement {
       .small {
         font-size: 30px;
       }
+      /* Before the run the field lies over the clock at nought, so the timer looks as it will when
+         it runs, and what is typed takes the place of the nought. */
+      .start {
+        position: relative;
+      }
+      .start[data-typing] .clock {
+        visibility: hidden;
+      }
       .typed {
-        display: block;
+        position: absolute;
+        inset: 0;
         width: 100%;
         box-sizing: border-box;
         padding: 0;
         background: transparent;
         border: none;
-        border-bottom: 1px solid var(--er-line);
         color: var(--er-gold);
         line-height: 1;
         text-align: right;
-      }
-      .typed::placeholder {
-        color: var(--er-gold);
-        opacity: 0.7;
       }
       .typed:hover {
         background: var(--er-glow-fill);
@@ -117,8 +123,6 @@ export class ErRunTimer extends LitElement {
         font-size: 26px;
       }
       :host([data-look="comfort"]) .typed {
-        margin: 10px 0;
-        border-bottom: none;
         text-align: center;
       }
       /* A press held rather than a click, by mouse, finger or key. */
@@ -206,15 +210,16 @@ export class ErRunTimer extends LitElement {
     const isRuled = this.look.value === "comfort";
     const rule = isRuled ? html`<div class="rule" aria-hidden="true"></div>` : nothing;
     return html`<div class="face">
-        ${rule} ${run.phase === "before" ? this.typed() : this.clock(run)} ${rule}
+        ${rule} ${run.phase === "before" ? this.typed() : this.clock(runTimeOf(run, Date.now()))}
+        ${rule}
       </div>
       <div class="buttons">
         ${this.press(run)} ${run.phase === "before" ? nothing : this.reset()}
       </div>`;
   }
 
-  private clock(run: Run) {
-    const { whole, hundredths } = clockFace(runTimeOf(run, Date.now()));
+  private clock(ms: number) {
+    const { whole, hundredths } = clockFace(ms);
     return html`<div class="clock fig" role="timer">
       <span class="whole">${whole}</span><span class="small">${hundredths}</span>
     </div>`;
@@ -222,17 +227,18 @@ export class ErRunTimer extends LitElement {
 
   // Before the run the timer is a field, so a long run's time goes in where it'll show.
   private typed() {
-    return html`<input
-      class="typed fig"
-      type="text"
-      inputmode="numeric"
-      aria-label="Start from"
-      aria-invalid=${String(this.isDraftBad)}
-      placeholder="0.00"
-      .value=${this.draft}
-      @input=${this.type}
-      @keydown=${this.startOnEnter}
-    />`;
+    return html`<div class="start" ?data-typing=${this.draft !== ""}>
+      ${this.clock(0)}
+      <input
+        class="typed fig"
+        type="text"
+        aria-label="Start from"
+        aria-invalid=${String(this.isDraftBad)}
+        .value=${this.draft}
+        @input=${this.type}
+        @keydown=${this.startOnEnter}
+      />
+    </div>`;
   }
 
   private press({ phase }: Run) {
