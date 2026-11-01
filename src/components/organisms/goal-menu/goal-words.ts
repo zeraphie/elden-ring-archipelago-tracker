@@ -15,7 +15,7 @@ import type { EldenRingData } from "../../../state/setup.js";
 
 const BOSS_LINES: Readonly<Record<GoalState, string>> = {
   defeated: "Defeated",
-  "to do": "Not yet",
+  "to do": "Not defeated",
   unknown: "Can't tell from this room's checks",
 };
 
@@ -49,12 +49,12 @@ export function needLine(need: Need, isMet: boolean, data: EldenRingData): strin
     case "count":
       return `${need.have} of ${need.needs}`;
     case "item":
-      return isMet ? "Received" : "Not yet";
+      return isMet ? "Received" : "Not obtained";
     case "area":
       return isMet ? "Reached" : "Not reached yet";
     case "location":
       if (data.bossDropping(need.location) !== undefined) {
-        return isMet ? "Defeated" : "Not defeated yet";
+        return isMet ? "Defeated" : "Not defeated";
       }
       return isMet ? "Checked" : "Not checked yet";
     default:
