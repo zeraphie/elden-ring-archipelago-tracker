@@ -43,13 +43,24 @@ export function needName(need: Need, data: EldenRingData): string {
   }
 }
 
-/** How a need stands: a count's tally, or whether it's received, reached or done. */
-export function needLine(need: Need, isMet: boolean, data: EldenRingData): string {
+/**
+ * How a need stands: a count's tally, or whether it's obtained, received, reached or done. An item
+ * is obtained when the slot found it in its own world, and received when it came from anyone else.
+ */
+export function needLine(
+  need: Need,
+  isMet: boolean,
+  data: EldenRingData,
+  ownFinds: ReadonlySet<string | undefined>
+): string {
   switch (need.kind) {
     case "count":
       return `${need.have} of ${need.needs}`;
     case "item":
-      return isMet ? "Received" : "Not obtained";
+      if (!isMet) {
+        return "Not obtained";
+      }
+      return ownFinds.has(need.item) ? "Obtained" : "Received";
     case "area":
       return isMet ? "Reached" : "Not reached yet";
     case "location":

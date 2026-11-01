@@ -23,6 +23,7 @@ import type { GoalMenu } from "../../../data/bosses/goal-menu.js";
 import type { RegionSummary } from "../../../data/rules/region-summary.js";
 import type { EldenRingData } from "../../../state/setup.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
+import { ownFindsOf } from "../../../state/utils/feed.js";
 import { goalMenuOf, releaseOf } from "../../../state/utils/goal.js";
 import { regionsOf } from "../../../state/utils/regions.js";
 import { barStyles } from "../../atoms/bar.js";
@@ -225,6 +226,8 @@ export class ErGoalMenu extends LitElement {
   // Where the rows stand, each row as it now reads by its key, and what they were placed from.
   private rows: GoalRows | undefined;
   private views = new Map<string, RowView>();
+  // The items the slot found in its own world, by name, as the rows were placed.
+  private ownFinds: ReadonlySet<string | undefined> = new Set();
   private placedFrom:
     | { readonly menu: GoalMenu; readonly isAllDone: boolean; readonly byRegion: boolean }
     | undefined;
@@ -275,6 +278,8 @@ export class ErGoalMenu extends LitElement {
     const toDo = views.toDo.filter(isShown);
     const done = views.done.filter(isShown);
     this.views = new Map([...toDo, ...done].map((view) => [view.key, view]));
+    const state = this.store?.getState();
+    this.ownFinds = new Set(state && ownFindsOf(data, state).map(({ item }) => item));
     const { rows, started } = placeRows(
       this.rows,
       toDo.map(({ key }) => key),
@@ -451,7 +456,7 @@ export class ErGoalMenu extends LitElement {
         ? [
             data.needIcon(view.need),
             needName(view.need, data),
-            needLine(view.need, view.isGotten, data),
+            needLine(view.need, view.isGotten, data, this.ownFinds),
           ]
         : [data.bossIcon(view.boss.flag), bossName(view.boss), bossLine(view.boss)];
     return html`<li>
