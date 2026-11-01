@@ -1,12 +1,12 @@
 /**
  * ─ Feed ─
  *
- * The items that moved between this slot and the others, newest first: each
+ * The items that moved between this slot and the others, newest last: each
  * item another player found for it, with where in their world, and each item
  * it found for another player, with the check it was in. Items it found for
  * itself are its checks' own, and aren't here. Each item is named by its own
  * game's data package, and a player by the roster; one the tracker saw come
- * before it was watching has no time, and comes last.
+ * before it was watching has no time, and comes first.
  */
 
 import { ELDEN_RING } from "../../archipelago/look-up.js";
@@ -74,7 +74,7 @@ let last:
     }
   | undefined;
 
-/** The items received from the others and sent to them, newest first. */
+/** The items received from the others and sent to them, newest last. */
 export function feedOf(data: EldenRingData, inputs: FeedInputs): readonly FeedEntry[] {
   const findings = findingsOf(inputs);
   const regions = regionsOf(data, inputs);
@@ -120,10 +120,10 @@ export function feedOf(data: EldenRingData, inputs: FeedInputs): readonly FeedEn
       });
     }
   }
-  // Newest first, and those with no time last, each kind in the order it came.
+  // Newest last, and those with no time first, each kind in the order it came.
   const ordered = feed
     .map((entry, order) => ({ entry, order }))
-    .sort((a, b) => (b.entry.at ?? -1) - (a.entry.at ?? -1) || a.order - b.order)
+    .sort((a, b) => (a.entry.at ?? -1) - (b.entry.at ?? -1) || a.order - b.order)
     .map(({ entry }) => entry);
   last = { findings, regions, feed: ordered };
   return ordered;

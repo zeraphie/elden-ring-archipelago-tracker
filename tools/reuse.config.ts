@@ -341,6 +341,12 @@ export default {
       instead: "`wheelDeltaToPixels(delta, deltaMode, pageSize)`",
     },
     {
+      what: "a list kept at its bottom by hand",
+      pattern: /scrollTop = [\w.]+\.scrollHeight/,
+      home: "src/components/utils/stick-to-bottom.ts",
+      instead: "`StickToBottom`",
+    },
+    {
       what: "a Material Symbols icon drawn by hand",
       // Material Symbols' own view box, which every one of its icons is drawn on.
       pattern: /viewBox="0 -960 960 96[0]"/,

@@ -109,7 +109,7 @@ describe("feedOf", () => {
     });
   });
 
-  test("comes newest first, with those the tracker saw before it was watching last", () => {
+  test("comes newest last, with those the tracker saw before it was watching first", () => {
     const feed = feedOf(
       data,
       inputs({
@@ -121,7 +121,7 @@ describe("feedOf", () => {
         roster: [SAM],
       })
     );
-    expect(feed.map(({ at }) => at)).toEqual([20, 10, undefined]);
+    expect(feed.map(({ at }) => at)).toEqual([undefined, 10, 20]);
   });
 
   test("the same inputs give the same feed back", () => {

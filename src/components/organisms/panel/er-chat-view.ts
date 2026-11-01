@@ -4,13 +4,13 @@
  * The panel's Chat tab: the room's chat, this slot's commands and their
  * replies, every hint that concerns it, and the room's events, newest at the
  * bottom, each with how long ago the tracker saw it. The list stays at the
- * bottom as lines come, unless it's been scrolled up to read. Under it, the
- * input sends a chat line or a command such as !hint, with the hints available
- * over it; from a tracker link, which has no websocket, a note says where to
- * open the tracker to send.
+ * bottom as lines come, unless it's been scrolled up to read, when a button
+ * takes it back. Under it, the input sends a chat line or a command such as
+ * !hint, with the hints available over it; from a tracker link, which has no
+ * websocket, a note says where to open the tracker to send.
  */
 
-import { LitElement, css, html, nothing, type PropertyValues } from "lit";
+import { LitElement, css, html, nothing } from "lit";
 import { shallow } from "zustand/vanilla/shallow";
 import { ELDEN_RING } from "../../../archipelago/look-up.js";
 import type { EldenRingData } from "../../../state/setup.js";
@@ -21,14 +21,13 @@ import { focusRing } from "../../atoms/focus.js";
 import { scrollerStyles } from "../../atoms/scroller.js";
 import { visuallyHidden } from "../../atoms/visually-hidden.js";
 import "../../molecules/er-ago.js";
+import "../../molecules/er-to-bottom.js";
 import { checkLine } from "../../utils/check-words.js";
 import { playerName, UNNAMED_ITEM } from "../../utils/item-words.js";
+import { StickToBottom } from "../../utils/stick-to-bottom.js";
 import { StoreController } from "../../utils/store-controller.js";
 import { chatLines, type ChatLine, type ChatNames } from "./chat-lines.js";
 import { hintLine, SPEAKERS } from "./chat-words.js";
-
-// Within this many pixels of the bottom, the list counts as at the bottom, and stays there.
-const BOTTOM_SLACK_PX = 8;
 
 /**
  * The chat log and its input.
@@ -55,8 +54,6 @@ export class ErChatView extends LitElement {
       }
       /* Clear of whatever lies over the list's right edge, such as the rail of tabs under the map. */
       .scroller {
-        flex-grow: 1;
-        min-height: 0;
         margin: 0;
         padding: 6px var(--er-panel-clear, 0px) 6px 0;
         list-style: none;
@@ -156,10 +153,11 @@ export class ErChatView extends LitElement {
   say: (text: string) => void = () => {};
   private draft = "";
   private watch: StoreController<TrackerState, unknown[]> | undefined;
-  // Whether the list was at its bottom before this draw, so it stays there.
-  private isAtBottom = true;
+  private readonly stick = new StickToBottom(this, () =>
+    this.renderRoot.querySelector(".scroller")
+  );
 
-  protected override willUpdate(changed: PropertyValues<this>): void {
+  protected override willUpdate(): void {
     const { store } = this;
     if (store !== undefined && this.watch === undefined) {
       this.watch = new StoreController(
@@ -178,18 +176,6 @@ export class ErChatView extends LitElement {
         shallow
       );
     }
-    const list = this.renderRoot.querySelector(".scroller");
-    this.isAtBottom =
-      list === null ||
-      changed.size === 0 ||
-      list.scrollTop + list.clientHeight >= list.scrollHeight - BOTTOM_SLACK_PX;
-  }
-
-  protected override updated(): void {
-    const list = this.renderRoot.querySelector(".scroller");
-    if (list !== null && this.isAtBottom) {
-      list.scrollTop = list.scrollHeight;
-    }
   }
 
   override render() {
@@ -199,10 +185,17 @@ export class ErChatView extends LitElement {
       return nothing;
     }
     const lines = chatLines(state.log, namesOf(state, data));
-    return html`<ul class="scroller" aria-label="Chat">
-        ${lines.length === 0 ? html`<li class="empty">Nothing said yet.</li>` : nothing}
-        ${lines.map((line) => this.line(line))}
-      </ul>
+    return html`<div class="scroller-frame">
+        <ul class="scroller" aria-label="Chat">
+          ${lines.length === 0 ? html`<li class="empty">Nothing said yet.</li>` : nothing}
+          ${lines.map((line) => this.line(line))}
+        </ul>
+        ${
+          this.stick.isAway
+            ? html`<er-to-bottom @er-to-bottom=${() => this.stick.toBottom()}></er-to-bottom>`
+            : nothing
+        }
+      </div>
       ${state.link.kind === "tracker" ? this.trackerNote() : this.input(state)}`;
   }
 

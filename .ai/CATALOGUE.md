@@ -232,6 +232,9 @@ here first, then search the source, then write.
 **src/components/molecules/er-sigil.ts**
 - `ErSigil`: The Elden Ring's sigil, still, or drawing itself with the `drawing` attribute.
 
+**src/components/molecules/er-to-bottom.ts**
+- `ErToBottom`: A button over a list's foot that takes it back to the bottom.
+
 **src/components/molecules/er-toggle-row.ts**
 - `ToggleOption`: One toggle of the row: its key, its name, and how many it holds, when that's shown.
 - `ErToggleRow`: A row of filters as text toggles, the one chosen marked by a bar that slides between them.
@@ -562,6 +565,10 @@ here first, then search the source, then write.
 **src/components/utils/sheet-names.ts** (src/components/organisms)
 - `SHEET_NAMES`: Each map sheet in order, with its name in the game: on the map's tabs and the region picker's groups.
 
+**src/components/utils/stick-to-bottom.ts** (src/components/organisms)
+- `isAtBottom()`: Whether a list is at its bottom, or so near that it counts as there.
+- `StickToBottom`: Keeps a list at its bottom, for a Lit element, unless it's been scrolled up: `isAway` says when it has, and the element updates when that changes.
+
 **src/components/utils/store-controller.ts** (src/components, src/components/organisms)
 - `SelectableStore`: A store made with zustand's subscribeWithSelector, so a part of it can be subscribed to on its own.
 - `StoreController`: Reads part of a store into a Lit element: `value` is the part selected, and the element updates whenever zustand finds it changed, while the element is connected.
@@ -669,7 +676,7 @@ here first, then search the source, then write.
 - `FeedPlayer`: A player in the feed, by slot, with their name as the roster has it; slot 0 is the server.
 - `FeedEntry`: An item that moved: received from another player, or sent to one.
 - `OwnFind`: An item the slot found in its own world: what it was, how it counts, and the check it was in.
-- `feedOf()`: The items received from the others and sent to them, newest first.
+- `feedOf()`: The items received from the others and sent to them, newest last.
 - `ownFindsOf()`: The items the slot found for itself, in the order they came; the feed leaves these out, as they're its checks' own.
 
 **src/state/utils/findings.ts** (src/components/organisms)

@@ -2,8 +2,9 @@
  * ─ Items view ─
  *
  * The panel's Items tab: what the other players sent this slot, and what it
- * sent them, newest first, each with how long ago the tracker saw it, kept
- * current to the second. A
+ * sent them, newest at the bottom, each with how long ago the tracker saw it,
+ * kept current to the second. The list stays at the bottom as items come,
+ * unless it's been scrolled up to read, when a button takes it back. A
  * received item says where in the sender's world it was; a sent one names
  * the check it was in, and "Show" opens that check. At a tablet's width and
  * below, the filters are text toggles, each with its count.
@@ -23,6 +24,7 @@ import { sackStyles } from "../../atoms/sack.js";
 import { scrollerStyles } from "../../atoms/scroller.js";
 import { segmentStyles } from "../../atoms/segments.js";
 import "../../molecules/er-ago.js";
+import "../../molecules/er-to-bottom.js";
 import "../../molecules/er-toggle-row.js";
 import type { CheckPick } from "../../utils/check-pick.js";
 import { checkLine } from "../../utils/check-words.js";
@@ -30,6 +32,7 @@ import { emit } from "../../utils/emit.js";
 import { iconUrl } from "../../utils/icons.js";
 import { foundIn, playerName, UNNAMED_ITEM } from "../../utils/item-words.js";
 import { MediaController } from "../../utils/media.js";
+import { StickToBottom } from "../../utils/stick-to-bottom.js";
 import { StoreController } from "../../utils/store-controller.js";
 import { FEED_FILTERS, filterLabel, type FeedFilter } from "./feed-words.js";
 
@@ -83,8 +86,6 @@ export class ErItemsView extends LitElement {
       }
       /* Clear of whatever lies over the list's right edge, such as the rail of tabs under the map. */
       .scroller {
-        flex-grow: 1;
-        min-height: 0;
         margin: 0;
         padding: 0 var(--er-panel-clear, 0px) 0 0;
         list-style: none;
@@ -154,6 +155,9 @@ export class ErItemsView extends LitElement {
   filter: FeedFilter = "received";
   private feed: StoreController<TrackerState, readonly FeedEntry[]> | undefined;
   private readonly isNarrow = new MediaController(this, NARROW_MEDIA);
+  private readonly stick = new StickToBottom(this, () =>
+    this.renderRoot.querySelector(".scroller")
+  );
 
   protected override willUpdate(): void {
     const { store, data } = this;
@@ -167,10 +171,17 @@ export class ErItemsView extends LitElement {
     const received = feed.filter(({ kind }) => kind === "received").length;
     const shown = feed.filter(({ kind }) => this.filter === "all" || kind === this.filter);
     return html`${this.filters(received, feed.length - received)}
-      <ul class="scroller" aria-label="Items">
-        ${shown.length === 0 ? html`<li class="empty">Nothing yet.</li>` : nothing}
-        ${shown.map((entry) => this.entry(entry))}
-      </ul>`;
+      <div class="scroller-frame">
+        <ul class="scroller" aria-label="Items">
+          ${shown.length === 0 ? html`<li class="empty">Nothing yet.</li>` : nothing}
+          ${shown.map((entry) => this.entry(entry))}
+        </ul>
+        ${
+          this.stick.isAway
+            ? html`<er-to-bottom @er-to-bottom=${() => this.stick.toBottom()}></er-to-bottom>`
+            : nothing
+        }
+      </div>`;
   }
 
   // Joined buttons, or at a tablet's width and below text toggles, each with how many items it keeps.
@@ -209,6 +220,7 @@ export class ErItemsView extends LitElement {
 
   private choose(filter: FeedFilter): void {
     this.filter = filter;
+    this.stick.stay();
     emit<FeedFilter>(this, "er-filter", filter);
   }
 
