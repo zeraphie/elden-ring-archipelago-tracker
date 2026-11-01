@@ -5,9 +5,9 @@
  * replies, every hint that concerns it, and the room's events, newest at the
  * bottom, each with how long ago the tracker saw it. The list stays at the
  * bottom as lines come, unless it's been scrolled up to read. Under it, the
- * input sends a chat line or a command such as !hint, with the hint points
- * beside it; from a tracker link, which has no websocket, a note says where
- * to open the tracker to send.
+ * input sends a chat line or a command such as !hint, with the hints available
+ * over it; from a tracker link, which has no websocket, a note says where to
+ * open the tracker to send.
  */
 
 import { LitElement, css, html, nothing, type PropertyValues } from "lit";
@@ -19,6 +19,7 @@ import { buttonStyles } from "../../atoms/button.js";
 import { fieldStyles } from "../../atoms/field.js";
 import { focusRing } from "../../atoms/focus.js";
 import { scrollerStyles } from "../../atoms/scroller.js";
+import { visuallyHidden } from "../../atoms/visually-hidden.js";
 import "../../molecules/er-ago.js";
 import { checkLine } from "../../utils/check-words.js";
 import { playerName, UNNAMED_ITEM } from "../../utils/item-words.js";
@@ -45,6 +46,7 @@ export class ErChatView extends LitElement {
     fieldStyles,
     focusRing,
     scrollerStyles,
+    visuallyHidden,
     css`
       :host {
         display: flex;
@@ -218,10 +220,8 @@ export class ErChatView extends LitElement {
     const isLive = state.connection.phase === "connected";
     const points = hintLine(state.hintPoints, state.hintCost);
     return html`<form @submit=${this.send}>
-      <div class="label">
-        <label for="say">Chat, or a command such as !hint</label>
-        ${points === undefined ? nothing : html`<span>${points}</span>`}
-      </div>
+      <label class="sr" for="say">Chat, or a command such as !hint</label>
+      ${points === undefined ? nothing : html`<span class="label">${points}</span>`}
       <div class="send">
         <input
           id="say"

@@ -106,6 +106,10 @@ here first, then search the source, then write.
 - `readRulesSlotData()`: The part of an Elden Ring slot's slot_data its rules and goal are read from; undefined in any other shape.
 - `readMapSlotData()`: The part of an Elden Ring slot's slot_data that places its checks on the map: each check's key and name, by id; undefined in any other shape.
 
+**src/archipelago/hints.ts** (src/components/organisms, src/state)
+- `hintsAvailable()`: How many hints these points buy, at a cost above nothing.
+- `pointsToNextHint()`: How many more points the next hint takes, at a cost above nothing.
+
 **src/archipelago/live-events.ts** (src/components/organisms, src/state)
 - `MessagePart`: One part of a message's text: plain, or an id to name, with what's known of it.
 - `LiveEvent`: Something the room said, as the tracker reads it.
@@ -425,7 +429,7 @@ here first, then search the source, then write.
 
 **src/components/organisms/panel/chat-words.ts**
 - `SPEAKERS`: Who a line is from when no player said it.
-- `hintLine()`: The hint points beside the input: how many there are, and what a hint costs; undefined until the login says.
+- `hintLine()`: The hints over the input: how many the points buy, and how many points off the next is; undefined until the login says.
 
 **src/components/organisms/panel/check-row.ts**
 - `checkRowStyles`: The rows' look: a two-column grid of marker and words, banded when hovered or picked.

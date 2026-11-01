@@ -8,3 +8,13 @@
 export function hintCost(percent: number, locations: number): number {
   return percent > 0 ? Math.max(1, Math.trunc(percent * 0.01 * locations)) : 0;
 }
+
+/** How many hints these points buy, at a cost above nothing. */
+export function hintsAvailable(points: number, cost: number): number {
+  return Math.floor(points / cost);
+}
+
+/** How many more points the next hint takes, at a cost above nothing. */
+export function pointsToNextHint(points: number, cost: number): number {
+  return cost - (points % cost);
+}
