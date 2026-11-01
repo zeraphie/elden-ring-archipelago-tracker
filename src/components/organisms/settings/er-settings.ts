@@ -2,11 +2,12 @@
  * ─ Settings ─
  *
  * Everything that can be set, in a panel laid over the right-hand panel at its
- * size, its title between gold rules and a cross to close it. For now that's
- * how checks look in the map's tooltip: a row for each look, showing it on a
- * sample check, the one chosen banded. The panel stays in the page while it's
- * closed, so it can fade in and out. At a tablet's width and below the title's
- * smaller and to the left, the rules go, and the rows sit side by side.
+ * size, its title between gold rules and a cross to close it. Each section has
+ * a band heading and a gold rule under it. For now there's one, how checks look
+ * in the map's tooltip: a row for each look, showing it on a sample check, the
+ * one chosen banded. The panel stays in the page while it's closed, so it can
+ * fade in and out. At a tablet's width and below the title's smaller and to the
+ * left, its rules go, and the rows sit side by side.
  */
 
 import { LitElement, css, html, type PropertyValues } from "lit";
@@ -101,6 +102,9 @@ export class ErSettings extends LitElement {
         flex-grow: 1;
         min-height: 0;
       }
+      .scroller .rule {
+        margin: 14px 8%;
+      }
       h3 {
         margin: 0;
         padding: 7px 16px;
@@ -126,7 +130,7 @@ export class ErSettings extends LitElement {
           padding: 12px 16px;
           text-align: left;
         }
-        .rule {
+        .head .rule {
           display: none;
         }
         .panel-title {
@@ -175,7 +179,7 @@ export class ErSettings extends LitElement {
         </button>
       </div>
       <div class="scroller">
-        <h3 id="checks" class="band-heading">Checks on the map</h3>
+        <h3 id="checks" class="band-heading">Map checks</h3>
         <div class="looks" role="radiogroup" aria-labelledby="checks">
           ${LOOKS.map(
             ([look, name]) =>
@@ -194,6 +198,7 @@ export class ErSettings extends LitElement {
               </label>`
           )}
         </div>
+        <div class="rule" aria-hidden="true"></div>
       </div>`;
   }
 }
