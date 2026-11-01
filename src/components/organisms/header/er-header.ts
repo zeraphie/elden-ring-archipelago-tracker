@@ -3,12 +3,11 @@
  *
  * The bar over the page. The tracker's name shortens as the bar narrows: the
  * full name, then "ER Archipelago Tracker", then "ERA Tracker", and a screen
- * reader always hears the full name. Once a room is open, beside it are the
- * slot's name, how the tracker is keeping up with the room, the slot's key
- * checks and all its checks done, the room's players, and the way to leave,
- * which reloads the page, so the card offers the room again or another. At a
- * tablet's width and below, how the tracker is keeping up and the key checks
- * sit under a line.
+ * reader always hears the full name. Once a room is open, beside it are how
+ * the tracker is keeping up with the room, the slot's key checks and all its
+ * checks done, the room's players, and the way to leave, which reloads the
+ * page, so the card offers the room again or another. At a tablet's width and
+ * below, how the tracker is keeping up and the key checks sit under a line.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -27,9 +26,8 @@ import { liveState } from "./header-words.js";
 import { closeIcon } from "../../utils/close-icon.js";
 import { StoreController } from "../../utils/store-controller.js";
 
-// The slot's name and the room's players, as the header reads them from the store.
+// The room's players, and which of them this slot is, as the header reads them from the store.
 interface Room {
-  readonly name: string | undefined;
   readonly roster: readonly RosterEntry[];
   readonly team: number | undefined;
   readonly slot: number | undefined;
@@ -110,9 +108,6 @@ export class ErHeader extends LitElement {
       .small {
         font-size: 0.9em;
       }
-      .muted {
-        color: var(--er-ink-muted);
-      }
       .live {
         display: inline-flex;
         align-items: center;
@@ -167,9 +162,6 @@ export class ErHeader extends LitElement {
         .title {
           flex-wrap: nowrap;
           gap: 10px;
-        }
-        .slot {
-          display: none;
         }
         .bar[data-room] {
           display: grid;
@@ -242,11 +234,6 @@ export class ErHeader extends LitElement {
           <span class="mid" aria-hidden="true">ER Archipelago Tracker</span>
           <span class="short" aria-hidden="true">ERA Tracker</span>
         </h1>
-        ${
-          this.room?.value.name === undefined
-            ? nothing
-            : html`<span class="small muted slot">${this.room.value.name}</span>`
-        }
         ${this.connection === undefined ? nothing : this.live(this.connection.value)}
       </div>
       <er-progress .progress=${this.progress?.value}></er-progress>
@@ -266,6 +253,7 @@ export class ErHeader extends LitElement {
               </button>
               <er-players
                 .roster=${withMine(this.room.value, this.progress.value.allDone)}
+                .mine=${this.room.value}
               ></er-players>`
       }
     </header>`;
@@ -287,12 +275,8 @@ export class ErHeader extends LitElement {
   }
 }
 
-// The slot's name, from the web API's roster, else from the login's players.
-function roomOf(state: TrackerState): Room {
-  const { roster, players, team, slot } = state;
-  const mine = roster.find((entry) => entry.team === team && entry.slot === slot);
-  const player = players.find((each) => each.team === team && each.slot === slot);
-  return { name: mine?.name ?? player?.alias, roster, team, slot };
+function roomOf({ roster, team, slot }: TrackerState): Room {
+  return { roster, team, slot };
 }
 
 // The roster with this slot's own checks as the login keeps them, fresher than the web API's.
