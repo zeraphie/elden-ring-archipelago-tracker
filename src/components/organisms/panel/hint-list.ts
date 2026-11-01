@@ -38,8 +38,9 @@ export const hintListStyles = [
       box-sizing: border-box;
       margin: 0;
       padding: 0 var(--er-panel-clear, 0px) 0 0;
-      background: var(--er-surface);
+      background: var(--er-overlay);
       border-top: 1px solid var(--er-divider);
+      box-shadow: var(--er-overlay-shadow-up);
       list-style: none;
     }
     .hint {

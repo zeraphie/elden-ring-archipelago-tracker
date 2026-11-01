@@ -13,6 +13,11 @@
   /* What floats over the page, such as a popover, with its shadow. */
   --er-overlay: #16140f;
   --er-overlay-shadow: 0 12px 30px rgb(0 0 0 / 0.6);
+  /* A sheet risen from the foot of what it lies over: Material's three layers of elevation 8,
+     turned upward, and darker to show on this ground. */
+  --er-overlay-shadow-up:
+    0 -5px 5px -3px rgb(0 0 0 / 0.5), 0 -8px 10px 1px rgb(0 0 0 / 0.35),
+    0 -3px 14px 2px rgb(0 0 0 / 0.3);
   --er-raised: #2a241a;
   --er-scrim: rgb(10 9 8 / 0.94);
 
