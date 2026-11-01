@@ -13,20 +13,34 @@ export interface ClockFace {
 
 const twoFigures = (value: number): string => String(value).padStart(2, "0");
 
+// A time in milliseconds in whole hours, minutes and seconds.
+function timeParts(ms: number) {
+  const allSeconds = Math.floor(ms / 1000);
+  return {
+    hours: Math.floor(allSeconds / 3600),
+    minutes: Math.floor(allSeconds / 60) % 60,
+    seconds: allSeconds % 60,
+  };
+}
+
 /** A time in milliseconds as the large timer shows it: "0", "8:05" or "1:08:05", then ".20". */
 export function clockFace(ms: number): ClockFace {
-  const allHundredths = Math.floor(ms / 10);
-  const allSeconds = Math.floor(allHundredths / 100);
-  const hours = Math.floor(allSeconds / 3600);
-  const minutes = Math.floor(allSeconds / 60) % 60;
-  const seconds = allSeconds % 60;
+  const { hours, minutes, seconds } = timeParts(ms);
   const whole =
     hours > 0
       ? `${hours}:${twoFigures(minutes)}:${twoFigures(seconds)}`
       : minutes > 0
         ? `${minutes}:${twoFigures(seconds)}`
         : String(seconds);
-  return { whole, hundredths: `.${twoFigures(allHundredths % 100)}` };
+  return { whole, hundredths: `.${twoFigures(Math.floor(ms / 10) % 100)}` };
+}
+
+/** A time in milliseconds as a row shows it, to the second: "0:06", "8:05" or "1:08:05". */
+export function splitTime(ms: number): string {
+  const { hours, minutes, seconds } = timeParts(ms);
+  return hours > 0
+    ? `${hours}:${twoFigures(minutes)}:${twoFigures(seconds)}`
+    : `${minutes}:${twoFigures(seconds)}`;
 }
 
 /**

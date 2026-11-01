@@ -131,9 +131,10 @@ here first, then search the source, then write.
 - `ReleaseState`: What becomes of a slot's items left after its goal: sent already, the slot's to send, the admin's alone, or not known.
 - `releaseAfterGoal()`: What becomes of the slot's items left, its goal done, by the room's release permission (undefined when no login has said it) and whether the room has announced their release.
 
-**src/archipelago/room-link.ts** (src/components, src/components/organisms, src/components/utils, src/state)
+**src/archipelago/room-link.ts** (src/components, src/components/organisms, src/components/utils, src/demo, src/state)
 - `RoomLink`: A link the tracker can follow: a room by its id, or a tracker page by its id, with the slot a player's page shows.
 - `LinkProblem`: Why a link can't be followed.
+- `DEMO_LINK`: The link the word `demo` leads to: a room in the page, its id too short to be archipelago.gg's.
 - `isDemo()`: Whether a link leads to the demo room, rather than to archipelago.gg.
 - `readRoomLink()`: Where a link pasted in leads, taken without its scheme too, or why it can't be followed.
 - `linkPage()`: A link's own page on archipelago.gg: the room's, or the tracker's.
@@ -530,6 +531,7 @@ here first, then search the source, then write.
 **src/components/organisms/timer/run-words.ts**
 - `ClockFace`: A run's time on the large timer: the whole seconds, and the hundredths, which show smaller.
 - `clockFace()`: A time in milliseconds as the large timer shows it: "0", "8:05" or "1:08:05", then ".20".
+- `splitTime()`: A time in milliseconds as a row shows it, to the second: "0:06", "8:05" or "1:08:05".
 - `typedTime()`: A typed time in milliseconds: "90", "1:30" or "1:02:03", each with hundredths if they're given.
 
 **src/components/organisms/toasts/er-toasts.ts**
@@ -765,13 +767,14 @@ here first, then search the source, then write.
 - `GOAL_STATUS`: The client status a slot reaches once it's done its goal; it can't be undone.
 - `RosterEntry`: One slot of the room, as the web API last told it.
 
-**src/state/slices/run.ts** (src/components/organisms)
+**src/state/slices/run.ts** (src/components/organisms, src/demo)
 - `Run`: The run's clock.
 - `runTimeOf()`: The run's time at `now`, both in milliseconds.
 
-**src/state/store.ts** (src/components, src/components/organisms, src/components/utils)
+**src/state/store.ts** (src/components, src/components/organisms, src/components/utils, src/demo)
 - `TrackerState`: What the tracker knows of a room, and the ways the room's word comes in.
 - `TrackerStore`: A tracker store: subscribed to by selector, with zustand's persist controls, such as clearing what it kept.
+- `keptEntry()`: What a store kept for a room would be, by the link it's opened from, name and value, so a room can open on a run already under way.
 
 **src/state/utils/checks.ts** (src/components/molecules, src/components/organisms)
 - `CheckRow`: One check as the panel lists it.
@@ -846,4 +849,4 @@ here first, then search the source, then write.
 - `deviceStorage`: What the settings persist through: strings by name, in localStorage where it's allowed.
 
 **src/storage/memory.ts** (src/demo)
-- `memoryStorage()`: Storage in memory, in the database's place, so nothing outlasts the page; what it holds is open to look at.
+- `memoryStorage()`: Storage in memory, in the database's place, so nothing outlasts the page; what it holds, from `entries` on, is open to look at.

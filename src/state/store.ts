@@ -64,6 +64,9 @@ export type TrackerSlice<T> = StateCreator<TrackerState, Middleware, [], T>;
 /** A tracker store: subscribed to by selector, with zustand's persist controls, such as clearing what it kept. */
 export type TrackerStore = Mutate<StoreApi<TrackerState>, Middleware>;
 
+// The shape of what's kept for a room, which a store reads back only if it's the same.
+const KEPT_VERSION = 1;
+
 /** What a tracker store can be handed: a clock, where to keep a room, and who to tell once it's loaded. */
 export interface TrackerStoreOptions {
   readonly now?: () => number;
@@ -139,7 +142,7 @@ export function createTrackerStore(
         })),
         {
           name: keptName(link),
-          version: 1,
+          version: KEPT_VERSION,
           storage:
             kept &&
             quietStorage(kept, { ...quiet, beforeLeaving: () => store.getState().bankRun() }),
@@ -158,6 +161,14 @@ export function createTrackerStore(
     )
   );
   return store;
+}
+
+/** What a store kept for a room would be, by the link it's opened from, name and value, so a room can open on a run already under way. */
+export function keptEntry(
+  link: RoomLink,
+  state: Pick<TrackerState, "run">
+): readonly [string, string] {
+  return [keptName(link), JSON.stringify({ state, version: KEPT_VERSION })];
 }
 
 /** Clears what this device kept for a room, by the link it was opened from, as when archipelago.gg no longer has it. */

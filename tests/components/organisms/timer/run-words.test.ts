@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { clockFace, typedTime } from "../../../../src/components/organisms/timer/run-words.js";
+import {
+  clockFace,
+  splitTime,
+  typedTime,
+} from "../../../../src/components/organisms/timer/run-words.js";
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -27,6 +31,17 @@ describe("clockFace", () => {
 
   test("drops what's under a hundredth rather than rounding up", () => {
     expect(clockFace(999).hundredths).toBe(".99");
+  });
+});
+
+describe("splitTime", () => {
+  test("always shows minutes, so a few seconds read as a time", () => {
+    expect(splitTime(6_400)).toBe("0:06");
+  });
+
+  test("shows hours once there are any", () => {
+    expect(splitTime(485_000)).toBe("8:05");
+    expect(splitTime(4_085_000)).toBe("1:08:05");
   });
 });
 

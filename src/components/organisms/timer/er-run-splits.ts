@@ -39,7 +39,7 @@ import {
 import { rowWords } from "../../utils/goal-words.js";
 import { StoreController } from "../../utils/store-controller.js";
 import "./er-run-timer.js";
-import { clockFace } from "./run-words.js";
+import { splitTime } from "./run-words.js";
 
 // A time or a difference with nothing to show.
 const DASH = "-";
@@ -262,7 +262,7 @@ export class ErRunSplits extends LitElement {
     }
     const target = rowTarget(view, this.ownFinds);
     const cells = html`<span title=${label}>${label}</span><span class="fig">${DASH}</span
-      ><span class="fig">${time === undefined ? DASH : clockFace(time).whole}</span>`;
+      ><span class="fig">${time === undefined ? DASH : splitTime(time)}</span>`;
     return html`<li>
       ${
         target === undefined

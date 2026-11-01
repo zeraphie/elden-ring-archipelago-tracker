@@ -1,8 +1,10 @@
 import type { StateStorage } from "zustand/middleware";
 
-/** Storage in memory, in the database's place, so nothing outlasts the page; what it holds is open to look at. */
-export function memoryStorage(): StateStorage & { readonly items: Map<string, string> } {
-  const items = new Map<string, string>();
+/** Storage in memory, in the database's place, so nothing outlasts the page; what it holds, from `entries` on, is open to look at. */
+export function memoryStorage(
+  entries: Iterable<readonly [string, string]> = []
+): StateStorage & { readonly items: Map<string, string> } {
+  const items = new Map<string, string>(entries);
   return {
     items,
     getItem: (key) => Promise.resolve(items.get(key) ?? null),
