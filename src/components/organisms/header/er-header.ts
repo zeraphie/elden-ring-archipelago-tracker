@@ -5,7 +5,8 @@
  * full name, then "ER Archipelago Tracker", then "ERA Tracker", and a screen
  * reader always hears the full name. Once a room is open, beside it are the
  * slot's name, how the tracker is keeping up with the room, the slot's key
- * checks and all its checks done, and the room's players.
+ * checks and all its checks done, the room's players, and the way to leave,
+ * which reloads the page, so the card offers the room again or another.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -14,12 +15,14 @@ import type { ConnectionPhase } from "../../../state/slices/connection.js";
 import type { RosterEntry } from "../../../state/slices/roster.js";
 import type { TrackerState, TrackerStore } from "../../../state/store.js";
 import { progressOf, type Progress } from "../../../state/utils/progress.js";
+import { buttonStyles } from "../../atoms/button.js";
 import { focusRing } from "../../atoms/focus.js";
 import { narrow, phone } from "../../atoms/layout.js";
 import { visuallyHidden } from "../../atoms/visually-hidden.js";
 import "./er-players.js";
 import "./er-progress.js";
 import { liveState } from "./header-words.js";
+import { closeIcon } from "../../utils/close-icon.js";
 import { StoreController } from "../../utils/store-controller.js";
 
 // The slot's name and the room's players, as the header reads them from the store.
@@ -37,11 +40,21 @@ export class ErHeader extends LitElement {
   static override properties = { store: { attribute: false } };
 
   static override styles = [
+    buttonStyles,
     focusRing,
     visuallyHidden,
     css`
       :host {
         display: block;
+      }
+      .leave {
+        color: var(--er-ink);
+      }
+      .leave:hover {
+        border-color: var(--er-gold-edge);
+      }
+      .leave-icon {
+        display: none;
       }
       .bar {
         /* The bar's room, for the name to shorten in. */
@@ -152,6 +165,12 @@ export class ErHeader extends LitElement {
           gap: 12px;
           padding: 8px 12px;
         }
+        .leave-word {
+          display: none;
+        }
+        .leave-icon {
+          display: inline-flex;
+        }
         .title {
           flex-wrap: nowrap;
           gap: 10px;
@@ -203,9 +222,19 @@ export class ErHeader extends LitElement {
       ${
         this.room === undefined || this.progress === undefined
           ? nothing
-          : html`<er-players
-              .roster=${withMine(this.room.value, this.progress.value.allDone)}
-            ></er-players>`
+          : html`<button
+                class="button leave"
+                data-tone="quiet"
+                data-size="small"
+                aria-label="Disconnect"
+                @click=${() => location.reload()}
+              >
+                <span class="leave-word">Disconnect</span
+                ><span class="leave-icon">${closeIcon}</span>
+              </button>
+              <er-players
+                .roster=${withMine(this.room.value, this.progress.value.allDone)}
+              ></er-players>`
       }
     </header>`;
   }
