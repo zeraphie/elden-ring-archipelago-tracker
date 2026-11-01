@@ -43,7 +43,8 @@ unprompted.**
   websocket client, the web API and the message types.
 - `src/state/` holds the zustand store of what the tracker knows of a
   room, made of slices, with what they share in `utils/`.
-- `src/storage/` holds the IndexedDB database the store persists to.
+- `src/storage/` holds the IndexedDB database the store persists to,
+  and what's kept for the person on this device through localStorage.
 - `src/data/` holds the Elden Ring static domain data: areas, their
   checks, the item name map, the goal list.
 - Import rules, as `tools/reuse.config.ts` holds them: `src/components`
@@ -70,6 +71,6 @@ unprompted.**
 - `.claude/threads/`: saved Claude conversations kept for the claude.ai Project (gitignored)
 - `src/archipelago/`: the live protocol client and the web API
 - `src/state/`: the tracker's store and its slices
-- `src/storage/`: the IndexedDB database
+- `src/storage/`: the IndexedDB database and the device's own storage
 - `src/data/`: static Elden Ring domain data
 - `src/components/`: the Lit elements the page is made of
