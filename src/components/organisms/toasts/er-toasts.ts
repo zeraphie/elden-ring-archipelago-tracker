@@ -2,7 +2,7 @@
  * ─ Toasts ─
  *
  * A toast for each item another player sends this slot as it arrives, "Jo
- * sent you", the item, and where in their world it was, stacked newest on
+ * found", the item, and where in their world it was, stacked newest on
  * top, and for each item it finds for itself that matters: in a key check, or
  * a key item or a goal item from anywhere, "You found". A goal item, one a row of the goal menu counts or waits on, is
  * larger, glows gold, and shows that row's icon in its frame; a key item, one
@@ -127,6 +127,12 @@ export class ErToasts extends LitElement {
         flex-direction: column;
         gap: 2px;
         min-width: 0;
+      }
+      .who {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0 6px;
       }
       .tier {
         font-size: 0.72em;
@@ -283,8 +289,10 @@ export class ErToasts extends LitElement {
           : this.frame(goal)
       }
       <div class="words">
-        ${label === undefined ? nothing : html`<span class="tier">${label}</span>`}
-        <span class="from">${isOwn ? "You found" : `${playerName(value.from)} sent you`}</span>
+        <div class="who">
+          ${label === undefined ? nothing : html`<span class="tier">${label}</span><span class="from">-</span>`}
+          <span class="from">${isOwn ? "You found" : `${playerName(value.from)} found`}</span>
+        </div>
         <span class="item">${value.item ?? UNNAMED_ITEM}</span>
         ${where === undefined ? nothing : html`<span class="where">${where}</span>`}
       </div>
