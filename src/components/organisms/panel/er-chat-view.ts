@@ -148,10 +148,6 @@ export class ErChatView extends LitElement {
       .button {
         min-height: 40px;
       }
-      /* It gives up all its room before the hint list gives up any. */
-      .scroller-frame {
-        flex-basis: 0;
-      }
     `,
     hintListStyles,
   ];
@@ -209,6 +205,7 @@ export class ErChatView extends LitElement {
       return nothing;
     }
     const lines = chatLines(state.log, namesOf(state, data));
+    const rows = this.hintRows(state);
     return html`<div class="scroller-frame">
         <ul class="scroller" aria-label="Chat">
           ${lines.length === 0 ? html`<li class="empty">Nothing said yet.</li>` : nothing}
@@ -219,8 +216,9 @@ export class ErChatView extends LitElement {
             ? html`<er-to-bottom @er-to-bottom=${() => this.stick.toBottom()}></er-to-bottom>`
             : nothing
         }
+        ${rows.length > 0 ? hintList(rows, this.hintRow, this.pickHint) : nothing}
       </div>
-      ${state.link.kind === "tracker" ? this.trackerNote() : this.input(state)}`;
+      ${state.link.kind === "tracker" ? this.trackerNote() : this.input(state, rows.length > 0)}`;
   }
 
   private line({ kind, who, text, at }: ChatLine) {
@@ -233,39 +231,36 @@ export class ErChatView extends LitElement {
     </li>`;
   }
 
-  private input(state: TrackerState) {
+  private input(state: TrackerState, hasRows: boolean) {
     const isLive = state.connection.phase === "connected";
     const points = hintLine(state.hintPoints, state.hintCost);
-    const rows = this.hintRows(state);
-    const hasRows = rows.length > 0;
-    return html`${hasRows ? hintList(rows, this.hintRow, this.pickHint) : nothing}
-      <form @submit=${this.send}>
-        <label class="sr" for="say">Chat, or a command such as !hint</label>
-        ${points === undefined ? nothing : html`<span class="label">${points}</span>`}
-        <div class="send">
-          <input
-            id="say"
-            class="field"
-            type="text"
-            role="combobox"
-            autocomplete="off"
-            aria-autocomplete="list"
-            aria-expanded=${String(hasRows)}
-            aria-controls=${HINT_LIST}
-            aria-activedescendant=${hasRows ? hintRowId(this.hintRow) : nothing}
-            placeholder="!hint Dectus Medallion (Right)"
-            .value=${this.draft}
-            @input=${(event: Event) => {
-              this.draft = (event.target as HTMLInputElement).value;
-              this.hintRow = 0;
-              this.isHintListShut = false;
-            }}
-            @keydown=${this.moveInHints}
-          />
-          <button class="button" type="submit" ?disabled=${!isLive}>Send</button>
-        </div>
-        ${isLive ? nothing : html`<span class="label">Sending waits for the room to connect.</span>`}
-      </form>`;
+    return html`<form @submit=${this.send}>
+      <label class="sr" for="say">Chat, or a command such as !hint</label>
+      ${points === undefined ? nothing : html`<span class="label">${points}</span>`}
+      <div class="send">
+        <input
+          id="say"
+          class="field"
+          type="text"
+          role="combobox"
+          autocomplete="off"
+          aria-autocomplete="list"
+          aria-expanded=${String(hasRows)}
+          aria-controls=${HINT_LIST}
+          aria-activedescendant=${hasRows ? hintRowId(this.hintRow) : nothing}
+          placeholder="!hint Dectus Medallion (Right)"
+          .value=${this.draft}
+          @input=${(event: Event) => {
+            this.draft = (event.target as HTMLInputElement).value;
+            this.hintRow = 0;
+            this.isHintListShut = false;
+          }}
+          @keydown=${this.moveInHints}
+        />
+        <button class="button" type="submit" ?disabled=${!isLive}>Send</button>
+      </div>
+      ${isLive ? nothing : html`<span class="label">Sending waits for the room to connect.</span>`}
+    </form>`;
   }
 
   private trackerNote() {

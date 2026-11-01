@@ -518,7 +518,7 @@ here first, then search the source, then write.
 **src/components/organisms/panel/hint-list.ts**
 - `HINT_LIST`: The id of the list, for the input to name it.
 - `hintRowId()`: The id of a row, for the input to say which is picked.
-- `hintListStyles`: The list's look, in a column it can shrink in.
+- `hintListStyles`: The list's look, laid over the foot of its nearest positioned parent.
 - `hintList()`: The rows of a list of items, `active` the one picked, telling `onPick` of the one pressed.
 
 **src/components/organisms/panel/region-parts.ts**
