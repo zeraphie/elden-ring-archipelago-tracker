@@ -6,9 +6,10 @@
  * how it stands and a count of what's done in it, as the one who holds the
  * picker counts: key checks in the panel, bosses in the goal menu. The list is
  * a native popover, so Escape or a click outside closes it, and it opens under
- * what holds the picker, as wide as it, and no lower than the screen's foot.
- * The button is a quiet "All regions", a region's name as a heading shows it,
- * or a select that names the region picked and its count.
+ * what holds the picker, as wide as it, and no lower than the screen's foot,
+ * and stays there while the window changes size. The button is a quiet "All
+ * regions", a region's name as a heading shows it, or a select that names the
+ * region picked and its count.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -23,7 +24,7 @@ import { swatchStyles } from "../atoms/swatch.js";
 import { chevronIcon } from "../utils/chevron-icon.js";
 import { emit } from "../utils/emit.js";
 import { figure } from "../utils/figure.js";
-import { placeUnder } from "../utils/popover.js";
+import { placeBelow, PopoverFollower } from "../utils/popover.js";
 import type { PickerGroup, PickerRegion } from "../utils/region-groups.js";
 
 /** How the picker's button looks: a quiet button, a region's name as a heading shows it, or a select naming the region picked and its count. */
@@ -165,6 +166,8 @@ export class ErRegionPicker extends LitElement {
   /** What the select counts in the region picked, beside its name, such as "2/9". */
   count: string | undefined;
   look: PickerLook = "button";
+  // Follows the window's size while the list is open, as what holds the picker moves with it.
+  private readonly follower = new PopoverFollower(this);
 
   override render() {
     return html`${this.button()}
@@ -173,8 +176,7 @@ export class ErRegionPicker extends LitElement {
         class="popover"
         popover
         data-look=${this.look}
-        @beforetoggle=${(event: Event) =>
-          placeUnder(event, this.parentElement ?? this.renderRoot.querySelector("button"))}
+        @beforetoggle=${this.toggling}
       >
         ${this.groups.map(({ title, regions }) =>
           regions.length === 0
@@ -186,6 +188,18 @@ export class ErRegionPicker extends LitElement {
         )}
       </div>`;
   }
+
+  // It watches the page as well as what holds the picker: the panel keeps its width as the window
+  // changes, so what holds the picker moves with no change of size of its own.
+  private readonly toggling = (event: ToggleEvent): void => {
+    this.follower.stop();
+    const anchor = this.parentElement ?? this.renderRoot.querySelector("button");
+    if (event.newState !== "open" || anchor === null) {
+      return;
+    }
+    const list = event.target as HTMLElement;
+    this.follower.follow(() => placeBelow(list, anchor), document.documentElement, anchor);
+  };
 
   private button() {
     switch (this.look) {

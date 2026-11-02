@@ -685,8 +685,10 @@ here first, then search the source, then write.
 - `isMotionReduced()`: Whether the person has asked the system for less motion.
 
 **src/components/utils/popover.ts** (src/components/molecules, src/components/organisms)
-- `placeUnder()`: Places a popover under what opens it, as it opens: `--top` under the anchor, or flush with the foot of `foot` when one is given, and `--left` and `--right` on the anchor's edges, for its styles to pick from.
+- `placeBelow()`: Places a popover under `anchor`: `--top` under it, or flush with the foot of `foot` when one is given, and `--left` and `--right` on its edges, for the popover's styles to pick from.
+- `placeUnder()`: Places a popover under what opens it, as it opens, as `placeBelow` does.
 - `placeOver()`: Places a popover above `anchor`: `--bottom` over it, and `--left` and `--right` on its edges, for the popover's styles to pick from.
+- `PopoverFollower`: Keeps an open popover in place, for a Lit element: `follow` places it, and places it again as what it's watching changes size, until `stop` or the element leaves the page.
 
 **src/components/utils/region-groups.ts** (src/components/molecules, src/components/organisms)
 - `PickerRegion`: One region of a picker group: its code and name, how it stands, and how much of what's counted in it is done.

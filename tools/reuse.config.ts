@@ -307,7 +307,14 @@ export default {
       what: "a popover placed under its anchor by hand",
       pattern: /setProperty\("--top"/,
       home: "src/components/utils/popover.ts",
-      instead: "`placeUnder(event, anchor)` on `beforetoggle`",
+      instead: "`placeUnder(event, anchor)` on `beforetoggle`, or `placeBelow(popover, anchor)`",
+    },
+    {
+      what: "a popover kept in place by hand",
+      // An observer that places a popover again, however its callback is written.
+      pattern: /new ResizeObserver\((?:\(\) => )?place/,
+      home: "src/components/utils/popover.ts",
+      instead: "`PopoverFollower`, with `follow(place, ...watched)`",
     },
     {
       what: "a map sheet named by hand",

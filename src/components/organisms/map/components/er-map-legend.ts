@@ -19,7 +19,7 @@ import { swatchStyles } from "../../../atoms/swatch.js";
 import { AREA_STATE_WORDS, PIN_STATE_WORDS } from "../../../utils/area-words.js";
 import { iconUrl } from "../../../utils/icons.js";
 import { infoIcon } from "../../../utils/material-icons.js";
-import { placeOver } from "../../../utils/popover.js";
+import { placeOver, PopoverFollower } from "../../../utils/popover.js";
 
 const SACK = iconUrl("sack");
 const AREAS: readonly AreaState[] = ["locked", "open", "done"];
@@ -84,12 +84,7 @@ export class ErMapLegend extends LitElement {
   ];
 
   // Follows the map's size while the legend's open, as the buttons move with it.
-  private follower: ResizeObserver | undefined;
-
-  override disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.follower?.disconnect();
-  }
+  private readonly follower = new PopoverFollower(this);
 
   override render() {
     return html`<button
@@ -122,16 +117,14 @@ export class ErMapLegend extends LitElement {
   }
 
   private readonly toggling = (event: ToggleEvent): void => {
-    this.follower?.disconnect();
+    this.follower.stop();
     const corner = this.closest<HTMLElement>(".corner");
     const map = corner?.offsetParent;
     if (event.newState !== "open" || !corner || !map) {
       return;
     }
     const legend = event.target as HTMLElement;
-    placeOver(legend, corner);
-    this.follower = new ResizeObserver(() => placeOver(legend, corner));
-    this.follower.observe(map);
+    this.follower.follow(() => placeOver(legend, corner), map);
   };
 }
 
