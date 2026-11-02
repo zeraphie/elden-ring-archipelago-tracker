@@ -8,8 +8,9 @@
  * a native popover, so Escape or a click outside closes it, and it opens under
  * what holds the picker, as wide as it, and no lower than the screen's foot,
  * and stays there while the window changes size. The button is a quiet "All
- * regions", a region's name as a heading shows it, or a select that names the
- * region picked and its count.
+ * regions", which the list hangs from instead, at its own width, a region's
+ * name as a heading shows it, or a select that names the region picked and its
+ * count.
  */
 
 import { LitElement, css, html, nothing } from "lit";
@@ -104,6 +105,10 @@ export class ErRegionPicker extends LitElement {
         max-height: min(520px, 70vh, calc(100dvh - var(--top, 64px) - 12px));
         padding: 6px 0 10px;
       }
+      /* Hanging from the quiet button at its own width, so no name is cut. */
+      .popover[data-look="button"] {
+        left: auto;
+      }
       h3 {
         margin: 8px 60px 4px 0;
         padding: 5px 16px;
@@ -189,15 +194,15 @@ export class ErRegionPicker extends LitElement {
       </div>`;
   }
 
-  // It watches the page as well as what holds the picker: the panel keeps its width as the window
-  // changes, so what holds the picker moves with no change of size of its own.
+  // It watches the page as well as what it's placed under: the panel keeps its width as the window
+  // changes, so what's in it moves with no change of size of its own.
   private readonly toggling = (event: ToggleEvent): void => {
     this.follower.stop();
-    const anchor = this.parentElement ?? this.renderRoot.querySelector("button");
-    if (event.newState !== "open" || anchor === null) {
+    if (event.newState !== "open") {
       return;
     }
     const list = event.target as HTMLElement;
+    const anchor = this.look === "button" ? this : (this.parentElement ?? this);
     this.follower.follow(() => placeBelow(list, anchor), document.documentElement, anchor);
   };
 

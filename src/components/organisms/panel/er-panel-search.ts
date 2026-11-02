@@ -38,7 +38,6 @@ export class ErPanelSearch extends LitElement {
       :host {
         display: block;
       }
-      /* The picker's list opens as wide as what holds the picker, so this row. */
       .search {
         display: flex;
         gap: 8px;
