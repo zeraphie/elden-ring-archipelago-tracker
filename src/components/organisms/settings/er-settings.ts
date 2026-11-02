@@ -6,7 +6,8 @@
  * a band heading and a gold rule under it, and nothing folds. Map checks is how
  * checks look in the map's tooltip: a row for each look, showing it on a sample
  * check, the one chosen banded. Timer is a checkbox on its heading, and its
- * options show once it's ticked. The panel stays in the page while it's closed,
+ * options show once it's ticked, each style with the preview slotted for it,
+ * the one chosen banded. The panel stays in the page while it's closed,
  * so it can fade in and out. At a tablet's width and below the title's smaller
  * and to the left, its rules go, and the rows sit side by side.
  */
@@ -49,6 +50,8 @@ const SAMPLE: TipSpot = {
  * The settings panel, over the right-hand panel.
  *
  * @fires er-settings - The cross was pressed; `detail` is undefined.
+ * @slot compact - What shows the timer's Compact style, under its radio.
+ * @slot comfort - What shows the timer's Comfort style, under its radio.
  */
 export class ErSettings extends LitElement {
   static override properties = { open: { type: Boolean, reflect: true } };
@@ -267,6 +270,7 @@ export class ErSettings extends LitElement {
                         />
                         ${name}
                       </span>
+                      <slot name=${look}></slot>
                     </label>`
                 )}
               </div>

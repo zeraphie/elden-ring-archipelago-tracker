@@ -22,7 +22,8 @@ import { replayIcon, timerPauseIcon, timerPlayIcon } from "../../utils/material-
 import { StoreController } from "../../utils/store-controller.js";
 import { fullHeight } from "../../utils/column-height.js";
 import { HOLD_MS, runTimerStyles } from "./run-timer-styles.js";
-import { clockFace, typedTime } from "./run-words.js";
+import { typedTime } from "./run-words.js";
+import { runClock } from "./split-row.js";
 
 /**
  * The run's large timer and its buttons.
@@ -95,7 +96,7 @@ export class ErRunTimer extends LitElement {
     const isBar = this.isNarrow.matches;
     const foot = html`<slot name="foot"></slot>`;
     const face = html`<div class="face">
-      ${rule} ${run.phase === "before" ? this.typed() : this.clock(runTimeOf(run, Date.now()))}
+      ${rule} ${run.phase === "before" ? this.typed() : runClock(runTimeOf(run, Date.now()))}
       ${rule} ${isColumn && !isBar ? foot : nothing}
     </div>`;
     const buttons = html`<div class="buttons">
@@ -114,17 +115,10 @@ export class ErRunTimer extends LitElement {
           ${face}`;
   }
 
-  private clock(ms: number) {
-    const { whole, hundredths } = clockFace(ms);
-    return html`<div class="clock fig" role="timer">
-      <span class="whole">${whole}</span><span class="small">${hundredths}</span>
-    </div>`;
-  }
-
   // Before the run the timer is a field, so a long run's time goes in where it'll show.
   private typed() {
     return html`<div class="start" ?data-typing=${this.draft !== ""}>
-      ${this.clock(0)}
+      ${runClock(0)}
       <input
         class="typed fig"
         type="text"

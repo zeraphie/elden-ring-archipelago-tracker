@@ -7,8 +7,8 @@
  */
 
 import { html, nothing } from "lit";
-import type { RowPace } from "../../../state/utils/run-compare.js";
-import { signedTime, splitTime } from "./run-words.js";
+import type { Pace, RowPace } from "../../../state/utils/run-compare.js";
+import { clockFace, signedTime, splitTime } from "./run-words.js";
 
 /** A time or a difference with nothing to show. */
 export const DASH = "-";
@@ -39,6 +39,14 @@ function goalCells({ label, shown, icon, isFramed }: RowFace) {
       </span>`
     : nothing;
   return html`${frame}<span class="label" title=${label}>${shown}</span>`;
+}
+
+/** The large timer's figures, the hundredths apart, at a time in milliseconds, tinted by `pace` where it's given. */
+export function runClock(ms: number, pace?: Pace) {
+  const { whole, hundredths } = clockFace(ms);
+  return html`<div class="clock fig" role="timer" data-pace=${pace ?? nothing}>
+    <span class="whole">${whole}</span><span class="small">${hundredths}</span>
+  </div>`;
 }
 
 /** A row left, with the time it came in the run compared with, and `line` beside it for a count. */

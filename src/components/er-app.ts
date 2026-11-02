@@ -32,6 +32,7 @@ import "./organisms/map/components/er-map.js";
 import "./organisms/intro/er-room-card.js";
 import "./organisms/panel/er-panel.js";
 import "./organisms/settings/er-settings.js";
+import "./organisms/timer/er-run-preview.js";
 import "./organisms/timer/er-run-splits.js";
 import "./organisms/timer/er-run-timer.js";
 import "./organisms/toasts/er-toasts.js";
@@ -236,7 +237,18 @@ export class ErApp extends LitElement {
                   @er-region=${this.selectRegion}
                   @er-check=${this.pick}
                 >
-                  <er-settings slot="over" .open=${this.settings.isOpen}></er-settings>
+                  <er-settings slot="over" .open=${this.settings.isOpen}>
+                    <er-run-preview
+                      slot="compact"
+                      data-look="compact"
+                      aria-hidden="true"
+                    ></er-run-preview>
+                    <er-run-preview
+                      slot="comfort"
+                      data-look="comfort"
+                      aria-hidden="true"
+                    ></er-run-preview>
+                  </er-settings>
                 </er-panel>`
         }
       </main>

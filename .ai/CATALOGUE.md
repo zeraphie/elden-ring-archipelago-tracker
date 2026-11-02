@@ -522,6 +522,9 @@ here first, then search the source, then write.
 **src/components/organisms/settings/er-settings.ts**
 - `ErSettings`: The settings panel, over the right-hand panel.
 
+**src/components/organisms/timer/er-run-preview.ts**
+- `ErRunPreview`: A timer style, on made-up goals, for the settings to show.
+
 **src/components/organisms/timer/er-run-splits.ts**
 - `ErRunSplits`: The run's splits: the goal's rows, in the timer's column.
 
@@ -552,6 +555,7 @@ here first, then search the source, then write.
 - `DASH`: A time or a difference with nothing to show.
 - `RowFace`: A goal as its row shows it: its name, in full and as it's written there, how it stands, and its icon, framed in Comfort.
 - `RowMarks`: What a row gotten shows beyond its goal: whether it's the latest, and its time and how it stands.
+- `runClock()`: The large timer's figures, the hundredths apart, at a time in milliseconds, tinted by `pace` where it's given.
 - `splitLeft()`: A row left, with the time it came in the run compared with, and `line` beside it for a count.
 - `splitGotten()`: A row gotten, opening what it leads to where `onOpen` is given.
 
