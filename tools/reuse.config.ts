@@ -349,6 +349,13 @@ export default {
       instead: "`isRecord(value)`",
     },
     {
+      what: "an item's progression flag written by hand",
+      // The flag named again, or its bit tested as a number.
+      pattern: /\bPROGRESSION = |flags & (?:1|0b0*1)\b/,
+      home: "src/archipelago/web-responses.ts",
+      instead: "`PROGRESSION`",
+    },
+    {
       what: "an event dispatched by hand",
       pattern: /new CustomEvent\(/,
       home: "src/components/utils/emit.ts",

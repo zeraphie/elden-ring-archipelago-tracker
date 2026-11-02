@@ -16,7 +16,7 @@
 import type { RoomUpdatePacket } from "archipelago.js";
 import type { LiveEvent } from "../../archipelago/live-events.js";
 import { ELDEN_RING } from "../../archipelago/look-up.js";
-import { isRecord } from "../../archipelago/web-responses.js";
+import { isRecord, PROGRESSION } from "../../archipelago/web-responses.js";
 import type { NetworkItem } from "../../archipelago/web-responses.js";
 import type { EldenRingData } from "../setup.js";
 import type { TrackerState } from "../store.js";
@@ -63,9 +63,6 @@ const KEY_ITEM = /Lock|Key|Medallion|Great Rune/;
 
 /** Every item the lists can give, by name, for a data package to name. */
 export const SIMULATED_ITEMS = [...FOUND, ...SENT];
-
-/** NetworkItem.flags: the item can unlock logical advancement. */
-export const PROGRESSION = 0b001;
 
 /** The next key check left in an open region, the region given first; undefined when none is left. */
 export function nextCheck(

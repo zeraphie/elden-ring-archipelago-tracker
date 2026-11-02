@@ -174,6 +174,7 @@ here first, then search the source, then write.
 - `DataPackage`: A game's data package: its item and location names, by Archipelago id.
 - `SlotData`: One slot's slot_data, as its game wrote it.
 - `NetworkItem`: An item sent: which item, from which location, by which player (0 for the server), and its flags.
+- `PROGRESSION`: NetworkItem.flags: the item can unlock logical advancement.
 - `isRecord()`: Whether a value is a plain object, as a JSON object reads: not null, and not a list.
 
 ## src/components/atoms
@@ -877,7 +878,6 @@ here first, then search the source, then write.
 **src/state/utils/simulate.ts** (src/components/organisms, src/demo)
 - `SimulateInputs`: What simulating reads, in the store.
 - `SIMULATED_ITEMS`: Every item the lists can give, by name, for a data package to name.
-- `PROGRESSION`: NetworkItem.flags: the item can unlock logical advancement.
 - `nextCheck()`: The next key check left in an open region, the region given first; undefined when none is left.
 - `nextBossDefeat()`: The next goal boss still to defeat, the region given first, as its drop's check and that check's region; undefined when none is left.
 - `withAllBosses()`: slot_data with the All Bosses preset's options and goal, every boss a goal can name, in place of the room's own; its checks stay the room's.

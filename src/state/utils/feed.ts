@@ -11,6 +11,7 @@
  */
 
 import { ELDEN_RING } from "../../archipelago/look-up.js";
+import { PROGRESSION } from "../../archipelago/web-responses.js";
 import type { KeySpot } from "../../data/names/key-spots.js";
 import type { RegionSummary } from "../../data/rules/region-summary.js";
 import type { EldenRingData } from "../setup.js";
@@ -65,9 +66,6 @@ export interface OwnFind {
 
 /** An item the Items tab lists: one that moved, or one the slot found for itself. */
 export type ItemEntry = FeedEntry | OwnFind;
-
-// NetworkItem.flags: the item can unlock logical advancement.
-const PROGRESSION = 0b001;
 
 /** What the feed is worked out from, in the store. */
 export type FeedInputs = RegionInputs & FindingInputs;

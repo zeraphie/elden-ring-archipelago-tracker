@@ -11,19 +11,13 @@
 
 import type { LiveEvent } from "../archipelago/live-events.js";
 import { ELDEN_RING } from "../archipelago/look-up.js";
-import type { NetworkItem } from "../archipelago/web-responses.js";
+import { PROGRESSION, type NetworkItem } from "../archipelago/web-responses.js";
 import * as data from "../data/elden-ring.js";
 import { readLocationName } from "../data/names/location-name.js";
 import { RULES_APWORLD } from "../data/rules/apworld.js";
 import { keyChecksFrom } from "../state/utils/key-checks.js";
 import { regionsOf } from "../state/utils/regions.js";
-import {
-  checkMade,
-  itemSent,
-  nextCheck,
-  PROGRESSION,
-  type SimulateInputs,
-} from "../state/utils/simulate.js";
+import { checkMade, itemSent, nextCheck, type SimulateInputs } from "../state/utils/simulate.js";
 import { idIn, OTHER_PLAYERS } from "./players.js";
 import { demoItemNames, demoLocationNames, demoSlotData, DEMO_PLAYER } from "./room.js";
 

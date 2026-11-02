@@ -72,6 +72,9 @@ export interface NetworkItem {
   readonly flags: number;
 }
 
+/** NetworkItem.flags: the item can unlock logical advancement. */
+export const PROGRESSION = 0b001;
+
 /** A hint: whose item is where, whether it's been found, and the status its receiver gave it. */
 export interface Hint {
   readonly receivingPlayer: number;
